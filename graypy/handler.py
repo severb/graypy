@@ -41,7 +41,6 @@ class GELFHandler(DatagramHandler):
         full_message = ''
         if record.exc_info:
             full_message = traceback.format_exc(record.exc_info)
-        full_message = open('/etc/bash_completion').read()
         level = record.levelno
         if level in _PY_TO_SYSLOG:
             level = _PY_TO_SYSLOG[level]
