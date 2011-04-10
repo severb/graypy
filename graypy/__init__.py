@@ -1,1 +1,1 @@
-from handler import GELFHandler, WAN, LAN
+from handler import GELFHandler, WAN_CHUNK, LAN_CHUNK
