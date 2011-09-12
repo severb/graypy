@@ -4,7 +4,7 @@ import zlib
 import traceback
 import struct
 import random
-from socket import gethostname
+import socket
 from logging.handlers import DatagramHandler
 
 
@@ -14,8 +14,6 @@ WAN_CHUNK, LAN_CHUNK = 1420, 8154
 class GELFHandler(DatagramHandler):
     def __init__(self, host, port, chunk_size=WAN_CHUNK):
         self.chunk_size = chunk_size
-        self.version = "1.0"
-        self.hostname = gethostname()
         DatagramHandler.__init__(self, host, port)
 
     def send(self, s):
@@ -43,8 +41,8 @@ class GELFHandler(DatagramHandler):
 
     def make_message_dict(self, record):
         return {
-            'version': self.version,
-            'host': self.hostname,
+            'version': "1.0",
+            'host': socket.gethostname(),
             'short_message': record.getMessage(),
             'full_message': self.get_full_message(record.exc_info),
             'timestamp': record.created,
@@ -77,7 +75,7 @@ class ChunkedGELF(object):
             struct.pack('>H', sequence),
             self.pieces,
             chunk
-        ])    
+        ])
 
     def __iter__(self):
         for sequence, chunk in enumerate(self.message_chunks()):
