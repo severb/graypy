@@ -42,7 +42,7 @@ class GELFHandler(DatagramHandler):
         return traceback.format_exc(exc_info) if exc_info else ''
 
     def make_message_dict(self, record):
-        return {
+        d = {
             'version': self.version,
             'host': self.hostname,
             'short_message': record.getMessage(),
@@ -54,9 +54,12 @@ class GELFHandler(DatagramHandler):
             'line': record.lineno,
             '_function': record.funcName,
             '_pid': record.process,
-            '_process_name': record.processName,
             '_thread_name': record.threadName,
         }
+        # record.processName was added in Python 2.6.2
+        if hasattr(record, 'processName'):
+            d['_process_name'] = record.processName
+        return d
 
 
 class ChunkedGELF(object):
