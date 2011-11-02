@@ -57,6 +57,21 @@ class GELFHandler(DatagramHandler):
         # record.processName was added in Python 2.6.2
         if hasattr(record, 'processName'):
             d['_process_name'] = record.processName
+
+        # Add any additional fields. skipList contains all attributes listed in
+        # http://docs.python.org/library/logging.html#logrecord-attributes
+        # plus the exc_text, which is only found in the logging module source.
+        skipList = ['args', 'asctime', 'created', 'exc_info',  'exc_text',
+            'filename', 'funcName', 'levelname', 'levelno', 'lineno',
+            'module', 'msecs', 'msecs', 'message', 'msg', 'name', 'pathname',
+            'process', 'processName', 'relativeCreated', 'thread', 'threadName']
+
+        for key in record.__dict__:
+            if key in skipList:
+                continue
+
+            d['_' + key] = record.__dict__[key]
+
         return d
 
 
