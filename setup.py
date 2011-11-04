@@ -10,7 +10,7 @@ setup(
     author='Sever Banesiu',
     author_email='banesiu.sever@gmail.com',
     url='https://github.com/severb/graypy',
-    license='BSD',
+    license='BSD License',
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
