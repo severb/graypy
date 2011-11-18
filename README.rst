@@ -45,3 +45,45 @@ A number of custom fields are automatically added if available:
     * pid
     * process_name
     * thread_name
+
+graypy also supports additional fields to be included in the messages sent to Graylog2. This can be done by using Python's [LoggerAdapter](http://docs.python.org/howto/logging-cookbook.html#using-loggeradapters-to-impart-contextual-information) and [Filters](http://docs.python.org/howto/logging-cookbook.html#using-filters-to-impart-contextual-information). In general LoggerAdapter makes it easy to add static information to your log messages and Filters give you more flexibility, for example to add additional information based on what message is being logged.
+
+Example using LoggerAdapter::
+
+    import logging
+    import graypy
+
+    my_logger = logging.getLogger('test_logger')
+    my_logger.setLevel(logging.DEBUG)
+
+    handler = graypy.GELFHandler('localhost', 12201)
+    my_logger.addHandler(handler)
+
+    my_adapter = logging.LoggerAdapter(logging.getLogger('test_logger'),
+                                        { 'username': 'John' })
+
+    my_adapter.debug('Hello Graylog2 from John.')
+
+Example using Filter::
+
+    import logging
+    import graypy
+
+    class UsernameFilter(logging.Filter):
+        def __init__(self):
+            # In an actual use case would dynamically get this (e.g. from memcache)
+            self.username = "John"
+
+        def filter(self, record):
+            record.username = self.username
+            return True
+
+    my_logger = logging.getLogger('test_logger')
+    my_logger.setLevel(logging.DEBUG)
+
+    handler = graypy.GELFHandler('localhost', 12201)
+    my_logger.addHandler(handler)
+
+    my_logger.addFilter(UsernameFilter())
+
+    mylogger.debug('Hello Graylog2 from John.')
