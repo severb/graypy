@@ -46,9 +46,9 @@ A number of custom fields are automatically added if available:
     * process_name
     * thread_name
 
-graypy also supports additional fields to be included in the messages sent to Graylog2. This can be done by using Python's [LoggerAdapter](http://docs.python.org/howto/logging-cookbook.html#using-loggeradapters-to-impart-contextual-information) and [Filters](http://docs.python.org/howto/logging-cookbook.html#using-filters-to-impart-contextual-information). In general LoggerAdapter makes it easy to add static information to your log messages and Filters give you more flexibility, for example to add additional information based on what message is being logged.
+graypy also supports additional fields to be included in the messages sent to Graylog2. This can be done by using Python's LoggerAdapter_ and Filter_. In general, LoggerAdapter makes it easy to add static information to your log messages and Filters give you more flexibility, for example to add additional information based on the message that is being logged.
 
-Example using LoggerAdapter::
+Example using LoggerAdapter_::
 
     import logging
     import graypy
@@ -64,7 +64,7 @@ Example using LoggerAdapter::
 
     my_adapter.debug('Hello Graylog2 from John.')
 
-Example using Filter::
+Example using Filter_::
 
     import logging
     import graypy
@@ -87,3 +87,6 @@ Example using Filter::
     my_logger.addFilter(UsernameFilter())
 
     mylogger.debug('Hello Graylog2 from John.')
+
+.. _LoggerAdapter: http://docs.python.org/howto/logging-cookbook.html#using-loggeradapters-to-impart-contextual-information
+.. _Filter: http://docs.python.org/howto/logging-cookbook.html#using-filters-to-impart-contextual-information
