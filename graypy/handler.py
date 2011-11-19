@@ -14,15 +14,6 @@ WAN_CHUNK, LAN_CHUNK = 1420, 8154
 class GELFHandler(DatagramHandler):
     def __init__(self, host, port, chunk_size=WAN_CHUNK):
         self.chunk_size = chunk_size
-        # skip_list is used to filter additional fields in a log message.
-        # It contains all attributes listed in
-        # http://docs.python.org/library/logging.html#logrecord-attributes
-        # plus exc_text, which is only found in the logging module source,
-        # and id, which is prohibited by the GELF format.
-        self.skip_list = set(['args', 'asctime', 'created', 'exc_info',  'exc_text',
-            'filename', 'funcName', 'id', 'levelname', 'levelno', 'lineno',
-            'module', 'msecs', 'msecs', 'message', 'msg', 'name', 'pathname',
-            'process', 'processName', 'relativeCreated', 'thread', 'threadName'])
         DatagramHandler.__init__(self, host, port)
 
     def send(self, s):
@@ -49,7 +40,7 @@ class GELFHandler(DatagramHandler):
         return traceback.format_exc(exc_info) if exc_info else ''
 
     def make_message_dict(self, record):
-        d = {
+        return self.add_extra_fields({
             'version': "1.0",
             'host': socket.gethostname(),
             'short_message': record.getMessage(),
@@ -62,18 +53,30 @@ class GELFHandler(DatagramHandler):
             '_function': record.funcName,
             '_pid': record.process,
             '_thread_name': record.threadName,
-        }
+        }, record)
+
+    def add_extra_fields(self, message_dict, record):
         # record.processName was added in Python 2.6.2
-        if hasattr(record, 'processName'):
-            d['_process_name'] = record.processName
+        pn = getattr(record, 'processName', None)
+        if pn is not None:
+            message_dict['_process_name'] = pn
 
-        # Add any additional fields.
-        for key in record.__dict__:
-            # Skip prohibited and, prefixed by _, private attributes.
-            if not key in self.skip_list and not key[0] == '_':
-                d['_' + key] = record.__dict__[key]
+        # skip_list is used to filter additional fields in a log message.
+        # It contains all attributes listed in
+        # http://docs.python.org/library/logging.html#logrecord-attributes
+        # plus exc_text, which is only found in the logging module source,
+        # and id, which is prohibited by the GELF format.
+        skip_list = (
+            'args', 'asctime', 'created', 'exc_info',  'exc_text', 'filename',
+            'funcName', 'id', 'levelname', 'levelno', 'lineno', 'module',
+            'msecs', 'msecs', 'message', 'msg', 'name', 'pathname', 'process',
+            'processName', 'relativeCreated', 'thread', 'threadName')
 
-        return d
+        for key, value in record.__dict__.items():
+            if key not in skip_list and not key.startswith('_'):
+                message_dict['_%s' % key] = value
+
+        return message_dict
 
 
 class ChunkedGELF(object):
