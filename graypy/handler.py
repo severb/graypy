@@ -83,8 +83,8 @@ class ChunkedGELF(object):
     def __init__(self, message, size):
         self.message = message
         self.size = size
-        self.pieces = struct.pack('>H', (len(message) / size) + 1)
-        self.id = struct.pack('Q', random.randint(0, 0xFFFFFFFFFFFFFFFF)) * 4
+        self.pieces = struct.pack('B', (len(message) / size) + 1)
+        self.id = struct.pack('Q', random.randint(0, 0xFFFFFFFFFFFFFFFF))
 
     def message_chunks(self):
         return (self.message[i:i+self.size] for i
@@ -94,7 +94,7 @@ class ChunkedGELF(object):
         return ''.join([
             '\x1e\x0f',
             self.id,
-            struct.pack('>H', sequence),
+            struct.pack('B', sequence),
             self.pieces,
             chunk
         ])
