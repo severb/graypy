@@ -12,7 +12,8 @@ WAN_CHUNK, LAN_CHUNK = 1420, 8154
 
 
 class GELFHandler(DatagramHandler):
-    def __init__(self, host, port, chunk_size=WAN_CHUNK):
+    def __init__(self, host, port, chunk_size=WAN_CHUNK, debugging_fields=True):
+        self.debugging_fields = debugging_fields
         self.chunk_size = chunk_size
         DatagramHandler.__init__(self, host, port)
 
@@ -40,27 +41,29 @@ class GELFHandler(DatagramHandler):
         return traceback.format_exc(exc_info) if exc_info else ''
 
     def make_message_dict(self, record):
-        return self.add_extra_fields({
-            'version': "1.0",
+        fields = {'version': "1.0",
             'host': socket.gethostname(),
             'short_message': record.getMessage(),
             'full_message': self.get_full_message(record.exc_info),
             'timestamp': record.created,
             'level': self.convert_level_to_syslog(record.levelno),
             'facility': record.name,
-            'file': record.pathname,
-            'line': record.lineno,
-            '_function': record.funcName,
-            '_pid': record.process,
-            '_thread_name': record.threadName,
-        }, record)
+        }
+        if self.debugging_fields:
+            fields.update({
+                'file': record.pathname,
+                'line': record.lineno,
+                '_function': record.funcName,
+                '_pid': record.process,
+                '_thread_name': record.threadName,
+            })
+            # record.processName was added in Python 2.6.2
+            pn = getattr(record, 'processName', None)
+            if pn is not None:
+                fields['_process_name'] = pn
+        return self.add_extra_fields(fields, record)
 
     def add_extra_fields(self, message_dict, record):
-        # record.processName was added in Python 2.6.2
-        pn = getattr(record, 'processName', None)
-        if pn is not None:
-            message_dict['_process_name'] = pn
-
         # skip_list is used to filter additional fields in a log message.
         # It contains all attributes listed in
         # http://docs.python.org/library/logging.html#logrecord-attributes
