@@ -46,6 +46,10 @@ A number of custom fields are automatically added if available:
     * process_name
     * thread_name
 
+You can disable these additional fields if you don't want them by adding an argument to the hander::
+
+    handler = graypy.GELFHandler('localhost', 12201, debugging_fields=False)
+
 graypy also supports additional fields to be included in the messages sent to Graylog2. This can be done by using Python's LoggerAdapter_ and Filter_. In general, LoggerAdapter makes it easy to add static information to your log messages and Filters give you more flexibility, for example to add additional information based on the message that is being logged.
 
 Example using LoggerAdapter_::
