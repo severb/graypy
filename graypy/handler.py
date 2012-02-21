@@ -12,8 +12,10 @@ WAN_CHUNK, LAN_CHUNK = 1420, 8154
 
 
 class GELFHandler(DatagramHandler):
-    def __init__(self, host, port, chunk_size=WAN_CHUNK, debugging_fields=True):
+    def __init__(self, host, port, chunk_size=WAN_CHUNK, debugging_fields=True,
+            extra_fields=True):
         self.debugging_fields = debugging_fields
+        self.extra_fields = extra_fields
         self.chunk_size = chunk_size
         DatagramHandler.__init__(self, host, port)
 
@@ -61,7 +63,9 @@ class GELFHandler(DatagramHandler):
             pn = getattr(record, 'processName', None)
             if pn is not None:
                 fields['_process_name'] = pn
-        return self.add_extra_fields(fields, record)
+        if self.extra_fields:
+            fields = self.add_extra_fields(fields, record)
+        return fields
 
     def add_extra_fields(self, message_dict, record):
         # skip_list is used to filter additional fields in a log message.
