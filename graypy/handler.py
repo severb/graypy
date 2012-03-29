@@ -1,5 +1,11 @@
 import logging
-import json
+import warnings
+try:
+    from cjson import encode as jdumps
+except ImportError:
+    warnings.warn('cjson not used!')
+    from json import dumps as jdumps
+
 import zlib
 import traceback
 import struct
@@ -25,8 +31,13 @@ class GELFHandler(DatagramHandler):
                 DatagramHandler.send(self, chunk)
 
     def makePickle(self, record):
-        message_dict = self.make_message_dict(record)
-        return zlib.compress(json.dumps(message_dict))
+        message_dict = {}
+        for k,v in self.make_message_dict(record).iteritems():
+            val = v
+            if isinstance(v, str):
+                val = v.decode()
+            message_dict[k] = val
+        return zlib.compress(jdumps(message_dict))
 
     def convert_level_to_syslog(self, level):
         return {
