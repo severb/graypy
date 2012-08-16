@@ -21,6 +21,19 @@ Messages are sent to Graylog2 using a custom handler for the builtin logging lib
 
     my_logger.debug('Hello Graylog2.')
 
+Alternately, use GELFRabbitHandler to send messages to RabbitMQ and configure your Graylog2 server to consume messages via AMQP. This prevents log messages from being lost due to dropped UDP packets (GELFHandler sends messages to Graylog2 using UDP). You will need to configure RabbitMQ with a 'gelf_log' queue and bind it to the 'logging.gelf' exchange so messages are properly routed to a queue that can be consumed by Graylog2 (the queue and exchange names may be customized to your liking).::
+
+    import logging
+    import graypy
+
+    my_logger = logging.getLogger('test_logger')
+    my_logger.setLevel(logging.DEBUG)
+
+    handler = graypy.GELFRabbitHandler('amqp://guest:guest@localhost/', 'logging.gelf')
+    my_logger.addHandler(handler)
+
+    my_logger.debug('Hello Graylog2.')
+
 Tracebacks are added as full messages::
 
     import logging
