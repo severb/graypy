@@ -1,6 +1,5 @@
 import json
 import socket
-import zlib
 from amqplib import client_0_8 as amqp
 from graypy.handler import make_message_dict
 from logging import Filter
@@ -53,7 +52,7 @@ class GELFRabbitHandler(SocketHandler):
     def makePickle(self, record):
         message_dict = make_message_dict(
             record, self.debugging_fields, self.extra_fields)
-        return zlib.compress(json.dumps(message_dict))
+        return json.dumps(message_dict)
 
 
 class RabbitSocket(object):
