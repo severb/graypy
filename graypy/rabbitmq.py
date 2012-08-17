@@ -12,7 +12,7 @@ ifnone = lambda v, x: x if v is None else v
 
 
 class GELFRabbitHandler(SocketHandler):
-    """Graylog Extened Log Format handler
+    """RabbitMQ / Graylog Extended Log Format handler
 
     NOTE: this handler ingores all messages logged by amqplib.
 

@@ -12,7 +12,7 @@ WAN_CHUNK, LAN_CHUNK = 1420, 8154
 
 
 class GELFHandler(DatagramHandler):
-    """Graylog Extened Log Format handler
+    """Graylog Extended Log Format handler
 
     :param host: The host of the graylog server.
     :param port: The port of the graylog server (default 12201).
