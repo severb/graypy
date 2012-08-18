@@ -1,2 +1,5 @@
 from handler import GELFHandler, WAN_CHUNK, LAN_CHUNK
-from rabbitmq import GELFRabbitHandler, ExcludeFilter
+try:
+    from rabbitmq import GELFRabbitHandler, ExcludeFilter
+except ImportError:
+    pass # amqplib is probably not installed

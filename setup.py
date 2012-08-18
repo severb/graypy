@@ -16,5 +16,6 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
+    extras_require={'amqp': ['amqplib==1.0.2']},
 
 )
