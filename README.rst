@@ -5,6 +5,10 @@ Using easy_install::
 
    easy_install graypy
 
+Install with requirements for ``GELFRabbitHandler``::
+
+  easy_install graypy[amqp]
+
 Usage
 =====
 
@@ -17,6 +21,19 @@ Messages are sent to Graylog2 using a custom handler for the builtin logging lib
     my_logger.setLevel(logging.DEBUG)
 
     handler = graypy.GELFHandler('localhost', 12201)
+    my_logger.addHandler(handler)
+
+    my_logger.debug('Hello Graylog2.')
+
+Alternately, use ``GELFRabbitHandler`` to send messages to RabbitMQ and configure your Graylog2 server to consume messages via AMQP. This prevents log messages from being lost due to dropped UDP packets (``GELFHandler`` sends messages to Graylog2 using UDP). You will need to configure RabbitMQ with a 'gelf_log' queue and bind it to the 'logging.gelf' exchange so messages are properly routed to a queue that can be consumed by Graylog2 (the queue and exchange names may be customized to your liking)::
+
+    import logging
+    import graypy
+
+    my_logger = logging.getLogger('test_logger')
+    my_logger.setLevel(logging.DEBUG)
+
+    handler = graypy.GELFRabbitHandler('amqp://guest:guest@localhost/', 'logging.gelf')
     my_logger.addHandler(handler)
 
     my_logger.debug('Hello Graylog2.')
@@ -91,6 +108,11 @@ Example using Filter_::
     my_logger.addFilter(UsernameFilter())
 
     mylogger.debug('Hello Graylog2 from John.')
+
+Contributors:
+
+  * Sever Banesiu
+  * Daniel Miller
 
 .. _LoggerAdapter: http://docs.python.org/howto/logging-cookbook.html#using-loggeradapters-to-impart-contextual-information
 .. _Filter: http://docs.python.org/howto/logging-cookbook.html#using-filters-to-impart-contextual-information
