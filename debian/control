@@ -7,7 +7,7 @@ Build-Depends: debhelper, python-support
 
 Package: python-graypy
 Architecture: all
-Depends: ${python:Depends}, python-support, python-simplejson
+Depends: ${python:Depends}, python-support, python-simplejson, python-amqplib
 Provides: ${python:Provides}
 Description: Python logging handler that sends messages in GELF (Graylog
  Extended Log Format).
