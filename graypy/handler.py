@@ -70,7 +70,7 @@ class ChunkedGELF(object):
             yield self.encode(sequence, chunk)
 
 
-def make_message_dict(record, debugging_fields, extra_fields, fqdn=False):
+def make_message_dict(record, debugging_fields, extra_fields, fqdn):
     if fqdn:
         host = socket.getfqdn()
     else:
