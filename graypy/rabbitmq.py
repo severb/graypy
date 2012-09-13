@@ -1,14 +1,12 @@
 import json
-import socket
 from amqplib import client_0_8 as amqp
 from graypy.handler import make_message_dict
 from logging import Filter
 from logging.handlers import SocketHandler
 from urlparse import urlparse
 
-class Error(Exception): pass
 
-ifnone = lambda v, x: x if v is None else v
+_ifnone = lambda v, x: x if v is None else v
 
 
 class GELFRabbitHandler(SocketHandler):
@@ -32,11 +30,11 @@ class GELFRabbitHandler(SocketHandler):
         if parsed.scheme != 'amqp':
             raise ValueError('invalid URL scheme (expected "amqp"): %s' % url)
         host = parsed.hostname or 'localhost'
-        port = ifnone(parsed.port, 5672)
+        port = _ifnone(parsed.port, 5672)
         self.cn_args = {
             'host': '%s:%s' % (host, port),
-            'username': ifnone(parsed.username, 'guest'),
-            'password': ifnone(parsed.password, 'guest'),
+            'username': _ifnone(parsed.username, 'guest'),
+            'password': _ifnone(parsed.password, 'guest'),
             'virtual_host': '/',
             'insist': False,
         }

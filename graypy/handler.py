@@ -53,7 +53,7 @@ class ChunkedGELF(object):
         self.id = struct.pack('Q', random.randint(0, 0xFFFFFFFFFFFFFFFF))
 
     def message_chunks(self):
-        return (self.message[i:i+self.size] for i
+        return (self.message[i:i + self.size] for i
                     in range(0, len(self.message), self.size))
 
     def encode(self, sequence, chunk):
@@ -107,8 +107,10 @@ SYSLOG_LEVELS = {
     logging.DEBUG: 7,
 }
 
+
 def get_full_message(exc_info):
     return traceback.format_exc(exc_info) if exc_info else ''
+
 
 def add_extra_fields(message_dict, record):
     # skip_list is used to filter additional fields in a log message.
