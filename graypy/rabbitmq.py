@@ -43,7 +43,7 @@ class GELFRabbitHandler(SocketHandler):
         self.exchange = exchange
         self.debugging_fields = debugging_fields
         self.extra_fields = extra_fields
-        super(GELFRabbitHandler, self).__init__(host, port)
+        SocketHandler.__init__(self, host, port)
         self.addFilter(ExcludeFilter('amqplib'))
 
     def makeSocket(self, timeout=1):
