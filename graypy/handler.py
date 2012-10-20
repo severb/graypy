@@ -109,7 +109,7 @@ SYSLOG_LEVELS = {
 
 
 def get_full_message(exc_info):
-    return traceback.format_exception(*exc_info) if exc_info else ''
+    return '\n'.join(traceback.format_exception(*exc_info)) if exc_info else ''
 
 
 def add_extra_fields(message_dict, record):
