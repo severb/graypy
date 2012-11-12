@@ -54,6 +54,33 @@ Tracebacks are added as full messages::
     except NameError:
         my_logger.debug('No dragons here.', exc_info=1)
 
+Using with Django
+=================
+
+It's easy to integrate ``graypy`` with Django's logging settings. Just add a
+new handler in your ``settings.py`` like this::
+
+    LOGGING = {
+        ...
+
+        'handlers': {
+            'graypy': {
+                'level': 'WARNING',
+                'class': 'graypy.GELFHandler',
+                'host': 'localhost',
+                'port': 12201,
+            },
+        },
+
+        'loggers': {
+            'django.request': {
+                'handlers': ['graypy'],
+                'level': 'ERROR',
+                'propagate': True,
+            },
+        },
+    }
+
 Custom fields
 =============
 
