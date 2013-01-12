@@ -5,6 +5,7 @@ import traceback
 import struct
 import random
 import socket
+import math
 from logging.handlers import DatagramHandler
 
 
@@ -49,7 +50,7 @@ class ChunkedGELF(object):
     def __init__(self, message, size):
         self.message = message
         self.size = size
-        self.pieces = struct.pack('B', (len(message) / size) + 1)
+        self.pieces = struct.pack('B', int(math.ceil(len(message) * 1.0/size)))
         self.id = struct.pack('Q', random.randint(0, 0xFFFFFFFFFFFFFFFF))
 
     def message_chunks(self):
