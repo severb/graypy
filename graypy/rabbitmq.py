@@ -24,7 +24,7 @@ class GELFRabbitHandler(SocketHandler):
     """
 
     def __init__(self, url, exchange='logging.gelf', debugging_fields=True,
-            extra_fields=True, fqdn=False):
+            extra_fields=True, fqdn=False, exchange_type='fanout'):
         self.url = url
         parsed = urlparse(url)
         if parsed.scheme != 'amqp':
@@ -42,11 +42,13 @@ class GELFRabbitHandler(SocketHandler):
         self.debugging_fields = debugging_fields
         self.extra_fields = extra_fields
         self.fqdn = fqdn
+        self.exchange_type = exchange_type
         SocketHandler.__init__(self, host, port)
         self.addFilter(ExcludeFilter('amqplib'))
 
     def makeSocket(self, timeout=1):
-        return RabbitSocket(self.cn_args, timeout, self.exchange)
+        return RabbitSocket(self.cn_args, timeout, self.exchange,
+            self.exchange_type)
 
     def makePickle(self, record):
         message_dict = make_message_dict(
@@ -56,16 +58,17 @@ class GELFRabbitHandler(SocketHandler):
 
 class RabbitSocket(object):
 
-    def __init__(self, cn_args, timeout, exchange):
+    def __init__(self, cn_args, timeout, exchange, exchange_type):
         self.cn_args = cn_args
         self.timeout = timeout
         self.exchange = exchange
+        self.exchange_type = exchange_type
         self.connection = amqp.Connection(
             connection_timeout=timeout, **self.cn_args)
         self.channel = self.connection.channel()
         self.channel.exchange_declare(
             exchange=self.exchange,
-            type='fanout',
+            type=self.exchange_type,
             durable=True,
             auto_delete=False,
         )
