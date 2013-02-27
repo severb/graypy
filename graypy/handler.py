@@ -26,11 +26,13 @@ class GELFHandler(DatagramHandler):
     """
 
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
-            debugging_fields=True, extra_fields=True, fqdn=False):
+            debugging_fields=True, extra_fields=True, fqdn=False, 
+            localname=None):
         self.debugging_fields = debugging_fields
         self.extra_fields = extra_fields
         self.chunk_size = chunk_size
         self.fqdn = fqdn
+        self.localname = localname
         DatagramHandler.__init__(self, host, port)
 
     def send(self, s):
@@ -42,7 +44,8 @@ class GELFHandler(DatagramHandler):
 
     def makePickle(self, record):
         message_dict = make_message_dict(
-            record, self.debugging_fields, self.extra_fields, self.fqdn)
+            record, self.debugging_fields, self.extra_fields, self.fqdn, 
+	    self.localname)
         return zlib.compress(json.dumps(message_dict))
 
 
@@ -71,9 +74,11 @@ class ChunkedGELF(object):
             yield self.encode(sequence, chunk)
 
 
-def make_message_dict(record, debugging_fields, extra_fields, fqdn):
+def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname):
     if fqdn:
         host = socket.getfqdn()
+    elif localname:
+        host = localname
     else:
         host = socket.gethostname()
     fields = {'version': "1.0",
