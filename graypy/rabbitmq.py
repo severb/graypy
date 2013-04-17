@@ -34,7 +34,7 @@ class GELFRabbitHandler(SocketHandler):
         port = _ifnone(parsed.port, 5672)
         self.cn_args = {
             'host': '%s:%s' % (host, port),
-            'username': _ifnone(parsed.username, 'guest'),
+            'userid': _ifnone(parsed.username, 'guest'),
             'password': _ifnone(parsed.password, 'guest'),
             'virtual_host': '/',
             'insist': False,
