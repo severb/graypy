@@ -27,12 +27,13 @@ class GELFHandler(DatagramHandler):
 
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
             debugging_fields=True, extra_fields=True, fqdn=False, 
-            localname=None):
+            localname=None, facility=None):
         self.debugging_fields = debugging_fields
         self.extra_fields = extra_fields
         self.chunk_size = chunk_size
         self.fqdn = fqdn
         self.localname = localname
+        self.facility = facility
         DatagramHandler.__init__(self, host, port)
 
     def send(self, s):
@@ -45,7 +46,7 @@ class GELFHandler(DatagramHandler):
     def makePickle(self, record):
         message_dict = make_message_dict(
             record, self.debugging_fields, self.extra_fields, self.fqdn, 
-	    self.localname)
+	    self.localname, self.facility)
         return zlib.compress(json.dumps(message_dict))
 
 
@@ -74,7 +75,7 @@ class ChunkedGELF(object):
             yield self.encode(sequence, chunk)
 
 
-def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname):
+def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname, facility=None):
     if fqdn:
         host = socket.getfqdn()
     elif localname:
@@ -87,8 +88,14 @@ def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname):
         'full_message': get_full_message(record.exc_info),
         'timestamp': record.created,
         'level': SYSLOG_LEVELS.get(record.levelno, record.levelno),
-        'facility': record.name,
+        'facility': facility or record.name,
     }
+
+    if facility is not None:
+        fields.update({
+            'logger': record.name
+        })
+
     if debugging_fields:
         fields.update({
             'file': record.pathname,
