@@ -7,10 +7,19 @@ import random
 import socket
 import math
 from logging.handlers import DatagramHandler
-
+import sys
 
 WAN_CHUNK, LAN_CHUNK = 1420, 8154
-
+FULL_MESSAGE_KEYS = ("FULLMESSAGE", "FULL_MESSAGE", "MESSAGE")
+SHORT_MESSAGE_KEYS = ("SHORTMESSAGE", "SHORT_MESSAGE", "MESSAGE")
+SHORT_MESSAGE_LENGTH = 250
+SYSLOG_LEVELS = {
+    logging.CRITICAL: 2,
+    logging.ERROR: 3,
+    logging.WARNING: 4,
+    logging.INFO: 6,
+    logging.DEBUG: 7,
+}
 
 class GELFHandler(DatagramHandler):
     """Graylog Extended Log Format handler
@@ -31,9 +40,8 @@ class GELFHandler(DatagramHandler):
         self.debugging_fields = debugging_fields
         self.extra_fields = extra_fields
         self.chunk_size = chunk_size
-        self.fqdn = fqdn
-        self.localname = localname
         self.facility = facility
+        self.local_host_name = get_host_name(fqdn, localname)
         DatagramHandler.__init__(self, host, port)
 
     def send(self, s):
@@ -44,9 +52,7 @@ class GELFHandler(DatagramHandler):
                 DatagramHandler.send(self, chunk)
 
     def makePickle(self, record):
-        message_dict = make_message_dict(
-            record, self.debugging_fields, self.extra_fields, self.fqdn, 
-	    self.localname, self.facility)
+        message_dict = format_gelf_message(self, record)
         return zlib.compress(json.dumps(message_dict))
 
 
@@ -75,28 +81,61 @@ class ChunkedGELF(object):
             yield self.encode(sequence, chunk)
 
 
-def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname, facility=None):
-    if fqdn:
-        host = socket.getfqdn()
-    elif localname:
-        host = localname
-    else:
-        host = socket.gethostname()
-    fields = {'version': "1.0",
-        'host': host,
-        'short_message': record.getMessage(),
-        'full_message': get_full_message(record.exc_info),
-        'timestamp': record.created,
+def format_gelf_message(self, record):
+    gelf_message = get_base_gelf_message(self, record)      
+    build_message(self, gelf_message, record)
+    add_extra_fields(gelf_message, record)
+    return gelf_message
+
+
+def build_message(self, gelf_message, record):
+    """
+    Builds the actual message fields and sets any additional fields 
+    if the log message is a dictionary.
+    """
+
+    if isinstance(record.msg, dict):
+        add_to_message(gelf_message, record.msg)
+
+    gelf_message.update({ 
+        'full_message': gelf_message.get('full_message') or get_full_message(record.exc_info)
+    })
+
+    gelf_message.update({ 
+        'short_message': gelf_message.get('short_message') or gelf_message.get('full_message')[:SHORT_MESSAGE_LENGTH] or record.getMessage()[:SHORT_MESSAGE_LENGTH],
+    })
+
+
+def add_to_message(gelf_message, obj):
+    """Add each entry in the dictionary as an additional field in the GELF message."""
+
+    for key, value in obj.items():
+        k = str(key)
+        v = str(value)
+
+        if k.upper() in FULL_MESSAGE_KEYS:
+            gelf_message.update({ "full_message": v })
+        elif k.upper() in SHORT_MESSAGE_KEYS:
+            gelf_message.update({ "short_message": v[:SHORT_MESSAGE_LENGTH] })
+        else:
+            k = k if k.startswith('_') else '_%s' % k
+            gelf_message[k] = v
+
+
+def get_base_gelf_message(self, record):
+    fields = {
+        'facility': self.facility or record.name,
+        'file': '',
+        'host': self.local_host_name,
         'level': SYSLOG_LEVELS.get(record.levelno, record.levelno),
-        'facility': facility or record.name,
+        'line': '',
+        'timestamp': record.created,
+        'version': '1.0',
+        '_logger': record.name
     }
 
-    if facility is not None:
-        fields.update({
-            'logger': record.name
-        })
-
-    if debugging_fields:
+    #Add a bunch of debugging information
+    if self.debugging_fields:
         fields.update({
             'file': record.pathname,
             'line': record.lineno,
@@ -104,28 +143,29 @@ def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname, f
             '_pid': record.process,
             '_thread_name': record.threadName,
         })
+
         # record.processName was added in Python 2.6.2
         pn = getattr(record, 'processName', None)
         if pn is not None:
             fields['_process_name'] = pn
-    if extra_fields:
-        fields = add_extra_fields(fields, record)
+
     return fields
 
-SYSLOG_LEVELS = {
-    logging.CRITICAL: 2,
-    logging.ERROR: 3,
-    logging.WARNING: 4,
-    logging.INFO: 6,
-    logging.DEBUG: 7,
-}
+
+def get_host_name(fqdn, localname):
+    if fqdn:
+        return socket.getfqdn()
+    elif localname:
+        return localname
+    else:
+        return socket.gethostname()
 
 
 def get_full_message(exc_info):
     return '\n'.join(traceback.format_exception(*exc_info)) if exc_info else ''
 
 
-def add_extra_fields(message_dict, record):
+def add_extra_fields(gelf_message, record):
     # skip_list is used to filter additional fields in a log message.
     # It contains all attributes listed in
     # http://docs.python.org/library/logging.html#logrecord-attributes
@@ -139,6 +179,4 @@ def add_extra_fields(message_dict, record):
 
     for key, value in record.__dict__.items():
         if key not in skip_list and not key.startswith('_'):
-            message_dict['_%s' % key] = repr(value)
-
-    return message_dict
+            gelf_message['_%s' % key] = str(value)
