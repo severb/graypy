@@ -7,7 +7,6 @@ import random
 import socket
 import math
 from logging.handlers import DatagramHandler
-import sys
 
 WAN_CHUNK, LAN_CHUNK = 1420, 8154
 FULL_MESSAGE_KEYS = ("FULLMESSAGE", "FULL_MESSAGE", "MESSAGE")
