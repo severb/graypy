@@ -90,7 +90,7 @@ A number of custom fields are automatically added if available:
     * process_name
     * thread_name
 
-You can disable these additional fields if you don't want them by adding an argument to the hander::
+You can disable these additional fields if you don't want them by adding an argument to the handler::
 
     handler = graypy.GELFHandler('localhost', 12201, debugging_fields=False)
 
@@ -134,7 +134,7 @@ Example using Filter_::
 
     my_logger.addFilter(UsernameFilter())
 
-    mylogger.debug('Hello Graylog2 from John.')
+    my_logger.debug('Hello Graylog2 from John.')
 
 Contributors:
 
