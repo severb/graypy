@@ -54,6 +54,40 @@ Tracebacks are added as full messages::
     except NameError:
         my_logger.debug('No dragons here.', exc_info=1)
 
+Configuration parameters
+========================
+
+GELFHandler:
+
+  * **host** - the host of the graylog server.
+  * **port** - the port of the graylog server (default 12201).
+  * **chunk_size** - message chunk size. messages larger than this
+      size will be sent to graylog in multiple chunks (default `1420`).
+  * **debugging_fields** - send debug fields if true (the default).
+  * **extra_fields** - send extra fields on the log record to graylog
+      if true (the default).
+  * **fqdn** - use fully qualified domain name of localhost as source 
+      host (socket.getfqdn()).
+  * **localname** - use specified hostname as source host.
+  * **facility** - replace facility with specified value. if specified,
+      record.name will be passed as *logger* parameter.
+
+GELFRabbitHandler:
+
+  * **url** - RabbitMQ URL (ex: amqp://guest:guest@localhost:5672/).
+  * **exchange** - RabbitMQ exchange. Default 'logging.gelf'.
+    A queue binding must be defined on the server to prevent
+    log messages from being dropped.
+  * **debugging_fields** - send debug fields if true (the default).
+  * **extra_fields** - send extra fields on the log record to graylog
+    if true (the default).
+  * **fqdn** - use fully qualified domain name of localhost as source 
+    host - socket.getfqdn().
+  * **exchange_type** - RabbitMQ exchange type (default `fanout`).
+  * **localname** - use specified hostname as source host.
+  * **facility** - replace facility with specified value. if specified,
+    record.name will be passed as `logger` parameter.
+
 Using with Django
 =================
 
