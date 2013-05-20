@@ -21,6 +21,12 @@ class GELFRabbitHandler(SocketHandler):
     :param debugging_fields: Send debug fields if true (the default).
     :param extra_fields: Send extra fields on the log record to graylog
         if true (the default).
+    :param fqdn: Use fully qualified domain name of localhost as source 
+        host (socket.getfqdn()).
+    :param exchange_type: RabbitMQ exchange type (default 'fanout').
+    :param localname: Use specified hostname as source host.
+    :param facility: Replace facility with specified value. If specified,
+        record.name will be passed as `logger` parameter.
     """
 
     def __init__(self, url, exchange='logging.gelf', debugging_fields=True,
