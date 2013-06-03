@@ -52,7 +52,7 @@ class GELFHandler(DatagramHandler):
         message_dict = make_message_dict(
             record, self.debugging_fields, self.extra_fields, self.fqdn, 
 	    self.localname, self.facility)
-        return zlib.compress(json.dumps(message_dict))
+        return zlib.compress(json.dumps(message_dict).encode('utf-8'))
 
 
 class ChunkedGELF(object):
