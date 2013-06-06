@@ -49,6 +49,7 @@ class GELFHandler(DatagramHandler):
                 DatagramHandler.send(self, chunk)
 
     def makePickle(self, record):
+        record.msg = self.format(record)
         message_dict = make_message_dict(
             record, self.debugging_fields, self.extra_fields, self.fqdn, 
 	    self.localname, self.facility)
