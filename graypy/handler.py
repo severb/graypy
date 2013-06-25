@@ -144,6 +144,9 @@ def add_extra_fields(message_dict, record):
 
     for key, value in record.__dict__.items():
         if key not in skip_list and not key.startswith('_'):
-            message_dict['_%s' % key] = repr(value)
+            if isinstance(value, basestring):
+                message_dict['_%s' % key] = value
+            else:
+                message_dict['_%s' % key] = repr(value)
 
     return message_dict
