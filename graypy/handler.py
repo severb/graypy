@@ -90,7 +90,7 @@ def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname, f
     fields = {'version': "1.0",
         'host': host,
         'short_message': record.getMessage(),
-        'full_message': get_full_message(record.exc_info),
+        'full_message': get_full_message(record.exc_info, record.getMessage()),
         'timestamp': record.created,
         'level': SYSLOG_LEVELS.get(record.levelno, record.levelno),
         'facility': facility or record.name,
@@ -126,8 +126,8 @@ SYSLOG_LEVELS = {
 }
 
 
-def get_full_message(exc_info):
-    return '\n'.join(traceback.format_exception(*exc_info)) if exc_info else ''
+def get_full_message(exc_info, message):
+    return '\n'.join(traceback.format_exception(*exc_info)) if exc_info else message
 
 
 def add_extra_fields(message_dict, record):
