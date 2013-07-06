@@ -31,7 +31,7 @@ class GELFRabbitHandler(SocketHandler):
 
     def __init__(self, url, exchange='logging.gelf', debugging_fields=True,
             extra_fields=True, fqdn=False, exchange_type='fanout', localname=None,
-            facility=None):
+            facility=None, virtual_host='/'):
         self.url = url
         parsed = urlparse(url)
         if parsed.scheme != 'amqp':
@@ -42,7 +42,7 @@ class GELFRabbitHandler(SocketHandler):
             'host': '%s:%s' % (host, port),
             'userid': _ifnone(parsed.username, 'guest'),
             'password': _ifnone(parsed.password, 'guest'),
-            'virtual_host': '/',
+            'virtual_host': virtual_host,
             'insist': False,
         }
         self.exchange = exchange
@@ -52,6 +52,7 @@ class GELFRabbitHandler(SocketHandler):
         self.exchange_type = exchange_type
         self.localname = localname
         self.facility = facility
+        self.virtual_host = virtual_host
         SocketHandler.__init__(self, host, port)
         self.addFilter(ExcludeFilter('amqplib'))
 
