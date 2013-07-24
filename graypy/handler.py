@@ -98,7 +98,7 @@ def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname, f
 
     if facility is not None:
         fields.update({
-            'logger': record.name
+            '_logger': record.name
         })
 
     if debugging_fields:
