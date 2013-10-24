@@ -23,7 +23,7 @@ class GELFHandler(DatagramHandler):
     :param debugging_fields: Send debug fields if true (the default).
     :param extra_fields: Send extra fields on the log record to graylog
         if true (the default).
-    :param fqdn: Use fully qualified domain name of localhost as source 
+    :param fqdn: Use fully qualified domain name of localhost as source
         host (socket.getfqdn()).
     :param localname: Use specified hostname as source host.
     :param facility: Replace facility with specified value. If specified,
@@ -31,7 +31,7 @@ class GELFHandler(DatagramHandler):
     """
 
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
-            debugging_fields=True, extra_fields=True, fqdn=False, 
+            debugging_fields=True, extra_fields=True, fqdn=False,
             localname=None, facility=None):
         self.debugging_fields = debugging_fields
         self.extra_fields = extra_fields
@@ -50,8 +50,17 @@ class GELFHandler(DatagramHandler):
 
     def makePickle(self, record):
         message_dict = make_message_dict(
-            record, self.debugging_fields, self.extra_fields, self.fqdn, 
+            record, self.debugging_fields, self.extra_fields, self.fqdn,
 	    self.localname, self.facility)
+        for key, value in message_dict.items():
+            try:
+                json.dumps(value)
+            except ValueError:
+                if (isinstance(value, basestring)
+                        and not isinstance(value, unicode)):
+                    message_dict[key] = repr(value)[1:-1]
+                else:
+                    message_dict[key] = repr(value)
         return zlib.compress(json.dumps(message_dict))
 
 
