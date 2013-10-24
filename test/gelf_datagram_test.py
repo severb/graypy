@@ -8,6 +8,12 @@ import mock
 from graypy.handler import GELFHandler
 
 
+class FakeCustomObject(object):
+
+    def __repr__(self):
+        return 'repr:' + self.__class__.__name__
+
+
 class GELFHandlerTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -83,6 +89,28 @@ class GELFHandlerTestCase(unittest.TestCase):
         # XXX: the newline here should really be unescaped
         self.assertTrue(decoded['full_message'].endswith(
             'Syntax \\xde error\\n'))
+
+    def test_arbitrary_object(self):
+        with mock.patch.object(self.handler, 'send') as mock_send:
+            self.logger.error('Log message',
+                              extra={'foo': FakeCustomObject()})
+            [[[arg], _]] = mock_send.call_args_list
+        decoded = json.loads(zlib.decompress(arg))
+        self.assertEqual(decoded['short_message'], decoded['full_message'])
+        self.assertEqual(decoded['short_message'], 'Log message')
+        self.assertEqual(decoded['_foo'], 'repr:FakeCustomObject')
+
+    def test_list(self):
+        with mock.patch.object(self.handler, 'send') as mock_send:
+            self.logger.error('Log message',
+                              extra={'foo': ['bar', 'baz']})
+            [[[arg], _]] = mock_send.call_args_list
+        decoded = json.loads(zlib.decompress(arg))
+        self.assertEqual(decoded['short_message'], decoded['full_message'])
+        self.assertEqual(decoded['short_message'], 'Log message')
+        # XXX: This is, probably, not the most desired behaviour. After all,
+        # lists can be json serialized just fine.
+        self.assertEqual(decoded['_foo'], repr(['bar', 'baz']))
 
     def tearDown(self):
         self.logger.removeHandler(self.handler)
