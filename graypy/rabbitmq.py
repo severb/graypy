@@ -39,7 +39,7 @@ class GELFRabbitHandler(SocketHandler):
             raise ValueError('invalid URL scheme (expected "amqp"): %s' % url)
         host = parsed.hostname or 'localhost'
         port = _ifnone(parsed.port, 5672)
-        virtual_host = urllib.unquote(parsed.path[1:]) or '/',
+        virtual_host = '/' if not urllib.unquote(parsed.path[1:]) else urllib.unquote(parsed.path[1:])
         self.cn_args = {
             'host': '%s:%s' % (host, port),
             'userid': _ifnone(parsed.username, 'guest'),
