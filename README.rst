@@ -33,7 +33,7 @@ Alternately, use ``GELFRabbitHandler`` to send messages to RabbitMQ and configur
     my_logger = logging.getLogger('test_logger')
     my_logger.setLevel(logging.DEBUG)
 
-    handler = graypy.GELFRabbitHandler('amqp://guest:guest@localhost/', 'logging.gelf')
+    handler = graypy.GELFRabbitHandler('amqp://guest:guest@localhost/%2F', 'logging.gelf')
     my_logger.addHandler(handler)
 
     my_logger.debug('Hello Graylog2.')
@@ -70,7 +70,7 @@ GELFHandler:
 
 GELFRabbitHandler:
 
-  * **url** - RabbitMQ URL (ex: amqp://guest:guest@localhost:5672/).
+  * **url** - RabbitMQ URL (ex: amqp://guest:guest@localhost:5672/%2F).
   * **exchange** - RabbitMQ exchange. Default 'logging.gelf'. A queue binding must be defined on the server to prevent log messages from being dropped.
   * **debugging_fields** - send debug fields if true (the default).
   * **extra_fields** - send extra fields on the log record to graylog if true (the default).

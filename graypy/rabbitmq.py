@@ -4,6 +4,7 @@ from graypy.handler import make_message_dict
 from logging import Filter
 from logging.handlers import SocketHandler
 from urlparse import urlparse
+import urllib
 
 
 _ifnone = lambda v, x: x if v is None else v
@@ -31,13 +32,14 @@ class GELFRabbitHandler(SocketHandler):
 
     def __init__(self, url, exchange='logging.gelf', debugging_fields=True,
             extra_fields=True, fqdn=False, exchange_type='fanout', localname=None,
-            facility=None, virtual_host='/'):
+            facility=None):
         self.url = url
         parsed = urlparse(url)
         if parsed.scheme != 'amqp':
             raise ValueError('invalid URL scheme (expected "amqp"): %s' % url)
         host = parsed.hostname or 'localhost'
         port = _ifnone(parsed.port, 5672)
+        virtual_host = urllib.unquote(parsed.path[1:]) or '/',
         self.cn_args = {
             'host': '%s:%s' % (host, port),
             'userid': _ifnone(parsed.username, 'guest'),
