@@ -32,14 +32,14 @@ class GELFRabbitHandler(SocketHandler):
 
     def __init__(self, url, exchange='logging.gelf', debugging_fields=True,
             extra_fields=True, fqdn=False, exchange_type='fanout', localname=None,
-            facility=None):
+            facility=None, virtual_host='/'):
         self.url = url
         parsed = urlparse(url)
         if parsed.scheme != 'amqp':
             raise ValueError('invalid URL scheme (expected "amqp"): %s' % url)
         host = parsed.hostname or 'localhost'
         port = _ifnone(parsed.port, 5672)
-        virtual_host = '/' if not urllib.unquote(parsed.path[1:]) else urllib.unquote(parsed.path[1:])
+        virtual_host = virtual_host if not urllib.unquote(parsed.path[1:]) else urllib.unquote(parsed.path[1:])
         self.cn_args = {
             'host': '%s:%s' % (host, port),
             'userid': _ifnone(parsed.username, 'guest'),
