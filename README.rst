@@ -168,3 +168,9 @@ Contributors:
 
 .. _LoggerAdapter: http://docs.python.org/howto/logging-cookbook.html#using-loggeradapters-to-impart-contextual-information
 .. _Filter: http://docs.python.org/howto/logging-cookbook.html#using-filters-to-impart-contextual-information
+
+
+.. image:: https://d2weczhvl823v0.cloudfront.net/severb/graypy/trend.png
+   :alt: Bitdeli badge
+   :target: https://bitdeli.com/free
+
