@@ -1,3 +1,4 @@
+import sys
 import logging
 import json
 import zlib
@@ -10,6 +11,14 @@ from logging.handlers import DatagramHandler
 
 
 WAN_CHUNK, LAN_CHUNK = 1420, 8154
+
+PY3 = sys.version_info[0] == 3
+
+
+if PY3:
+    string_type = str
+else:
+    string_type = basestring
 
 
 class GELFHandler(DatagramHandler):
@@ -144,7 +153,7 @@ def add_extra_fields(message_dict, record):
 
     for key, value in record.__dict__.items():
         if key not in skip_list and not key.startswith('_'):
-            if isinstance(value, (basestring, int, long, float)):
+            if isinstance(value, (string_type, int, long, float)):
                 message_dict['_%s' % key] = value
             else:
                 message_dict['_%s' % key] = repr(value)
