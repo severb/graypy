@@ -11,6 +11,8 @@ def main(argv=sys.argv):
         help='Graylog2 host. Do not test GELFHandler if not specified.')
     parser.add_argument('--graylog-port', type=int, default=12201,
         help='Graylog2 GELF UDP port. Default: 12201')
+    parser.add_argument('--graylog-chunked', action='store_true', default=None,
+        help='Test graylog with chunked messages')
     parser.add_argument('--rabbit-url',
         help='RabbitMQ url (ex: amqp://guest:guest@localhost/). '
              'Do not test GELFRabbitHandler if not specified.')
@@ -44,6 +46,9 @@ def main(argv=sys.argv):
             'debugging_fields': 0,
             'formatter': 'message',
         }
+        if args.graylog_chunked:
+            config['handlers']['graylog_udp']['chunk_size'] = 1
+
         config['root']['handlers'].append('graylog_udp')
 
     if args.rabbit_url is not None:

@@ -17,8 +17,10 @@ PY3 = sys.version_info[0] == 3
 
 if PY3:
     string_type = str
+    integer_type = int,
 else:
     string_type = basestring
+    integer_type = (int, long)
 
 
 class GELFHandler(DatagramHandler):
@@ -76,8 +78,8 @@ class ChunkedGELF(object):
                     in range(0, len(self.message), self.size))
 
     def encode(self, sequence, chunk):
-        return ''.join([
-            '\x1e\x0f',
+        return b''.join([
+            b'\x1e\x0f',
             self.id,
             struct.pack('B', sequence),
             self.pieces,
@@ -153,7 +155,7 @@ def add_extra_fields(message_dict, record):
 
     for key, value in record.__dict__.items():
         if key not in skip_list and not key.startswith('_'):
-            if isinstance(value, (string_type, int, long, float)):
+            if isinstance(value, (string_type, float) + integer_type):
                 message_dict['_%s' % key] = value
             else:
                 message_dict['_%s' % key] = repr(value)
