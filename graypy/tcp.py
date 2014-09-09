@@ -28,7 +28,7 @@ class GELFTCPHandler(SocketHandler):
         self.fqdn = fqdn
         self.localname = localname
         self.facility = facility
-        GELFTCPHandler.__init__(self, host, port)
+        super(GELFTCPHandler, self).__init__(host, port)
 
     def makePickle(self, record):
         message_dict = make_message_dict(
