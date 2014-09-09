@@ -7,8 +7,6 @@ from graypy.handler import make_message_dict
 class GELFTCPHandler(SocketHandler):
     """Graylog Extended Log Format handler using TCP
 
-    NOTE: this handler ingores all messages logged by amqplib.
-
     :param host: The host of the graylog server.
     :param port: The port of the graylog server (default 12201).
     :param debugging_fields: Send debug fields if true (the default).
