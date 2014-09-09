@@ -150,7 +150,7 @@ def add_extra_fields(message_dict, record):
     skip_list = (
         'args', 'asctime', 'created', 'exc_info',  'exc_text', 'filename',
         'funcName', 'id', 'levelname', 'levelno', 'lineno', 'module',
-        'msecs', 'msecs', 'message', 'msg', 'name', 'pathname', 'process',
+        'msecs', 'message', 'msg', 'name', 'pathname', 'process',
         'processName', 'relativeCreated', 'thread', 'threadName')
 
     for key, value in record.__dict__.items():
