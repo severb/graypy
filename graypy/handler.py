@@ -59,6 +59,24 @@ class GELFHandler(DatagramHandler):
             for chunk in ChunkedGELF(s, self.chunk_size):
                 DatagramHandler.send(self, chunk)
 
+    def makeSocket(self):
+        """
+        Overridden from DatagramHandler, to properly support IPv6 connections.
+
+        This is a workaround of Python Issue #14855
+        """
+        if self.port is None:
+            family = socket.AF_UNIX
+            return socket.socket(family, socket.SOCK_DGRAM)
+        else:
+            addresses = socket.getaddrinfo(self.host, self.port, 0, socket.SOCK_DGRAM)
+            if len(addresses) > 1:
+                raise error("getaddrinfo returns an empty list")
+            address = addresses[0]
+            self.host = address[4]
+            return socket.socket(family=address[0], type=address[1])
+        return None
+
     def makePickle(self, record):
         message_dict = make_message_dict(
             record, self.debugging_fields, self.extra_fields, self.fqdn, 
