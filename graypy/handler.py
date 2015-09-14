@@ -9,18 +9,13 @@ import socket
 import math
 from logging.handlers import DatagramHandler
 
-
+PY3 = sys.version_info[0] == 3
 WAN_CHUNK, LAN_CHUNK = 1420, 8154
 
-PY3 = sys.version_info[0] == 3
-
-
 if PY3:
-    string_type = str
-    integer_type = int,
+    data, text = bytes, str
 else:
-    string_type = basestring
-    integer_type = (int, long)
+    data, text = str, unicode
 
 
 class GELFHandler(DatagramHandler):
@@ -61,9 +56,9 @@ class GELFHandler(DatagramHandler):
 
     def makePickle(self, record):
         message_dict = make_message_dict(
-            record, self.debugging_fields, self.extra_fields, self.fqdn, 
-	    self.localname, self.facility)
-        return zlib.compress(json.dumps(message_dict).encode('utf-8'))
+            record, self.debugging_fields, self.extra_fields, self.fqdn,
+            self.localname, self.facility)
+        return zlib.compress(message_to_pickle(message_dict))
 
 
 class ChunkedGELF(object):
@@ -155,9 +150,23 @@ def add_extra_fields(message_dict, record):
 
     for key, value in record.__dict__.items():
         if key not in skip_list and not key.startswith('_'):
-            if isinstance(value, (string_type, float) + integer_type):
-                message_dict['_%s' % key] = value
-            else:
-                message_dict['_%s' % key] = repr(value)
-
+            message_dict['_%s' % key] = value
     return message_dict
+
+
+def message_to_pickle(obj):
+    """ convert object to a JSON-encoded string"""
+    obj = sanitize(obj)
+    serialized = json.dumps(obj, separators=',:', default=repr)
+    return serialized.encode('utf-8')
+
+
+def sanitize(obj):
+    """ convert all strings records of the object to unicode """
+    if isinstance(obj, dict):
+        return {sanitize(k): sanitize(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return obj.__class__([sanitize(i) for i in obj])
+    if isinstance(obj, data):
+        obj = obj.decode('utf-8', errors='replace')
+    return obj
