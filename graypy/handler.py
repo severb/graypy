@@ -164,7 +164,7 @@ def message_to_pickle(obj):
 def sanitize(obj):
     """ convert all strings records of the object to unicode """
     if isinstance(obj, dict):
-        return {sanitize(k): sanitize(v) for k, v in obj.items()}
+        return dict((sanitize(k), sanitize(v)) for k, v in obj.iteritems())
     if isinstance(obj, (list, tuple)):
         return obj.__class__([sanitize(i) for i in obj])
     if isinstance(obj, data):
