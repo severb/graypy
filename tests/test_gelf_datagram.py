@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import datetime
 import json
 import logging
 import pytest
@@ -101,3 +102,12 @@ def test_list(logger, mock_send):
     logger.error('Log message', extra={'foo': ['bar', 'baz']})
     decoded = get_mock_send_arg(mock_send)
     assert decoded['_foo'] == ['bar', 'baz']
+
+
+def test_message_to_pickle_serializes_datetime_objects_instead_of_blindly_repring_them(logger, mock_send):
+    timestamp = datetime.datetime(2001, 2, 3, 4, 5, 6, 7)
+    logger.error('Log message', extra={'ts': timestamp})
+    decoded = get_mock_send_arg(mock_send)
+
+    assert 'datetime.datetime' not in decoded['_ts']
+    assert decoded['_ts'] == timestamp.isoformat()
