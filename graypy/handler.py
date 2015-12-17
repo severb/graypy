@@ -1,3 +1,4 @@
+import datetime
 import sys
 import logging
 import json
@@ -29,7 +30,7 @@ class GELFHandler(DatagramHandler):
     :param debugging_fields: Send debug fields if true (the default).
     :param extra_fields: Send extra fields on the log record to graylog
         if true (the default).
-    :param fqdn: Use fully qualified domain name of localhost as source 
+    :param fqdn: Use fully qualified domain name of localhost as source
         host (socket.getfqdn()).
     :param localname: Use specified hostname as source host.
     :param facility: Replace facility with specified value. If specified,
@@ -37,7 +38,7 @@ class GELFHandler(DatagramHandler):
     """
 
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
-            debugging_fields=True, extra_fields=True, fqdn=False, 
+            debugging_fields=True, extra_fields=True, fqdn=False,
             localname=None, facility=None):
         self.debugging_fields = debugging_fields
         self.extra_fields = extra_fields
@@ -154,10 +155,17 @@ def add_extra_fields(message_dict, record):
     return message_dict
 
 
+def smarter_repr(obj):
+    """ convert JSON incompatible object to string"""
+    if isinstance(obj, datetime.datetime):
+        return obj.isoformat()
+    return repr(obj)
+
+
 def message_to_pickle(obj):
     """ convert object to a JSON-encoded string"""
     obj = sanitize(obj)
-    serialized = json.dumps(obj, separators=',:', default=repr)
+    serialized = json.dumps(obj, separators=',:', default=smarter_repr)
     return serialized.encode('utf-8')
 
 
