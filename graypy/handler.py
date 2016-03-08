@@ -13,6 +13,17 @@ from logging.handlers import DatagramHandler
 PY3 = sys.version_info[0] == 3
 WAN_CHUNK, LAN_CHUNK = 1420, 8154
 
+# MESSAGE_FIELD_SKIP_LIST is used to filter additional fields in a log message.
+# It contains all attributes listed in
+# http://docs.python.org/library/logging.html#logrecord-attributes
+# plus exc_text, which is only found in the logging module source,
+# and id, which is prohibited by the GELF format.
+MESSAGE_FIELD_SKIP_LIST = (
+    'args', 'asctime', 'created', 'exc_info',  'exc_text', 'filename',
+    'funcName', 'id', 'levelname', 'levelno', 'lineno', 'module',
+    'msecs', 'message', 'msg', 'name', 'pathname', 'process',
+    'processName', 'relativeCreated', 'thread', 'threadName')
+
 if PY3:
     data, text = bytes, str
 else:
@@ -39,13 +50,14 @@ class GELFHandler(DatagramHandler):
 
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
             debugging_fields=True, extra_fields=True, fqdn=False,
-            localname=None, facility=None):
+            localname=None, facility=None, custom_fields=None):
         self.debugging_fields = debugging_fields
         self.extra_fields = extra_fields
         self.chunk_size = chunk_size
         self.fqdn = fqdn
         self.localname = localname
         self.facility = facility
+        self.custom_fields = custom_fields
         DatagramHandler.__init__(self, host, port)
 
     def send(self, s):
@@ -58,7 +70,7 @@ class GELFHandler(DatagramHandler):
     def makePickle(self, record):
         message_dict = make_message_dict(
             record, self.debugging_fields, self.extra_fields, self.fqdn,
-            self.localname, self.facility)
+            self.localname, self.facility, self.custom_fields)
         return zlib.compress(message_to_pickle(message_dict))
 
 
@@ -87,7 +99,7 @@ class ChunkedGELF(object):
             yield self.encode(sequence, chunk)
 
 
-def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname, facility=None):
+def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname, facility=None, custom_fields=None):
     if fqdn:
         host = socket.getfqdn()
     elif localname:
@@ -122,6 +134,8 @@ def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname, f
             fields['_process_name'] = pn
     if extra_fields:
         fields = add_extra_fields(fields, record)
+    if custom_fields:
+        fields = add_custom_fields(fields, custom_fields)
     return fields
 
 SYSLOG_LEVELS = {
@@ -137,20 +151,16 @@ def get_full_message(exc_info, message):
     return '\n'.join(traceback.format_exception(*exc_info)) if exc_info else message
 
 
-def add_extra_fields(message_dict, record):
-    # skip_list is used to filter additional fields in a log message.
-    # It contains all attributes listed in
-    # http://docs.python.org/library/logging.html#logrecord-attributes
-    # plus exc_text, which is only found in the logging module source,
-    # and id, which is prohibited by the GELF format.
-    skip_list = (
-        'args', 'asctime', 'created', 'exc_info',  'exc_text', 'filename',
-        'funcName', 'id', 'levelname', 'levelno', 'lineno', 'module',
-        'msecs', 'message', 'msg', 'name', 'pathname', 'process',
-        'processName', 'relativeCreated', 'thread', 'threadName')
+def add_custom_fields(message_dict, custom_fields):
+    for key, value in custom_fields.items():
+        if key not in MESSAGE_FIELD_SKIP_LIST and not key.startswith('_'):
+            message_dict[key] = value
+    return message_dict
 
+
+def add_extra_fields(message_dict, record):
     for key, value in record.__dict__.items():
-        if key not in skip_list and not key.startswith('_'):
+        if key not in MESSAGE_FIELD_SKIP_LIST and not key.startswith('_'):
             message_dict['_%s' % key] = value
     return message_dict
 
