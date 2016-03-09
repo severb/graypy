@@ -67,6 +67,7 @@ GELFHandler:
   * **fqdn** - use fully qualified domain name of localhost as source host (socket.getfqdn()).
   * **localname** - use specified hostname as source host.
   * **facility** - replace facility with specified value. if specified, record.name will be passed as *logger* parameter.
+  * **version** - replace version with your project's number.  Defaults to "1.0".
 
 GELFRabbitHandler:
 
@@ -78,6 +79,7 @@ GELFRabbitHandler:
   * **exchange_type** - RabbitMQ exchange type (default `fanout`).
   * **localname** - use specified hostname as source host.
   * **facility** - replace facility with specified value. if specified, record.name will be passed as `logger` parameter.
+  * **version** - replace version with your project's number.  Defaults to "1.0".
 
 Using with Django
 =================

@@ -26,7 +26,7 @@ class GELFRabbitHandler(SocketHandler):
     :param debugging_fields: Send debug fields if true (the default).
     :param extra_fields: Send extra fields on the log record to graylog
         if true (the default).
-    :param fqdn: Use fully qualified domain name of localhost as source 
+    :param fqdn: Use fully qualified domain name of localhost as source
         host (socket.getfqdn()).
     :param exchange_type: RabbitMQ exchange type (default 'fanout').
     :param localname: Use specified hostname as source host.
@@ -36,7 +36,7 @@ class GELFRabbitHandler(SocketHandler):
 
     def __init__(self, url, exchange='logging.gelf', debugging_fields=True,
             extra_fields=True, fqdn=False, exchange_type='fanout', localname=None,
-            facility=None, virtual_host='/'):
+            facility=None, virtual_host='/', version='1.0'):
         self.url = url
         parsed = urlparse(url)
         if parsed.scheme != 'amqp':
@@ -58,6 +58,7 @@ class GELFRabbitHandler(SocketHandler):
         self.exchange_type = exchange_type
         self.localname = localname
         self.facility = facility
+        self.version = version
         self.virtual_host = virtual_host
         SocketHandler.__init__(self, host, port)
         self.addFilter(ExcludeFilter('amqplib'))
@@ -69,7 +70,7 @@ class GELFRabbitHandler(SocketHandler):
     def makePickle(self, record):
         message_dict = make_message_dict(
             record, self.debugging_fields, self.extra_fields, self.fqdn, self.localname,
-            self.facility)
+            self.version, self.facility)
         return json.dumps(message_dict)
 
 
