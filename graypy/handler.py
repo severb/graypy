@@ -39,7 +39,7 @@ class GELFHandler(DatagramHandler):
 
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
             debugging_fields=True, extra_fields=True, fqdn=False,
-            localname=None, facility=None, version="1.0"):
+            localname=None, facility=None, version='1.0'):
         self.debugging_fields = debugging_fields
         self.extra_fields = extra_fields
         self.chunk_size = chunk_size
