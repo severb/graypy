@@ -35,17 +35,20 @@ class GELFHandler(DatagramHandler):
     :param localname: Use specified hostname as source host.
     :param facility: Replace facility with specified value. If specified,
         record.name will be passed as `logger` parameter.
+    :param level_names: Allows the use of string error level names instead
+        of numerical values. Defaults to False
     """
 
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
             debugging_fields=True, extra_fields=True, fqdn=False,
-            localname=None, facility=None):
+            localname=None, facility=None, level_names=False):
         self.debugging_fields = debugging_fields
         self.extra_fields = extra_fields
         self.chunk_size = chunk_size
         self.fqdn = fqdn
         self.localname = localname
         self.facility = facility
+        self.level_names = level_names
         DatagramHandler.__init__(self, host, port)
 
     def send(self, s):
@@ -58,7 +61,7 @@ class GELFHandler(DatagramHandler):
     def makePickle(self, record):
         message_dict = make_message_dict(
             record, self.debugging_fields, self.extra_fields, self.fqdn,
-            self.localname, self.facility)
+            self.localname, self.level_names, self.facility)
         return zlib.compress(message_to_pickle(message_dict))
 
 
@@ -87,7 +90,8 @@ class ChunkedGELF(object):
             yield self.encode(sequence, chunk)
 
 
-def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname, facility=None):
+def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname,
+                      level_names, facility=None):
     if fqdn:
         host = socket.getfqdn()
     elif localname:
@@ -102,6 +106,9 @@ def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname, f
         'level': SYSLOG_LEVELS.get(record.levelno, record.levelno),
         'facility': facility or record.name,
     }
+
+    if level_names:
+        fields['level_name'] = logging.getLevelName(record.levelno)
 
     if facility is not None:
         fields.update({
