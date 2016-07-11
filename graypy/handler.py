@@ -37,11 +37,12 @@ class GELFHandler(DatagramHandler):
         record.name will be passed as `logger` parameter.
     :param level_names: Allows the use of string error level names instead
         of numerical values. Defaults to False
+    :param compress: Use message compression. Defaults to True
     """
 
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
             debugging_fields=True, extra_fields=True, fqdn=False,
-            localname=None, facility=None, level_names=False):
+            localname=None, facility=None, level_names=False, compress=True):
         self.debugging_fields = debugging_fields
         self.extra_fields = extra_fields
         self.chunk_size = chunk_size
@@ -49,6 +50,7 @@ class GELFHandler(DatagramHandler):
         self.localname = localname
         self.facility = facility
         self.level_names = level_names
+        self.compress = compress
         DatagramHandler.__init__(self, host, port)
 
     def send(self, s):
@@ -62,7 +64,9 @@ class GELFHandler(DatagramHandler):
         message_dict = make_message_dict(
             record, self.debugging_fields, self.extra_fields, self.fqdn,
             self.localname, self.level_names, self.facility)
-        return zlib.compress(message_to_pickle(message_dict))
+        packed = message_to_pickle(message_dict)
+        frame = zlib.compress(packed) if self.compress else packed
+        return frame
 
 
 class ChunkedGELF(object):
