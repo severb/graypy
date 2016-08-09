@@ -51,7 +51,7 @@ class GELFHandler(DatagramHandler):
         self.facility = facility
         self.level_names = level_names
         self.compress = compress
-        DatagramHandler.__init__(self, host, port)
+        DatagramHandler.__init__(self, host, int(port))
 
     def send(self, s):
         if len(s) < self.chunk_size:
