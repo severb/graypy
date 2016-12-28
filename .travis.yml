@@ -1,0 +1,15 @@
+# .travis.yml
+
+language: 'python'
+
+env:
+    - 'TOXENV=py27'
+    - 'TOXENV=py34'
+    - 'TOXENV=py33'
+    - 'TOXENV=pypy'
+
+install: 'pip install tox'
+
+script:
+    - 'tox'
+
