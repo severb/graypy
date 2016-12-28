@@ -1,3 +1,5 @@
+|Build Status|
+
 Installing
 ==========
 
@@ -169,3 +171,6 @@ Contributors:
 
 .. _LoggerAdapter: http://docs.python.org/howto/logging-cookbook.html#using-loggeradapters-to-impart-contextual-information
 .. _Filter: http://docs.python.org/howto/logging-cookbook.html#using-filters-to-impart-contextual-information
+
+.. |Build Status| image:: https://travis-ci.org/severb/graypy.png
+   :target: https://travis-ci.org/severb/graypy.png
