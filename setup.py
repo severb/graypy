@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 setup(
 
     name='graypy',
-    version='0.2.13',
+    version='0.2.14',
     description="Python logging handler that sends messages in GELF (Graylog Extended Log Format).",
     long_description=open('README.rst').read(),
     keywords='logging gelf graylog2 graylog udp amqp',
