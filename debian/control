@@ -1,0 +1,13 @@
+Source: python-graypy
+Section: python
+Priority: optional
+Maintainer: Sever Banesiu <banesiu.sever@gmail.com>
+Homepage: https://github.com/severb/graypy
+Build-Depends: debhelper, python-support
+
+Package: python-graypy
+Architecture: all
+Depends: ${python:Depends}, python-support, python-simplejson, python-amqplib
+Provides: ${python:Provides}
+Description: Python logging handler that sends messages in GELF (Graylog
+ Extended Log Format).

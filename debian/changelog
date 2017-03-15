@@ -1,0 +1,11 @@
+python-graypy (0.2.5-0) testing; urgency=low
+
+  * Update to 0.2.5
+
+ -- Bruno Clermont <bruno.clermont@gmail.com>  Thu, 21 Aug 2012 15:27:00 +0200
+
+python-graypy (0.2.1-0) testing; urgency=low
+
+  * Initial Debian package
+
+ -- Bruno Clermont <bruno.clermont@gmail.com>  Thu,  2 Nov 2011 16:28:00 -0400
