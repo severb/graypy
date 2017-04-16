@@ -4,9 +4,13 @@ language: 'python'
 
 env:
     - 'TOXENV=py27'
-    - 'TOXENV=py34'
     - 'TOXENV=py33'
+    - 'TOXENV=py34'
+    - 'TOXENV=py35'
+    - 'TOXENV=py36'
     - 'TOXENV=pypy'
+
+before_install: 'pip install --upgrade pip'
 
 install: 'pip install tox'
 
