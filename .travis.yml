@@ -1,7 +1,7 @@
 # .travis.yml
 dist: trusty
 
-sudo: false
+sudo: required
 
 language: 'python'
 
