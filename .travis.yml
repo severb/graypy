@@ -10,7 +10,7 @@ env:
     - 'TOXENV=py33'
     - 'TOXENV=py34'
     - 'TOXENV=py35'
-    - 'TOXENV=py36'
+    - #'TOXENV=py36'  # hold off on Py36 for now
     - 'TOXENV=pypy'
 
 before_install: 'pip install --upgrade pip'
