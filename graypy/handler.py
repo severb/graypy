@@ -8,7 +8,7 @@ import struct
 import random
 import socket
 import math
-from logging.handlers import DatagramHandler
+from logging.handlers import DatagramHandler, SocketHandler
 
 PY3 = sys.version_info[0] == 3
 WAN_CHUNK, LAN_CHUNK = 1420, 8154
@@ -67,6 +67,46 @@ class GELFHandler(DatagramHandler):
         packed = message_to_pickle(message_dict)
         frame = zlib.compress(packed) if self.compress else packed
         return frame
+
+
+class GELFTcpHandler(SocketHandler):
+    """Graylog Extended Log Format handler over TCP
+
+    :param host: The host of the graylog server.
+    :param port: The port of the graylog server (default 12201).
+    :param debugging_fields: Send debug fields if true (the default).
+    :param extra_fields: Send extra fields on the log record to graylog
+        if true (the default).
+    :param fqdn: Use fully qualified domain name of localhost as source
+        host (socket.getfqdn()).
+    :param localname: Use specified hostname as source host.
+    :param facility: Replace facility with specified value. If specified,
+        record.name will be passed as `logger` parameter.
+    :param level_names: Allows the use of string error level names instead
+        of numerical values. Defaults to False
+    :param compress: Allows to use message compression. Defaults to False
+    """
+
+    def __init__(self, host, port=12201,
+                 debugging_fields=True, extra_fields=True, fqdn=False,
+                 localname=None, facility=None, level_names=False, compress=False):
+        self.debugging_fields = debugging_fields
+        self.extra_fields = extra_fields
+        self.fqdn = fqdn
+        self.localname = localname
+        self.facility = facility
+        self.level_names = level_names
+        self.compress = compress
+        SocketHandler.__init__(self, host, port)
+
+    def makePickle(self, record):
+        message_dict = make_message_dict(
+            record, self.debugging_fields, self.extra_fields, self.fqdn,
+            self.localname, self.level_names, self.facility)
+        # if you send the message over tcp, it should always be null terminated or the input will reject it
+        packed = message_to_pickle(message_dict)
+        frame = zlib.compress(packed) if self.compress else packed
+        return frame + b'\x00'
 
 
 class ChunkedGELF(object):
