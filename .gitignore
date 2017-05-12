@@ -2,3 +2,4 @@ dist/
 graypy.egg-info/
 *.pyc
 .tox
+.idea
