@@ -1,4 +1,6 @@
 from Queue import Queue
+
+import traceback
 from graypy import GELFHandler
 from threading import Thread
 
@@ -25,5 +27,8 @@ class AsyncGELFHandler(GELFHandler, Thread):
                 record = self.output_queue.get()
                 self._process_queue_record(record)
                 self.output_queue.task_done()
+
             except Exception as ex:
-                pass
+                # Handle log sending exception in some way. eg. traceback.print_exc():
+                # Exception handling is mandatory, otherwise the thread will die
+                traceback.print_exc()
