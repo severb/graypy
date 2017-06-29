@@ -183,6 +183,8 @@ SYSLOG_LEVELS = {
     logging.INFO: 6,
     logging.DEBUG: 7,
 }
+if hasattr(logging, 'NOTICE'):
+  SYSLOG_LEVELS[logging.NOTICE] = 5
 
 
 def get_full_message(record):
