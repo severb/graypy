@@ -77,6 +77,7 @@ class GELFHandler(BaseGELFHandler, DatagramHandler):
                 DatagramHandler.send(self, chunk)
 
 
+# TODO: Write tests
 class GELFTcpHandler(BaseGELFHandler, SocketHandler):
     """Graylog Extended Log Format TCP handler
 
@@ -97,7 +98,7 @@ class GELFTcpHandler(BaseGELFHandler, SocketHandler):
         of numerical values. Defaults to False
     :param compress: Use message compression. Defaults to True
     """
-    def __init__(self, host, port=12201,
+    def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
                  debugging_fields=True, extra_fields=True, fqdn=False,
                  localname=None, facility=None, level_names=False, compress=False):
         BaseGELFHandler.__init__(self, host, port, chunk_size,
