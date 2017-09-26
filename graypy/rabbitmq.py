@@ -36,7 +36,7 @@ class GELFRabbitHandler(SocketHandler):
 
     def __init__(self, url, exchange='logging.gelf', debugging_fields=True,
                  extra_fields=True, fqdn=False, exchange_type='fanout', localname=None,
-                 facility=None, virtual_host='/', routing_key=''):
+                 facility=None, virtual_host='/', routing_key='', level_names=False):
         self.url = url
         parsed = urlparse(url)
         if parsed.scheme != 'amqp':
@@ -60,6 +60,7 @@ class GELFRabbitHandler(SocketHandler):
         self.facility = facility
         self.virtual_host = virtual_host
         self.routing_key = routing_key
+        self.level_names = level_names
         SocketHandler.__init__(self, host, port)
         self.addFilter(ExcludeFilter('amqplib'))
 
@@ -70,7 +71,7 @@ class GELFRabbitHandler(SocketHandler):
     def makePickle(self, record):
         message_dict = make_message_dict(
             record, self.debugging_fields, self.extra_fields, self.fqdn, self.localname,
-            self.facility)
+            self.level_names, facility=self.facility)
         return json.dumps(message_dict)
 
 
