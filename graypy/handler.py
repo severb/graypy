@@ -100,10 +100,11 @@ class GELFTcpHandler(BaseGELFHandler, SocketHandler):
     """
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
                  debugging_fields=True, extra_fields=True, fqdn=False,
-                 localname=None, facility=None, level_names=False, compress=False):
+                 localname=None, facility=None, level_names=False):
+        # compress = False always
         BaseGELFHandler.__init__(self, host, port, chunk_size,
                                  debugging_fields, extra_fields, fqdn,
-                                 localname, facility, level_names, compress)
+                                 localname, facility, level_names, False)
         SocketHandler.__init__(self, host, int(port))
 
     def makePickle(self, record):
