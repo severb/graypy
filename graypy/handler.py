@@ -116,7 +116,14 @@ class ChunkedGELF(object):
     def __init__(self, message, size):
         self.message = message
         self.size = size
-        self.pieces = struct.pack('B', int(math.ceil(len(message) * 1.0/size)))
+
+        # a message MUST NOT consist of more than 128 chunks
+        chunks_count = int(math.ceil(len(message) * 1.0/size))
+        if chunks_count > 128:
+            chunks_count = 0
+            self.message = ''
+
+        self.pieces = struct.pack('B', chunks_count)
         self.id = struct.pack('Q', random.randint(0, 0xFFFFFFFFFFFFFFFF))
 
     def message_chunks(self):
