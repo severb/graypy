@@ -7,6 +7,7 @@ import traceback
 import struct
 import random
 import socket
+import ssl
 import math
 from logging.handlers import DatagramHandler, SocketHandler
 
@@ -97,15 +98,34 @@ class GELFTcpHandler(BaseGELFHandler, SocketHandler):
     :param level_names: Allows the use of string error level names instead
         of numerical values. Defaults to False
     :param compress: Use message compression. Defaults to True
+    :param tls: Use transport layer security on connection to graylog
+        if true (not the default)
     """
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
                  debugging_fields=True, extra_fields=True, fqdn=False,
-                 localname=None, facility=None, level_names=False):
+                 localname=None, facility=None, level_names=False,
+                 tls=False):
         # compress = False always
         BaseGELFHandler.__init__(self, host, port, chunk_size,
                                  debugging_fields, extra_fields, fqdn,
                                  localname, facility, level_names, False)
         SocketHandler.__init__(self, host, int(port))
+        self.tls = tls
+        if self.tls:
+            self.ssl_context = ssl.create_default_context(
+                purpose=ssl.Purpose.CLIENT_AUTH)
+
+    def makeSocket(self, timeout=None):
+        """Override SocketHandler.makeSocket, to allow creating
+        wrapped TLS sockets.
+        """
+        sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
+
+        if self.tls:
+            sock = self.ssl_context.wrap_socket(sock=sock, server_side=False)
+
+        sock.connect((self.host, self.port))
+        return sock
 
     def makePickle(self, record):
         # TCP frame object needs to be null terminated
