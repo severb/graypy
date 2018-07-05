@@ -97,7 +97,6 @@ class GELFTcpHandler(BaseGELFHandler, SocketHandler):
         record.name will be passed as `logger` parameter.
     :param level_names: Allows the use of string error level names instead
         of numerical values. Defaults to False
-    :param compress: Use message compression. Defaults to True
     :param tls: Use transport layer security on connection to graylog
         if true (not the default)
     """
@@ -105,7 +104,6 @@ class GELFTcpHandler(BaseGELFHandler, SocketHandler):
                  debugging_fields=True, extra_fields=True, fqdn=False,
                  localname=None, facility=None, level_names=False,
                  tls=False):
-        # compress = False always
         BaseGELFHandler.__init__(self, host, port, chunk_size,
                                  debugging_fields, extra_fields, fqdn,
                                  localname, facility, level_names, False)

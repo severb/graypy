@@ -71,6 +71,19 @@ GELFHandler:
   * **facility** - replace facility with specified value. if specified, record.name will be passed as *logger* parameter.
   * **level_names** - allows the use of string error level names instead in addition to their numerical representation.
 
+GELFTcpHandler:
+
+  * **host** - the host of the graylog server.
+  * **port** - the port of the graylog server (default 12201).
+  * **chunk_size** - message chunk size. messages larger than this size will be sent to graylog in multiple chunks (default `1420`).
+  * **debugging_fields** - send debug fields if true (the default).
+  * **extra_fields** - send extra fields on the log record to graylog if true (the default).
+  * **fqdn** - use fully qualified domain name of localhost as source host (socket.getfqdn()).
+  * **localname** - use specified hostname as source host.
+  * **facility** - replace facility with specified value. if specified, record.name will be passed as *logger* parameter.
+  * **level_names** - allows the use of string error level names instead in addition to their numerical representation.
+  * **tls** - use transport layer security on connection to graylog if true (not the default)
+
 GELFRabbitHandler:
 
   * **url** - RabbitMQ URL (ex: amqp://guest:guest@localhost:5672/%2F).
