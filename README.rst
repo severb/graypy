@@ -95,6 +95,12 @@ GELFTcpHandler:
   * **param tls_cadata** - if using TLS, optionally specify an object with
         a set of certificate authority certificates to use in certificate
         validation.
+  * **param tls_client_cert** - if using TLS, optionally specify a certificate
+        to authenticate the client to the graylog server.
+  * **param tls_client_key** - if using TLS, optionally specify a key file
+        corresponding to the client certificate.
+  * **param tls_client_password** - if using TLS, optionally specify a
+        password corresponding to the client key file.
 
 GELFRabbitHandler:
 

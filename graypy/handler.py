@@ -111,12 +111,19 @@ class GELFTcpHandler(BaseGELFHandler, SocketHandler):
     :param tls_cadata: If using TLS, optionally specify an object with
         a set of certificate authority certificates to use in certificate
         validation.
+    :param tls_client_cert: If using TLS, optionally specify a certificate
+        to authenticate the client to the graylog server.
+    :param tls_client_key: If using TLS, optionally specify a key file
+        corresponding to the client certificate.
+    :param tls_client_password: If using TLS, optionally specify a
+        password corresponding to the client key file.
     """
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
                  debugging_fields=True, extra_fields=True, fqdn=False,
                  localname=None, facility=None, level_names=False,
                  tls=False, tls_server_name=None, tls_cafile=None,
-                 tls_capath=None, tls_cadata=None):
+                 tls_capath=None, tls_cadata=None, tls_client_cert=None,
+                 tls_client_key=None, tls_client_password=None):
         BaseGELFHandler.__init__(self, host, port, chunk_size,
                                  debugging_fields, extra_fields, fqdn,
                                  localname, facility, level_names, False)
@@ -126,6 +133,9 @@ class GELFTcpHandler(BaseGELFHandler, SocketHandler):
             self.tls_cafile = tls_cafile
             self.tls_capath = tls_capath
             self.tls_cadata = tls_cadata
+            self.tls_client_cert = tls_client_cert
+            self.tls_client_key = tls_client_key
+            self.tls_client_password = tls_client_password
 
             self.ssl_context = ssl.create_default_context(
                 purpose=ssl.Purpose.SERVER_AUTH, cafile=self.tls_cafile,
@@ -134,6 +144,10 @@ class GELFTcpHandler(BaseGELFHandler, SocketHandler):
             self.tls_server_name = tls_server_name
             self.ssl_context.check_hostname = (self.tls_server_name
                                                is not None)
+            if self.tls_client_cert is not None:
+                self.ssl_context.load_cert_chain(self.tls_client_cert,
+                                                 self.tls_client_key,
+                                                 self.tls_client_password)
 
     def makeSocket(self, timeout=None):
         """Override SocketHandler.makeSocket, to allow creating
