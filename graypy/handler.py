@@ -99,11 +99,14 @@ class GELFTcpHandler(BaseGELFHandler, SocketHandler):
         of numerical values. Defaults to False
     :param tls: Use transport layer security on connection to graylog
         if true (not the default)
+    :param tls_server_name: If using TLS, specify the name of the host
+        to which the connection is being made. If not specified, hostname
+        checking will not be performed.
     """
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
                  debugging_fields=True, extra_fields=True, fqdn=False,
                  localname=None, facility=None, level_names=False,
-                 tls=False):
+                 tls=False, tls_server_name=None):
         BaseGELFHandler.__init__(self, host, port, chunk_size,
                                  debugging_fields, extra_fields, fqdn,
                                  localname, facility, level_names, False)
@@ -111,7 +114,10 @@ class GELFTcpHandler(BaseGELFHandler, SocketHandler):
         self.tls = tls
         if self.tls:
             self.ssl_context = ssl.create_default_context(
-                purpose=ssl.Purpose.CLIENT_AUTH)
+                purpose=ssl.Purpose.SERVER_AUTH)
+            self.tls_server_name = tls_server_name
+            self.ssl_context.check_hostname = (self.tls_server_name
+                                               is not None)
 
     def makeSocket(self, timeout=None):
         """Override SocketHandler.makeSocket, to allow creating
@@ -120,7 +126,9 @@ class GELFTcpHandler(BaseGELFHandler, SocketHandler):
         sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
 
         if self.tls:
-            sock = self.ssl_context.wrap_socket(sock=sock, server_side=False)
+            sock = self.ssl_context.wrap_socket(sock=sock, server_side=False,
+                                                server_hostname=
+                                                self.tls_server_name)
 
         sock.connect((self.host, self.port))
         return sock
