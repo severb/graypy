@@ -83,6 +83,18 @@ GELFTcpHandler:
   * **facility** - replace facility with specified value. if specified, record.name will be passed as *logger* parameter.
   * **level_names** - allows the use of string error level names instead in addition to their numerical representation.
   * **tls** - use transport layer security on connection to graylog if true (not the default)
+  * **tls_server_name** - if using TLS, specify the name of the host
+        to which the connection is being made. if not specified, hostname
+        checking will not be performed.
+  * **param tls_cafile** - if using TLS, optionally specify a file with a set
+        of certificate authority certificates to use in certificate
+        validation.
+  * **param tls_capath** - if using TLS, optionally specify a path to files
+        with a set of certificate authority certificates to use in
+        certificate validation.
+  * **param tls_cadata** - if using TLS, optionally specify an object with
+        a set of certificate authority certificates to use in certificate
+        validation.
 
 GELFRabbitHandler:
 

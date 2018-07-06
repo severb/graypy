@@ -102,19 +102,35 @@ class GELFTcpHandler(BaseGELFHandler, SocketHandler):
     :param tls_server_name: If using TLS, specify the name of the host
         to which the connection is being made. If not specified, hostname
         checking will not be performed.
+    :param tls_cafile: If using TLS, optionally specify a file with a set
+        of certificate authority certificates to use in certificate
+        validation.
+    :param tls_capath: If using TLS, optionally specify a path to files
+        with a set of certificate authority certificates to use in
+        certificate validation.
+    :param tls_cadata: If using TLS, optionally specify an object with
+        a set of certificate authority certificates to use in certificate
+        validation.
     """
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
                  debugging_fields=True, extra_fields=True, fqdn=False,
                  localname=None, facility=None, level_names=False,
-                 tls=False, tls_server_name=None):
+                 tls=False, tls_server_name=None, tls_cafile=None,
+                 tls_capath=None, tls_cadata=None):
         BaseGELFHandler.__init__(self, host, port, chunk_size,
                                  debugging_fields, extra_fields, fqdn,
                                  localname, facility, level_names, False)
         SocketHandler.__init__(self, host, int(port))
         self.tls = tls
         if self.tls:
+            self.tls_cafile = tls_cafile
+            self.tls_capath = tls_capath
+            self.tls_cadata = tls_cadata
+
             self.ssl_context = ssl.create_default_context(
-                purpose=ssl.Purpose.SERVER_AUTH)
+                purpose=ssl.Purpose.SERVER_AUTH, cafile=self.tls_cafile,
+                capath=self.tls_capath, cadata=self.tls_cadata
+            )
             self.tls_server_name = tls_server_name
             self.ssl_context.check_hostname = (self.tls_server_name
                                                is not None)
