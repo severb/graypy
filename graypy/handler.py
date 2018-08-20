@@ -7,6 +7,7 @@ import traceback
 import struct
 import random
 import socket
+import ssl
 import math
 from logging.handlers import DatagramHandler, SocketHandler
 
@@ -96,16 +97,71 @@ class GELFTcpHandler(BaseGELFHandler, SocketHandler):
         record.name will be passed as `logger` parameter.
     :param level_names: Allows the use of string error level names instead
         of numerical values. Defaults to False
-    :param compress: Use message compression. Defaults to True
+    :param tls: Use transport layer security on connection to graylog
+        if true (not the default)
+    :param tls_server_name: If using TLS, specify the name of the host
+        to which the connection is being made. If not specified, hostname
+        checking will not be performed.
+    :param tls_cafile: If using TLS, optionally specify a file with a set
+        of certificate authority certificates to use in certificate
+        validation.
+    :param tls_capath: If using TLS, optionally specify a path to files
+        with a set of certificate authority certificates to use in
+        certificate validation.
+    :param tls_cadata: If using TLS, optionally specify an object with
+        a set of certificate authority certificates to use in certificate
+        validation.
+    :param tls_client_cert: If using TLS, optionally specify a certificate
+        to authenticate the client to the graylog server.
+    :param tls_client_key: If using TLS, optionally specify a key file
+        corresponding to the client certificate.
+    :param tls_client_password: If using TLS, optionally specify a
+        password corresponding to the client key file.
     """
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
                  debugging_fields=True, extra_fields=True, fqdn=False,
-                 localname=None, facility=None, level_names=False):
-        # compress = False always
+                 localname=None, facility=None, level_names=False,
+                 tls=False, tls_server_name=None, tls_cafile=None,
+                 tls_capath=None, tls_cadata=None, tls_client_cert=None,
+                 tls_client_key=None, tls_client_password=None):
         BaseGELFHandler.__init__(self, host, port, chunk_size,
                                  debugging_fields, extra_fields, fqdn,
                                  localname, facility, level_names, False)
         SocketHandler.__init__(self, host, int(port))
+        self.tls = tls
+        if self.tls:
+            self.tls_cafile = tls_cafile
+            self.tls_capath = tls_capath
+            self.tls_cadata = tls_cadata
+            self.tls_client_cert = tls_client_cert
+            self.tls_client_key = tls_client_key
+            self.tls_client_password = tls_client_password
+
+            self.ssl_context = ssl.create_default_context(
+                purpose=ssl.Purpose.SERVER_AUTH, cafile=self.tls_cafile,
+                capath=self.tls_capath, cadata=self.tls_cadata
+            )
+            self.tls_server_name = tls_server_name
+            self.ssl_context.check_hostname = (self.tls_server_name
+                                               is not None)
+            if self.tls_client_cert is not None:
+                self.ssl_context.load_cert_chain(self.tls_client_cert,
+                                                 self.tls_client_key,
+                                                 self.tls_client_password)
+
+    def makeSocket(self, timeout=None):
+        """Override SocketHandler.makeSocket, to allow creating
+        wrapped TLS sockets.
+        """
+        sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
+
+        if self.tls:
+            sock = self.ssl_context.wrap_socket(sock=sock, server_side=False,
+                                                server_hostname=
+                                                self.tls_server_name)
+
+        sock.connect((self.host, self.port))
+        return sock
 
     def makePickle(self, record):
         # TCP frame object needs to be null terminated

@@ -71,6 +71,26 @@ GELFHandler:
   * **facility** - replace facility with specified value. if specified, record.name will be passed as *logger* parameter.
   * **level_names** - allows the use of string error level names instead in addition to their numerical representation.
 
+GELFTcpHandler:
+
+  * **host** - the host of the graylog server.
+  * **port** - the port of the graylog server (default 12201).
+  * **chunk_size** - message chunk size. messages larger than this size will be sent to graylog in multiple chunks (default `1420`).
+  * **debugging_fields** - send debug fields if true (the default).
+  * **extra_fields** - send extra fields on the log record to graylog if true (the default).
+  * **fqdn** - use fully qualified domain name of localhost as source host (socket.getfqdn()).
+  * **localname** - use specified hostname as source host.
+  * **facility** - replace facility with specified value. if specified, record.name will be passed as *logger* parameter.
+  * **level_names** - allows the use of string error level names instead in addition to their numerical representation.
+  * **tls** - use transport layer security on connection to graylog if true (not the default)
+  * **tls_server_name** - if using TLS, specify the name of the host to which the connection is being made. if not specified, hostname checking will not be performed.
+  * **param tls_cafile** - if using TLS, optionally specify a file with a set of certificate authority certificates to use in certificate validation.
+  * **param tls_capath** - if using TLS, optionally specify a path to files with a set of certificate authority certificates to use in certificate validation.
+  * **param tls_cadata** - if using TLS, optionally specify an object with a set of certificate authority certificates to use in certificate validation.
+  * **param tls_client_cert** - if using TLS, optionally specify a certificate to authenticate the client to the graylog server.
+  * **param tls_client_key** - if using TLS, optionally specify a key file corresponding to the client certificate.
+  * **param tls_client_password** - if using TLS, optionally specify a password corresponding to the client key file.
+
 GELFRabbitHandler:
 
   * **url** - RabbitMQ URL (ex: amqp://guest:guest@localhost:5672/%2F).
