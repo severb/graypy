@@ -37,7 +37,7 @@ class BaseGELFHandler(object):
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
                  debugging_fields=True, extra_fields=True, fqdn=False,
                  localname=None, facility=None, level_names=False,
-                 compress=True):
+                 compress=True, formatter=None):
         self.debugging_fields = debugging_fields
         self.extra_fields = extra_fields
         self.chunk_size = chunk_size
@@ -46,11 +46,12 @@ class BaseGELFHandler(object):
         self.facility = facility
         self.level_names = level_names
         self.compress = compress
+        self.formatter = formatter
 
     def makePickle(self, record):
         message_dict = make_message_dict(
             record, self.debugging_fields, self.extra_fields, self.fqdn,
-            self.localname, self.level_names, self.facility)
+            self.localname, self.level_names, self.facility, self.formatter)
         packed = message_to_pickle(message_dict)
         frame = zlib.compress(packed) if self.compress else packed
         return frame
@@ -75,14 +76,18 @@ class GELFHandler(BaseGELFHandler, DatagramHandler):
     :param level_names: Allows the use of string error level names instead
         of numerical values. Defaults to False
     :param compress: Use message compression. Defaults to True
+    :param formatter: Apply a custom python :class:`logging.Formatter` to
+        GLEF log's ``short_message`` and ``full_message``
     """
+
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
                  debugging_fields=True, extra_fields=True, fqdn=False,
                  localname=None, facility=None, level_names=False,
-                 compress=True):
+                 compress=True, formatter=None):
         BaseGELFHandler.__init__(self, host, port, chunk_size,
                                  debugging_fields, extra_fields, fqdn,
-                                 localname, facility, level_names, compress)
+                                 localname, facility, level_names, compress,
+                                 formatter)
         DatagramHandler.__init__(self, host, int(port))
 
     def send(self, s):
@@ -132,16 +137,21 @@ class GELFTcpHandler(BaseGELFHandler, SocketHandler):
         corresponding to the client certificate.
     :param tls_client_password: If using TLS, optionally specify a
         password corresponding to the client key file.
+    :param formatter: Apply a custom python :class:`logging.Formatter` to
+        GLEF log's ``short_message`` and ``full_message``
     """
+
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
                  debugging_fields=True, extra_fields=True, fqdn=False,
                  localname=None, facility=None, level_names=False,
                  tls=False, tls_server_name=None, tls_cafile=None,
                  tls_capath=None, tls_cadata=None, tls_client_cert=None,
-                 tls_client_key=None, tls_client_password=None):
+                 tls_client_key=None, tls_client_password=None,
+                 formatter=None):
         BaseGELFHandler.__init__(self, host, port, chunk_size,
                                  debugging_fields, extra_fields, fqdn,
-                                 localname, facility, level_names, False)
+                                 localname, facility, level_names, False,
+                                 formatter)
         SocketHandler.__init__(self, host, int(port))
         self.tls = tls
         if self.tls:
@@ -211,7 +221,7 @@ class ChunkedGELF(object):
 
 
 def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname,
-                      level_names, facility=None):
+                      level_names, facility=None, formatter=None):
     if fqdn:
         host = socket.getfqdn()
     elif localname:
@@ -221,8 +231,8 @@ def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname,
     fields = {
         'version': "1.0",
         'host': host,
-        'short_message': record.getMessage(),
-        'full_message': get_full_message(record),
+        'short_message': formatter.format(record) if formatter else record.getMessage(),
+        'full_message': formatter.format(record) if formatter else get_full_message(record),
         'timestamp': record.created,
         'level': SYSLOG_LEVELS.get(record.levelno, record.levelno),
         'facility': facility or record.name,
