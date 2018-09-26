@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import json
 from amqplib import client_0_8 as amqp
 from graypy.handler import make_message_dict
