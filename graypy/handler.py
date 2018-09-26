@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-"""Logging Handlers that sends messages in GELF (Graylog Extended Log Format)"""
+"""Logging Handlers that send messages in GELF (Graylog Extended Log Format)"""
 
 import datetime
 import json
@@ -282,7 +282,7 @@ def add_extra_fields(message_dict, record):
     # plus exc_text, which is only found in the logging module source,
     # and id, which is prohibited by the GELF format.
     skip_list = (
-        'args', 'asctime', 'created', 'exc_info',  'exc_text', 'filename',
+        'args', 'asctime', 'created', 'exc_info', 'exc_text', 'filename',
         'funcName', 'id', 'levelname', 'levelno', 'lineno', 'module',
         'msecs', 'message', 'msg', 'name', 'pathname', 'process',
         'processName', 'relativeCreated', 'thread', 'threadName')
