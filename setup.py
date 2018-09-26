@@ -36,6 +36,10 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
+    tests_require=[
+        "pytest",
+        "mock>=2.0.0,<3.0.0"
+    ],
     extras_require={'amqp': ['amqplib==1.0.2']},
     classifiers=[
         'License :: OSI Approved :: BSD License',
