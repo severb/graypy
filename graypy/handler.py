@@ -298,7 +298,7 @@ def message_to_pickle(obj):
 
 
 def sanitize(obj):
-    """Convert all strings records of the object to unicode """
+    """Convert all strings records of the object to unicode"""
     if isinstance(obj, dict):
         return dict((sanitize(k), sanitize(v)) for k, v in obj.items())
     if isinstance(obj, (list, tuple)):
