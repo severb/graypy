@@ -4,16 +4,16 @@
 """Logging Handlers that sends messages in GELF (Graylog Extended Log Format)"""
 
 import datetime
-import sys
-import logging
 import json
-import zlib
-import traceback
-import struct
+import logging
+import math
 import random
 import socket
 import ssl
-import math
+import struct
+import sys
+import traceback
+import zlib
 from logging.handlers import DatagramHandler, SocketHandler
 
 PY3 = sys.version_info[0] == 3

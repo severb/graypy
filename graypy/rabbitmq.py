@@ -5,10 +5,12 @@
 handler"""
 
 import json
-from amqplib import client_0_8 as amqp
-from graypy.handler import make_message_dict
 from logging import Filter
 from logging.handlers import SocketHandler
+
+from amqplib import client_0_8 as amqp  # pylint: disable=import-error
+
+from graypy.handler import make_message_dict
 
 try:
     from urllib.parse import urlparse, unquote
