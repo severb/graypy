@@ -292,21 +292,21 @@ def add_extra_fields(message_dict, record):
 
 
 def smarter_repr(obj):
-    """convert JSON incompatible object to string"""
+    """Convert JSON incompatible object to string"""
     if isinstance(obj, datetime.datetime):
         return obj.isoformat()
     return repr(obj)
 
 
 def message_to_pickle(obj):
-    """convert object to a JSON-encoded string"""
+    """Convert object to a JSON-encoded string"""
     obj = sanitize(obj)
     serialized = json.dumps(obj, separators=',:', default=smarter_repr)
     return serialized.encode('utf-8')
 
 
 def sanitize(obj):
-    """convert all strings records of the object to unicode"""
+    """Convert all strings records of the object to unicode"""
     if isinstance(obj, dict):
         return dict((sanitize(k), sanitize(v)) for k, v in obj.items())
     if isinstance(obj, (list, tuple)):
