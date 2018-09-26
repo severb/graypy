@@ -38,15 +38,17 @@ class GELFRabbitHandler(SocketHandler):
     """
 
     def __init__(self, url, exchange='logging.gelf', debugging_fields=True,
-                 extra_fields=True, fqdn=False, exchange_type='fanout', localname=None,
-                 facility=None, virtual_host='/', routing_key=''):
+                 extra_fields=True, fqdn=False, exchange_type='fanout',
+                 localname=None, facility=None, virtual_host='/',
+                 routing_key=''):
         self.url = url
         parsed = urlparse(url)
         if parsed.scheme != 'amqp':
             raise ValueError('invalid URL scheme (expected "amqp"): %s' % url)
         host = parsed.hostname or 'localhost'
         port = _ifnone(parsed.port, 5672)
-        virtual_host = virtual_host if not unquote(parsed.path[1:]) else unquote(parsed.path[1:])
+        virtual_host = virtual_host if not unquote(
+            parsed.path[1:]) else unquote(parsed.path[1:])
         self.cn_args = {
             'host': '%s:%s' % (host, port),
             'userid': _ifnone(parsed.username, 'guest'),
@@ -72,7 +74,8 @@ class GELFRabbitHandler(SocketHandler):
 
     def makePickle(self, record):
         message_dict = make_message_dict(
-            record, self.debugging_fields, self.extra_fields, self.fqdn, self.localname,
+            record, self.debugging_fields, self.extra_fields, self.fqdn,
+            self.localname,
             self.facility)
         return json.dumps(message_dict)
 
@@ -96,7 +99,11 @@ class RabbitSocket(object):
 
     def sendall(self, data):
         msg = amqp.Message(data, delivery_mode=2)
-        self.channel.basic_publish(msg, exchange=self.exchange, routing_key=self.routing_key)
+        self.channel.basic_publish(
+            msg,
+            exchange=self.exchange,
+            routing_key=self.routing_key
+        )
 
     def close(self):
         try:
