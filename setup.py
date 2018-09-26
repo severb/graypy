@@ -27,7 +27,7 @@ VERSION = find_version("graypy", "__init__.py")
 class Pylint(test):
     def run_tests(self):
         from pylint.lint import Run
-        Run(["graypy", "--persistent", "y"])
+        Run(["graypy", "--persistent", "y", "--rcfile", ".pylintrc"])
 
 
 class PyTest(test):
