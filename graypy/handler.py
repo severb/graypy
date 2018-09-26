@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import datetime
 import sys
 import logging
@@ -21,8 +24,9 @@ else:
 
 class BaseGELFHandler(object):
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
-            debugging_fields=True, extra_fields=True, fqdn=False,
-            localname=None, facility=None, level_names=False, compress=True):
+                 debugging_fields=True, extra_fields=True, fqdn=False,
+                 localname=None, facility=None, level_names=False,
+                 compress=True):
         self.debugging_fields = debugging_fields
         self.extra_fields = extra_fields
         self.chunk_size = chunk_size
@@ -39,7 +43,6 @@ class BaseGELFHandler(object):
         packed = message_to_pickle(message_dict)
         frame = zlib.compress(packed) if self.compress else packed
         return frame
-
 
 
 class GELFHandler(BaseGELFHandler, DatagramHandler):
@@ -201,7 +204,8 @@ def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname,
         host = localname
     else:
         host = socket.gethostname()
-    fields = {'version': "1.0",
+    fields = {
+        'version': "1.0",
         'host': host,
         'short_message': record.getMessage(),
         'full_message': get_full_message(record),
@@ -233,6 +237,7 @@ def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname,
     if extra_fields:
         fields = add_extra_fields(fields, record)
     return fields
+
 
 SYSLOG_LEVELS = {
     logging.CRITICAL: 2,
