@@ -1,3 +1,8 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+"""Logging Handler for interacting with Graylog"""
+
 import datetime
 import sys
 import logging
@@ -17,7 +22,8 @@ WAN_CHUNK, LAN_CHUNK = 1420, 8154
 if PY3:
     data, text = bytes, str
 else:
-    data, text = str, unicode
+    data, text = str, unicode  # pylint: disable=undefined-variable
+
 
 class BaseGELFHandler(object):
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
@@ -41,7 +47,6 @@ class BaseGELFHandler(object):
         packed = message_to_pickle(message_dict)
         frame = zlib.compress(packed) if self.compress else packed
         return frame
-
 
 
 class GELFHandler(BaseGELFHandler, DatagramHandler):
@@ -247,6 +252,7 @@ def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname,
         fields = add_extra_fields(fields, record)
     return fields
 
+
 SYSLOG_LEVELS = {
     logging.CRITICAL: 2,
     logging.ERROR: 3,
@@ -259,11 +265,11 @@ SYSLOG_LEVELS = {
 def get_full_message(record):
     # format exception information if present
     if record.exc_info:
-      return '\n'.join(traceback.format_exception(*record.exc_info))
+        return '\n'.join(traceback.format_exception(*record.exc_info))
     # use pre-formatted exception information in cases where the primary
     # exception information was removed, eg. for LogRecord serialization
     if record.exc_text:
-      return record.exc_text
+        return record.exc_text
     return record.getMessage()
 
 
@@ -274,7 +280,7 @@ def add_extra_fields(message_dict, record):
     # plus exc_text, which is only found in the logging module source,
     # and id, which is prohibited by the GELF format.
     skip_list = (
-        'args', 'asctime', 'created', 'exc_info',  'exc_text', 'filename',
+        'args', 'asctime', 'created', 'exc_info', 'exc_text', 'filename',
         'funcName', 'id', 'levelname', 'levelno', 'lineno', 'module',
         'msecs', 'message', 'msg', 'name', 'pathname', 'process',
         'processName', 'relativeCreated', 'thread', 'threadName')
@@ -286,21 +292,21 @@ def add_extra_fields(message_dict, record):
 
 
 def smarter_repr(obj):
-    """ convert JSON incompatible object to string"""
+    """convert JSON incompatible object to string"""
     if isinstance(obj, datetime.datetime):
         return obj.isoformat()
     return repr(obj)
 
 
 def message_to_pickle(obj):
-    """ convert object to a JSON-encoded string"""
+    """convert object to a JSON-encoded string"""
     obj = sanitize(obj)
     serialized = json.dumps(obj, separators=',:', default=smarter_repr)
     return serialized.encode('utf-8')
 
 
 def sanitize(obj):
-    """ convert all strings records of the object to unicode """
+    """convert all strings records of the object to unicode"""
     if isinstance(obj, dict):
         return dict((sanitize(k), sanitize(v)) for k, v in obj.items())
     if isinstance(obj, (list, tuple)):
