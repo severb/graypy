@@ -20,7 +20,8 @@ WAN_CHUNK, LAN_CHUNK = 1420, 8154
 if PY3:
     data, text = bytes, str
 else:
-    data, text = str, unicode
+    data, text = str, unicode  # pylint: disable=undefined-variable
+
 
 class BaseGELFHandler(object):
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
