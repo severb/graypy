@@ -1,6 +1,6 @@
 import json
 from amqplib import client_0_8 as amqp
-from graypy.handler import make_message_dict
+from graypy.handler import make_message_dict, smarter_repr
 from logging import Filter
 from logging.handlers import SocketHandler
 
@@ -71,7 +71,7 @@ class GELFRabbitHandler(SocketHandler):
         message_dict = make_message_dict(
             record, self.debugging_fields, self.extra_fields, self.fqdn, self.localname,
             self.facility)
-        return json.dumps(message_dict)
+        return json.dumps(message_dict, default=smarter_repr)
 
 
 class RabbitSocket(object):
