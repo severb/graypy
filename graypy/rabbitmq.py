@@ -1,8 +1,16 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+"""Logging Handler intergrating RabbitMQ and Graylog Extended Log Format
+handler"""
+
 import json
-from amqplib import client_0_8 as amqp
-from graypy.handler import make_message_dict
 from logging import Filter
 from logging.handlers import SocketHandler
+
+from amqplib import client_0_8 as amqp  # pylint: disable=import-error
+
+from graypy.handler import make_message_dict
 
 try:
     from urllib.parse import urlparse, unquote
@@ -35,8 +43,9 @@ class GELFRabbitHandler(SocketHandler):
     """
 
     def __init__(self, url, exchange='logging.gelf', debugging_fields=True,
-                 extra_fields=True, fqdn=False, exchange_type='fanout', localname=None,
-                 facility=None, virtual_host='/', routing_key=''):
+                 extra_fields=True, fqdn=False, exchange_type='fanout',
+                 localname=None, facility=None, virtual_host='/',
+                 routing_key=''):
         self.url = url
         parsed = urlparse(url)
         if parsed.scheme != 'amqp':
@@ -69,8 +78,13 @@ class GELFRabbitHandler(SocketHandler):
 
     def makePickle(self, record):
         message_dict = make_message_dict(
-            record, self.debugging_fields, self.extra_fields, self.fqdn, self.localname,
-            self.facility)
+            record,
+            self.debugging_fields,
+            self.extra_fields,
+            self.fqdn,
+            self.localname,
+            self.facility
+        )
         return json.dumps(message_dict)
 
 
@@ -93,7 +107,11 @@ class RabbitSocket(object):
 
     def sendall(self, data):
         msg = amqp.Message(data, delivery_mode=2)
-        self.channel.basic_publish(msg, exchange=self.exchange, routing_key=self.routing_key)
+        self.channel.basic_publish(
+            msg,
+            exchange=self.exchange,
+            routing_key=self.routing_key
+        )
 
     def close(self):
         try:
