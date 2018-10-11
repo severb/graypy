@@ -1,13 +1,16 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 import datetime
 import json
 import logging
-import pytest
-import zlib
-import mock
 import sys
-from graypy.handler import GELFHandler, message_to_pickle
+import zlib
 
+import mock
+import pytest
+
+from graypy.handler import GELFHandler, message_to_pickle
 
 UNICODE_REPLACEMENT = u'\ufffd'
 
