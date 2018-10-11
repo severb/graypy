@@ -37,7 +37,7 @@ class BaseGELFHandler(object):
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
                  debugging_fields=True, extra_fields=True, fqdn=False,
                  localname=None, facility=None, level_names=False,
-                 compress=True, formatter=None):
+                 compress=True):
         self.debugging_fields = debugging_fields
         self.extra_fields = extra_fields
         self.chunk_size = chunk_size
@@ -46,7 +46,15 @@ class BaseGELFHandler(object):
         self.facility = facility
         self.level_names = level_names
         self.compress = compress
-        self.formatter = formatter
+        self.formatter = None
+
+    def setFormatter(self, fmt):
+        """Set the formatter for this handler
+
+        :param fmt: The :class:`logging.Formatter` to be applied to
+            the GLEF log's ``short_message`` and ``full_message``
+        """
+        self.formatter = fmt
 
     def makePickle(self, record):
         message_dict = make_message_dict(
@@ -76,18 +84,15 @@ class GELFHandler(BaseGELFHandler, DatagramHandler):
     :param level_names: Allows the use of string error level names instead
         of numerical values. Defaults to False
     :param compress: Use message compression. Defaults to True
-    :param formatter: Apply a custom python :class:`logging.Formatter` to
-        GLEF log's ``short_message`` and ``full_message``
     """
 
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
                  debugging_fields=True, extra_fields=True, fqdn=False,
                  localname=None, facility=None, level_names=False,
-                 compress=True, formatter=None):
+                 compress=True):
         BaseGELFHandler.__init__(self, host, port, chunk_size,
                                  debugging_fields, extra_fields, fqdn,
-                                 localname, facility, level_names, compress,
-                                 formatter)
+                                 localname, facility, level_names, compress)
         DatagramHandler.__init__(self, host, int(port))
 
     def send(self, s):
@@ -137,8 +142,6 @@ class GELFTcpHandler(BaseGELFHandler, SocketHandler):
         corresponding to the client certificate.
     :param tls_client_password: If using TLS, optionally specify a
         password corresponding to the client key file.
-    :param formatter: Apply a custom python :class:`logging.Formatter` to
-        GLEF log's ``short_message`` and ``full_message``
     """
 
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
@@ -146,12 +149,10 @@ class GELFTcpHandler(BaseGELFHandler, SocketHandler):
                  localname=None, facility=None, level_names=False,
                  tls=False, tls_server_name=None, tls_cafile=None,
                  tls_capath=None, tls_cadata=None, tls_client_cert=None,
-                 tls_client_key=None, tls_client_password=None,
-                 formatter=None):
+                 tls_client_key=None, tls_client_password=None):
         BaseGELFHandler.__init__(self, host, port, chunk_size,
                                  debugging_fields, extra_fields, fqdn,
-                                 localname, facility, level_names, False,
-                                 formatter)
+                                 localname, facility, level_names, False)
         SocketHandler.__init__(self, host, int(port))
         self.tls = tls
         if self.tls:
