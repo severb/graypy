@@ -1,9 +1,12 @@
-#! /usr/bin/env python
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import argparse
 import logging
 import logging.config
 import sys
 import time
+
 
 def main(argv=sys.argv):
     parser = argparse.ArgumentParser(prog="perftest.py")
@@ -98,14 +101,15 @@ def main(argv=sys.argv):
                 elapsed = time.time() - (tx - 1)
                 tx += 1
                 print('%s messages in %.3f seconds (%.3f msg/s)'
-                    % (cx, elapsed, cx / elapsed))
+                      % (cx, elapsed, cx / elapsed))
                 cx = 0
                 if tx > t_end:
                     break
 
     elapsed = time.time() - t_start
     print('%s messages in %.3f seconds (%.3f msg/s)'
-        % (total, elapsed, total / elapsed))
+          % (total, elapsed, total / elapsed))
+
 
 if __name__ == '__main__':
     main()
