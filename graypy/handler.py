@@ -1,15 +1,19 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+"""Logging Handlers that sends messages in GELF (Graylog Extended Log Format)"""
+
 import datetime
-import sys
-import logging
 import json
-import zlib
-import traceback
-import struct
+import logging
+import math
 import random
 import socket
 import ssl
-import math
-import enum
+import struct
+import sys
+import traceback
+import zlib
 from logging.handlers import DatagramHandler, SocketHandler
 
 PY3 = sys.version_info[0] == 3
@@ -18,12 +22,22 @@ WAN_CHUNK, LAN_CHUNK = 1420, 8154
 if PY3:
     data, text = bytes, str
 else:
-    data, text = str, unicode
+    data, text = str, unicode  # pylint: disable=undefined-variable
+
+SYSLOG_LEVELS = {
+    logging.CRITICAL: 2,
+    logging.ERROR: 3,
+    logging.WARNING: 4,
+    logging.INFO: 6,
+    logging.DEBUG: 7,
+}
+
 
 class BaseGELFHandler(object):
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
-            debugging_fields=True, extra_fields=True, fqdn=False,
-            localname=None, facility=None, level_names=False, compress=True):
+                 debugging_fields=True, extra_fields=True, fqdn=False,
+                 localname=None, facility=None, level_names=False,
+                 compress=True):
         self.debugging_fields = debugging_fields
         self.extra_fields = extra_fields
         self.chunk_size = chunk_size
@@ -40,7 +54,6 @@ class BaseGELFHandler(object):
         packed = message_to_pickle(message_dict)
         frame = zlib.compress(packed) if self.compress else packed
         return frame
-
 
 
 class GELFHandler(BaseGELFHandler, DatagramHandler):
@@ -64,8 +77,9 @@ class GELFHandler(BaseGELFHandler, DatagramHandler):
     :param compress: Use message compression. Defaults to True
     """
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
-            debugging_fields=True, extra_fields=True, fqdn=False,
-            localname=None, facility=None, level_names=False, compress=True):
+                 debugging_fields=True, extra_fields=True, fqdn=False,
+                 localname=None, facility=None, level_names=False,
+                 compress=True):
         BaseGELFHandler.__init__(self, host, port, chunk_size,
                                  debugging_fields, extra_fields, fqdn,
                                  localname, facility, level_names, compress)
@@ -157,9 +171,11 @@ class GELFTcpHandler(BaseGELFHandler, SocketHandler):
         sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
 
         if self.tls:
-            sock = self.ssl_context.wrap_socket(sock=sock, server_side=False,
-                                                server_hostname=
-                                                self.tls_server_name)
+            sock = self.ssl_context.wrap_socket(
+                sock=sock,
+                server_side=False,
+                server_hostname=self.tls_server_name
+            )
 
         sock.connect((self.host, self.port))
         return sock
@@ -178,7 +194,7 @@ class ChunkedGELF(object):
 
     def message_chunks(self):
         return (self.message[i:i + self.size] for i
-                    in range(0, len(self.message), self.size))
+                in range(0, len(self.message), self.size))
 
     def encode(self, sequence, chunk):
         return b''.join([
@@ -202,7 +218,8 @@ def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname,
         host = localname
     else:
         host = socket.gethostname()
-    fields = {'version': "1.0",
+    fields = {
+        'version': "1.0",
         'host': host,
         'short_message': record.getMessage(),
         'full_message': get_full_message(record),
@@ -235,23 +252,16 @@ def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname,
         fields = add_extra_fields(fields, record)
     return fields
 
-SYSLOG_LEVELS = {
-    logging.CRITICAL: 2,
-    logging.ERROR: 3,
-    logging.WARNING: 4,
-    logging.INFO: 6,
-    logging.DEBUG: 7,
-}
-
 
 def get_full_message(record):
+    """Given a logging.LogRecord return its full message"""
     # format exception information if present
     if record.exc_info:
-      return '\n'.join(traceback.format_exception(*record.exc_info))
+        return '\n'.join(traceback.format_exception(*record.exc_info))
     # use pre-formatted exception information in cases where the primary
     # exception information was removed, eg. for LogRecord serialization
     if record.exc_text:
-      return record.exc_text
+        return record.exc_text
     return record.getMessage()
 
 
@@ -274,25 +284,21 @@ def add_extra_fields(message_dict, record):
 
 
 def smarter_repr(obj):
-    """ convert JSON incompatible object to string"""
+    """Convert JSON incompatible object to string"""
     if isinstance(obj, datetime.datetime):
         return obj.isoformat()
-    if isinstance(obj, enum.Enum):
-        return repr({obj.name: obj.value})
-    if hasattr(obj, "__dict__"):
-        return repr(obj.__dict__)
     return repr(obj)
 
 
 def message_to_pickle(obj):
-    """ convert object to a JSON-encoded string"""
+    """Convert object to a JSON-encoded string"""
     obj = sanitize(obj)
     serialized = json.dumps(obj, separators=',:', default=smarter_repr)
     return serialized.encode('utf-8')
 
 
 def sanitize(obj):
-    """ convert all strings records of the object to unicode """
+    """Convert all strings records of the object to unicode"""
     if isinstance(obj, dict):
         return dict((sanitize(k), sanitize(v)) for k, v in obj.items())
     if isinstance(obj, (list, tuple)):
