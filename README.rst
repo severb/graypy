@@ -198,6 +198,6 @@ Contributors:
     :target: https://travis-ci.org/severb/graypy
 
 
-.. |Coverage_Status| image:: https://codecov.io/gh/nklapste/graypy/branch/master/graph/badge.svg
-  :target: https://codecov.io/gh/nklapste/graypy
+.. |Coverage_Status| image:: https://codecov.io/gh/severb/graypy/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/severb/graypy
 
