@@ -1,4 +1,5 @@
 |Build_Status|
+|Coverage_Status|
 
 Installing
 ==========
@@ -195,3 +196,8 @@ Contributors:
 
 .. |Build_Status| image:: https://travis-ci.org/severb/graypy.svg?branch=master
     :target: https://travis-ci.org/severb/graypy
+
+
+.. |Coverage_Status| image:: https://codecov.io/gh/nklapste/graypy/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/nklapste/graypy
+

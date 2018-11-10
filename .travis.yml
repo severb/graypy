@@ -23,21 +23,21 @@ before_install:
 
 install:
   - pip install .
+script:
+  - python setup.py test
+after_success:
+  - codecov
 
 jobs:
   include:
-    - stage: test
     - python: 2.7
     - python: 3.4
     - python: 3.5
     - python: 3.6
     - python: 3.7
+      dist: xenial
     - python: pypy
     - python: pypy3
-      script:
-        - python setup.py test
-      after_success:
-        - codecov
     - stage: linting
       python:
         - 3.6
