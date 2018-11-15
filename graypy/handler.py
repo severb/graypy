@@ -102,9 +102,7 @@ class BaseGELFHandler(logging.Handler, ABC):
             fields['level_name'] = logging.getLevelName(record.levelno)
 
         if self.facility is not None:
-            fields.update({
-                '_logger': record.name
-            })
+            fields.update({'_logger': record.name})
 
         if self.debugging_fields:
             fields.update({
