@@ -25,27 +25,31 @@ _ifnone = lambda v, x: x if v is None else v
 class GELFRabbitHandler(BaseGELFHandler, SocketHandler):
     """RabbitMQ / Graylog Extended Log Format handler
 
-    NOTE: this handler ingores all messages logged by amqplib.
+    .. note::
 
-    :param url: RabbitMQ URL (ex: amqp://guest:guest@localhost:5672/).
-    :param exchange: RabbitMQ exchange. Default 'logging.gelf'.
-        A queue binding must be defined on the server to prevent
-        log messages from being dropped.
-    :param debugging_fields: Send debug fields if true (the default).
-    :param extra_fields: Send extra fields on the log record to graylog
-        if true (the default).
-    :param fqdn: Use fully qualified domain name of localhost as source 
-        host (socket.getfqdn()).
-    :param exchange_type: RabbitMQ exchange type (default 'fanout').
-    :param localname: Use specified hostname as source host.
-    :param facility: Replace facility with specified value. If specified,
-        record.name will be passed as `logger` parameter.
+        This handler ignores all messages logged by amqplib.
     """
 
     def __init__(self, url, exchange='logging.gelf', debugging_fields=True,
                  extra_fields=True, fqdn=False, exchange_type='fanout',
                  localname=None, facility=None, virtual_host='/',
                  routing_key=''):
+        """Initialize the GELFRabbitHandler
+
+        :param url: RabbitMQ URL (ex: amqp://guest:guest@localhost:5672/).
+        :param exchange: RabbitMQ exchange. Default 'logging.gelf'.
+            A queue binding must be defined on the server to prevent
+            log messages from being dropped.
+        :param debugging_fields: Send debug fields if true (the default).
+        :param extra_fields: Send extra fields on the log record to graylog
+            if true (the default).
+        :param fqdn: Use fully qualified domain name of localhost as source
+            host (socket.getfqdn()).
+        :param exchange_type: RabbitMQ exchange type (default 'fanout').
+        :param localname: Use specified hostname as source host.
+        :param facility: Replace facility with specified value. If specified,
+            record.name will be passed as `logger` parameter.
+        """
         self.url = url
         parsed = urlparse(url)
         if parsed.scheme != 'amqp':
