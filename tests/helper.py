@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+"""helper functions for testing graypy"""
+
 import uuid
 import time
 import logging
@@ -39,7 +41,10 @@ DEFAULT_FIELDS = [
     'message', 'full_message', 'source', 'level',
     'func', 'file', 'line', 'module', 'logger_name',
 ]
+
 BASE_API_URL = 'http://127.0.0.1:9000/api/search/universal/relative?query={0}&range=5&fields='
+
+
 def _build_api_string(message, fields):
     return BASE_API_URL.format(message) + '%2C'.join(set(DEFAULT_FIELDS + fields))
 
