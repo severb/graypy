@@ -1,0 +1,48 @@
+{
+    "inputs": [
+        {
+            "title": "tcp",
+            "configuration": {
+                "bind_address": "0.0.0.0",
+                "port": 12201
+            },
+            "type": "org.graylog2.inputs.gelf.tcp.GELFTCPInput",
+            "global": true
+        },
+        {
+            "title": "udp",
+            "configuration": {
+                "bind_address": "0.0.0.0",
+                "port": 12202
+            },
+            "type": "org.graylog2.inputs.gelf.udp.GELFUDPInput",
+            "global": true
+        },
+        {
+            "title": "http",
+            "configuration": {
+                "bind_address": "0.0.0.0",
+                "port": 12203
+            },
+            "type": "org.graylog2.inputs.gelf.http.GELFHttpInput",
+            "global": true
+        },
+        {
+            "title": "tls",
+            "configuration": {
+                "bind_address": "0.0.0.0",
+                "port": 12204,
+                "tls_enable": true,
+                "tls_cert_file": "/usr/share/graylog/data/cert.pem",
+                "tls_key_file": "/usr/share/graylog/data/key.pem",
+                "tls_key_password": "secret"
+            },
+            "type": "org.graylog2.inputs.gelf.tcp.GELFTCPInput",
+            "global": true
+        }
+    ],
+    "streams": [],
+    "outputs": [],
+    "dashboards": [],
+    "grok_patterns": []
+}

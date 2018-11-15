@@ -319,7 +319,7 @@ class GELFTCPHandler(BaseGELFHandler, SocketHandler):
     def makePickle(self, record):
         """Add a null terminator to a GELFTCPHandler's pickles as a TCP frame
         object needs to be null terminated"""
-        return super.makePickle(self, record) + b'\x00'
+        return BaseGELFHandler.makePickle(self, record) + b'\x00'
 
 
 class ChunkedGELF(object):

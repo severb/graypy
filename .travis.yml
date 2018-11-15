@@ -23,8 +23,14 @@ before_install:
 
 install:
   - pip install .
+before_script:
+  - docker-compose -f tests/config/docker-compose.yml up -d
+  - sleep 40
+  - "curl -u admin:admin 'http://127.0.0.1:9000/api/search/universal/relative?query=test&range=5&fields=message' || true"
 script:
   - python setup.py test
+after_script:
+  - docker-compose -f tests/config/docker-compose.yml down
 after_success:
   - codecov
 
@@ -41,10 +47,14 @@ jobs:
     - stage: linting
       python:
         - 3.6
+      before_script: skip
+      after_script: skip
       script:
         - python setup.py lint || exit $(($? & 35))
     - stage: build
       python:
         - 3.6
+      before_script: skip
+      after_script: skip
       script:
         - python setup.py sdist
