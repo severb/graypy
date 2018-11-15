@@ -4,18 +4,25 @@
 Installing
 ==========
 
-Using easy_install::
+Using easy_install
+
+.. code-block:: bash
 
    easy_install graypy
 
-Install with requirements for ``GELFRabbitHandler``::
+Install with requirements for ``GELFRabbitHandler``
+
+.. code-block:: bash
 
   easy_install graypy[amqp]
 
 Usage
 =====
 
-Messages are sent to Graylog2 using a custom handler for the builtin logging library in GELF format::
+Messages are sent to Graylog2 using a custom handler for the builtin logging
+library in GELF format
+
+.. code-block:: python
 
     import logging
     import graypy
@@ -23,12 +30,20 @@ Messages are sent to Graylog2 using a custom handler for the builtin logging lib
     my_logger = logging.getLogger('test_logger')
     my_logger.setLevel(logging.DEBUG)
 
-    handler = graypy.GELFHandler('localhost', 12201)
+    handler = graypy.GELFUDPHandler('localhost', 12201)
     my_logger.addHandler(handler)
 
     my_logger.debug('Hello Graylog2.')
 
-Alternately, use ``GELFRabbitHandler`` to send messages to RabbitMQ and configure your Graylog2 server to consume messages via AMQP. This prevents log messages from being lost due to dropped UDP packets (``GELFHandler`` sends messages to Graylog2 using UDP). You will need to configure RabbitMQ with a 'gelf_log' queue and bind it to the 'logging.gelf' exchange so messages are properly routed to a queue that can be consumed by Graylog2 (the queue and exchange names may be customized to your liking)::
+Alternately, use ``GELFRabbitHandler`` to send messages to RabbitMQ and
+configure your Graylog2 server to consume messages via AMQP. This prevents
+log messages from being lost due to dropped UDP packets (``GELFUDPHandler``
+sends messages to Graylog2 using UDP). You will need to configure RabbitMQ
+with a 'gelf_log' queue and bind it to the 'logging.gelf' exchange so
+messages are properly routed to a queue that can be consumed by
+Graylog2 (the queue and exchange names may be customized to your liking)
+
+.. code-block:: python
 
     import logging
     import graypy
@@ -41,7 +56,9 @@ Alternately, use ``GELFRabbitHandler`` to send messages to RabbitMQ and configur
 
     my_logger.debug('Hello Graylog2.')
 
-Tracebacks are added as full messages::
+Tracebacks are added as full messages
+
+.. code-block:: python
 
     import logging
     import graypy
@@ -49,7 +66,7 @@ Tracebacks are added as full messages::
     my_logger = logging.getLogger('test_logger')
     my_logger.setLevel(logging.DEBUG)
 
-    handler = graypy.GELFHandler('localhost', 12201)
+    handler = graypy.GELFUDPHandler('localhost', 12201)
     my_logger.addHandler(handler)
 
     try:
@@ -60,7 +77,7 @@ Tracebacks are added as full messages::
 Configuration parameters
 ========================
 
-GELFHandler:
+GELFUDPHandler:
 
   * **host** - the host of the graylog server.
   * **port** - the port of the graylog server (default 12201).
@@ -72,7 +89,7 @@ GELFHandler:
   * **facility** - replace facility with specified value. if specified, record.name will be passed as *logger* parameter.
   * **level_names** - allows the use of string error level names instead in addition to their numerical representation.
 
-GELFTcpHandler:
+GELFTCPHandler:
 
   * **host** - the host of the graylog server.
   * **port** - the port of the graylog server (default 12201).
@@ -107,7 +124,9 @@ Using with Django
 =================
 
 It's easy to integrate ``graypy`` with Django's logging settings. Just add a
-new handler in your ``settings.py`` like this::
+new handler in your ``settings.py``:
+
+.. code-block:: python
 
     LOGGING = {
         ...
@@ -115,7 +134,7 @@ new handler in your ``settings.py`` like this::
         'handlers': {
             'graypy': {
                 'level': 'WARNING',
-                'class': 'graypy.GELFHandler',
+                'class': 'graypy.GELFUDPHandler',
                 'host': 'localhost',
                 'port': 12201,
             },
@@ -139,13 +158,22 @@ A number of custom fields are automatically added if available:
     * process_name
     * thread_name
 
-You can disable these additional fields if you don't want them by adding an argument to the handler::
+You can disable these additional fields if you don't want them by adding
+an the ``debugging_fields=False`` to the handler:
 
-    handler = graypy.GELFHandler('localhost', 12201, debugging_fields=False)
+.. code-block:: python
 
-graypy also supports additional fields to be included in the messages sent to Graylog2. This can be done by using Python's LoggerAdapter_ and Filter_. In general, LoggerAdapter makes it easy to add static information to your log messages and Filters give you more flexibility, for example to add additional information based on the message that is being logged.
+    handler = graypy.GELFUDPHandler('localhost', 12201, debugging_fields=False)
 
-Example using LoggerAdapter_::
+graypy also supports additional fields to be included in the messages sent
+ to Graylog2. This can be done by using Python's LoggerAdapter_ and
+Filter_. In general, LoggerAdapter makes it easy to add static information
+to your log messages and Filters give you more flexibility, for example to
+add additional information based on the message that is being logged.
+
+Example using LoggerAdapter_
+
+.. code-block:: python
 
     import logging
     import graypy
@@ -153,22 +181,25 @@ Example using LoggerAdapter_::
     my_logger = logging.getLogger('test_logger')
     my_logger.setLevel(logging.DEBUG)
 
-    handler = graypy.GELFHandler('localhost', 12201)
+    handler = graypy.GELFUDPHandler('localhost', 12201)
     my_logger.addHandler(handler)
 
     my_adapter = logging.LoggerAdapter(logging.getLogger('test_logger'),
-                                        { 'username': 'John' })
+                                       {'username': 'John'})
 
     my_adapter.debug('Hello Graylog2 from John.')
 
-Example using Filter_::
+Example using Filter_
+
+.. code-block:: python
 
     import logging
     import graypy
 
     class UsernameFilter(logging.Filter):
         def __init__(self):
-            # In an actual use case would dynamically get this (e.g. from memcache)
+            # In an actual use case would dynamically get this
+            # (e.g. from memcache)
             self.username = "John"
 
         def filter(self, record):
@@ -178,7 +209,7 @@ Example using Filter_::
     my_logger = logging.getLogger('test_logger')
     my_logger.setLevel(logging.DEBUG)
 
-    handler = graypy.GELFHandler('localhost', 12201)
+    handler = graypy.GELFUDPHandler('localhost', 12201)
     my_logger.addHandler(handler)
 
     my_logger.addFilter(UsernameFilter())
@@ -190,6 +221,7 @@ Contributors:
   * Sever Banesiu
   * Daniel Miller
   * Tushar Makkar
+  * Nathan Klapstein
 
 .. _LoggerAdapter: http://docs.python.org/howto/logging-cookbook.html#using-loggeradapters-to-impart-contextual-information
 .. _Filter: http://docs.python.org/howto/logging-cookbook.html#using-filters-to-impart-contextual-information
