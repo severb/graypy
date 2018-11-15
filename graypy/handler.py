@@ -287,7 +287,7 @@ class GELFTCPHandler(BaseGELFHandler, SocketHandler):
         SocketHandler.__init__(self, host, port)
 
         self.tls = tls
-        if self.tls:
+        if self.tls:  # create an ssl_context if tls is enabled
             self.ssl_context = ssl.create_default_context(
                 purpose=ssl.Purpose.SERVER_AUTH,
                 cafile=tls_cafile,
