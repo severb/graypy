@@ -11,11 +11,9 @@ STATIC_FIELDS = {
 
 
 @pytest.fixture(params=[
-    GELFTCPHandler(host='127.0.0.1', port=12201, **STATIC_FIELDS),
-    GELFUDPHandler(host='127.0.0.1', port=12202, **STATIC_FIELDS),
-    GELFUDPHandler(host='127.0.0.1', port=12202, compress=False, **STATIC_FIELDS),
-    GELFTCPHandler(host='127.0.0.1', port=12201, ),
-    GELFUDPHandler(host='127.0.0.1', port=12202, ),
+    GELFTCPHandler(host='127.0.0.1', port=12201),
+    GELFUDPHandler(host='127.0.0.1', port=12202, compress=False),
+    GELFTCPHandler(host='127.0.0.1', port=12201),
     GELFUDPHandler(host='127.0.0.1', port=12202, compress=False),
 ])
 def handler(request):
