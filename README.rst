@@ -1,3 +1,4 @@
+|PyPI_Status|
 |Build_Status|
 |Coverage_Status|
 
@@ -201,3 +202,5 @@ Contributors:
 .. |Coverage_Status| image:: https://codecov.io/gh/severb/graypy/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/severb/graypy
 
+.. |PyPI_Status| image:: https://img.shields.io/pypi/v/graypy.svg
+    :target: https://pypi.python.org/pypi/graypy
