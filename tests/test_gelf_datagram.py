@@ -46,7 +46,7 @@ def mock_send(handler):
     (["a", b"\xc3"], ["a", UNICODE_REPLACEMENT]),
 ])
 def test_message_to_pickle(message, message2):
-    assert json.loads(BaseGELFHandler._message_to_pickle(message).decode('utf-8')) == message2
+    assert json.loads(BaseGELFHandler.pack(message).decode('utf-8')) == message2
 
 
 def get_mock_send_arg(mock_send):

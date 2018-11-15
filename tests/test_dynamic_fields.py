@@ -4,7 +4,7 @@
 import logging
 import pytest
 from graypy import GELFTCPHandler, GELFUDPHandler
-from tests.helper import get_unique_message, log_warning
+from tests.helper import logger, get_unique_message, log_warning
 
 
 class DummyFilter(logging.Filter):

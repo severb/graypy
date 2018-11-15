@@ -5,7 +5,7 @@ import socket
 import pytest
 import mock
 from graypy import GELFTCPHandler, GELFUDPHandler
-from tests.helper import get_unique_message, log_warning, log_exception
+from tests.helper import logger, get_unique_message, log_warning, log_exception
 
 
 SYSLOG_LEVEL_ERROR = 3
