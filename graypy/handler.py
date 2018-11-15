@@ -165,7 +165,11 @@ class BaseGELFHandler(logging.Handler, ABC):
 
     @staticmethod
     def _smarter_repr(obj):
-        """Convert JSON incompatible object to string"""
+        """Convert JSON incompatible objects into their string representation
+
+        For datetime based objects convert them into their ISO formatted
+        string as specified by :meth:`datetime.datetime.isoformat`.
+        """
         if isinstance(obj, datetime.datetime):
             return obj.isoformat()
         return repr(obj)
