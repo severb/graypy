@@ -201,7 +201,7 @@ class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
                  debugging_fields=True, extra_fields=True, fqdn=False,
                  localname=None, facility=None, level_names=False,
                  compress=True):
-        """Initilize the GELFUDPHandler
+        """Initialize the GELFUDPHandler
 
         :param host: The host of the graylog server.
         :param port: The port of the graylog server (default 12201).
