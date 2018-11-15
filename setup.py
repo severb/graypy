@@ -27,7 +27,8 @@ VERSION = find_version("graypy", "__init__.py")
 class Pylint(test):
     def run_tests(self):
         from pylint.lint import Run
-        Run(["graypy", "--persistent", "y", "--rcfile", ".pylintrc"])
+        Run(["graypy", "--persistent", "y", "--rcfile", ".pylintrc",
+             "--output-format", "colorized"])
 
 
 class PyTest(test):
@@ -61,10 +62,8 @@ setup(
     tests_require=[
         "pytest",
         "pytest-cov",
-        "pytest-timeout",
         "pylint>=1.9.1,<2.0.0",
         "mock>=2.0.0,<3.0.0",
-        "tox>=3.4.0,<4.0.0"
     ],
     extras_require={'amqp': ['amqplib==1.0.2']},
     classifiers=[
