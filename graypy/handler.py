@@ -3,6 +3,7 @@
 
 """Logging Handlers that send messages in GELF (Graylog Extended Log Format)"""
 
+import abc
 import datetime
 import json
 import logging
@@ -24,6 +25,13 @@ if PY3:
     data, text = bytes, str
 else:
     data, text = str, unicode  # pylint: disable=undefined-variable
+
+# TODO: cleanup
+# fixes for using ABC
+if sys.version_info >= (3, 4):
+    ABC = abc.ABC
+else:
+    ABC = abc.ABCMeta(str('ABC'), (), {})
 
 SYSLOG_LEVELS = {
     logging.CRITICAL: 2,
