@@ -15,7 +15,6 @@ import struct
 import sys
 import traceback
 import zlib
-from abc import ABC
 from logging.handlers import DatagramHandler, SocketHandler
 
 PY3 = sys.version_info[0] == 3
