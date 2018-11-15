@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-"""Logging Handlers that sends messages in GELF (Graylog Extended Log Format)"""
+"""Logging Handlers that send messages in GELF (Graylog Extended Log Format)"""
 
 import datetime
 import json
@@ -46,11 +46,20 @@ class BaseGELFHandler(object):
         self.facility = facility
         self.level_names = level_names
         self.compress = compress
+        self.formatter = None
+
+    def setFormatter(self, fmt):
+        """Set the formatter for this handler
+
+        :param fmt: The :class:`logging.Formatter` to be applied to
+            the GLEF log's ``short_message`` and ``full_message``
+        """
+        self.formatter = fmt
 
     def makePickle(self, record):
         message_dict = make_message_dict(
             record, self.debugging_fields, self.extra_fields, self.fqdn,
-            self.localname, self.level_names, self.facility)
+            self.localname, self.level_names, self.facility, self.formatter)
         packed = message_to_pickle(message_dict)
         frame = zlib.compress(packed) if self.compress else packed
         return frame
@@ -76,6 +85,7 @@ class GELFHandler(BaseGELFHandler, DatagramHandler):
         of numerical values. Defaults to False
     :param compress: Use message compression. Defaults to True
     """
+
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
                  debugging_fields=True, extra_fields=True, fqdn=False,
                  localname=None, facility=None, level_names=False,
@@ -133,6 +143,7 @@ class GELFTcpHandler(BaseGELFHandler, SocketHandler):
     :param tls_client_password: If using TLS, optionally specify a
         password corresponding to the client key file.
     """
+
     def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
                  debugging_fields=True, extra_fields=True, fqdn=False,
                  localname=None, facility=None, level_names=False,
@@ -211,7 +222,7 @@ class ChunkedGELF(object):
 
 
 def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname,
-                      level_names, facility=None):
+                      level_names, facility=None, formatter=None):
     if fqdn:
         host = socket.getfqdn()
     elif localname:
@@ -221,8 +232,8 @@ def make_message_dict(record, debugging_fields, extra_fields, fqdn, localname,
     fields = {
         'version': "1.0",
         'host': host,
-        'short_message': record.getMessage(),
-        'full_message': get_full_message(record),
+        'short_message': formatter.format(record) if formatter else record.getMessage(),
+        'full_message': formatter.format(record) if formatter else get_full_message(record),
         'timestamp': record.created,
         'level': SYSLOG_LEVELS.get(record.levelno, record.levelno),
         'facility': facility or record.name,
@@ -272,7 +283,7 @@ def add_extra_fields(message_dict, record):
     # plus exc_text, which is only found in the logging module source,
     # and id, which is prohibited by the GELF format.
     skip_list = (
-        'args', 'asctime', 'created', 'exc_info',  'exc_text', 'filename',
+        'args', 'asctime', 'created', 'exc_info', 'exc_text', 'filename',
         'funcName', 'id', 'levelname', 'levelno', 'lineno', 'module',
         'msecs', 'message', 'msg', 'name', 'pathname', 'process',
         'processName', 'relativeCreated', 'thread', 'threadName')
