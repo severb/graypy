@@ -92,11 +92,22 @@ class BaseGELFHandler(logging.Handler, ABC):
             'version': "1.0",
             'host': host,
             'short_message': self.formatter.format(record) if self.formatter else record.getMessage(),
-            'full_message': self.formatter.format(record) if self.formatter else BaseGELFHandler.get_full_message(record),
             'timestamp': record.created,
             'level': SYSLOG_LEVELS.get(record.levelno, record.levelno),
             'facility': self.facility or record.name,
         }
+
+        # if a traceback exists add it to the log as the full_message field
+        full_message = None
+        # format exception information if present
+        if record.exc_info:
+            full_message = '\n'.join(traceback.format_exception(*record.exc_info))
+        # use pre-formatted exception information in cases where the primary
+        # exception information was removed, eg. for LogRecord serialization
+        elif record.exc_text:
+            full_message = record.exc_text
+        if full_message:
+            fields["full_message"] = full_message
 
         if self.level_names:
             fields['level_name'] = logging.getLevelName(record.levelno)
@@ -148,20 +159,6 @@ class BaseGELFHandler(logging.Handler, ABC):
             if key not in skip_list and not key.startswith('_'):
                 message_dict['_%s' % key] = value
         return message_dict
-
-    # TODO: refactor/comment better
-    # TODO: inspect this functions behaviour it seems odd
-    @staticmethod
-    def get_full_message(record):
-        """Given a :class:`logging.LogRecord` return its full message"""
-        # format exception information if present
-        if record.exc_info:
-            return '\n'.join(traceback.format_exception(*record.exc_info))
-        # use pre-formatted exception information in cases where the primary
-        # exception information was removed, eg. for LogRecord serialization
-        if record.exc_text:
-            return record.exc_text
-        return record.getMessage()
 
     @staticmethod
     def pack(obj):
