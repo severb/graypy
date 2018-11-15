@@ -10,7 +10,7 @@ from logging.handlers import SocketHandler
 
 from amqplib import client_0_8 as amqp  # pylint: disable=import-error
 
-from graypy.handler import make_message_dict
+from graypy.handler import BaseGELFHandler
 
 try:
     from urllib.parse import urlparse, unquote
@@ -22,7 +22,7 @@ except ImportError:
 _ifnone = lambda v, x: x if v is None else v
 
 
-class GELFRabbitHandler(SocketHandler):
+class GELFRabbitHandler(BaseGELFHandler, SocketHandler):
     """RabbitMQ / Graylog Extended Log Format handler
 
     NOTE: this handler ingores all messages logged by amqplib.
@@ -78,14 +78,7 @@ class GELFRabbitHandler(SocketHandler):
                             self.exchange_type, self.routing_key)
 
     def makePickle(self, record):
-        message_dict = make_message_dict(
-            record,
-            self.debugging_fields,
-            self.extra_fields,
-            self.fqdn,
-            self.localname,
-            self.facility
-        )
+        message_dict = self._make_message_dict(record)
         return json.dumps(message_dict)
 
 
@@ -130,8 +123,7 @@ class ExcludeFilter(Filter):
         """
         if not name:
             raise ValueError('ExcludeFilter requires a non-empty name')
-        self.name = name
-        self.nlen = len(name)
+        super().__init__(name)
 
     def filter(self, record):
         return not (record.name.startswith(self.name) and (
