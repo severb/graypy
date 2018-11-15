@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-"""Logging Handler intergrating RabbitMQ and Graylog Extended Log Format
+"""Logging Handler integrating RabbitMQ and Graylog Extended Log Format
 handler"""
 
 import json
@@ -56,24 +56,26 @@ class GELFRabbitHandler(BaseGELFHandler, SocketHandler):
             raise ValueError('invalid URL scheme (expected "amqp"): %s' % url)
         host = parsed.hostname or 'localhost'
         port = _ifnone(parsed.port, 5672)
-        virtual_host = virtual_host if not unquote(
+        self.virtual_host = virtual_host if not unquote(
             parsed.path[1:]) else unquote(parsed.path[1:])
         self.cn_args = {
             'host': '%s:%s' % (host, port),
             'userid': _ifnone(parsed.username, 'guest'),
             'password': _ifnone(parsed.password, 'guest'),
-            'virtual_host': virtual_host,
+            'virtual_host': self.virtual_host,
             'insist': False,
         }
         self.exchange = exchange
-        self.debugging_fields = debugging_fields
-        self.extra_fields = extra_fields
-        self.fqdn = fqdn
         self.exchange_type = exchange_type
-        self.localname = localname
-        self.facility = facility
-        self.virtual_host = virtual_host
         self.routing_key = routing_key
+        BaseGELFHandler.__init__(
+            self,
+            debugging_fields=debugging_fields,
+            extra_fields=extra_fields,
+            fqdn=fqdn,
+            localname=localname,
+            facility=facility
+        )
         SocketHandler.__init__(self, host, port)
         self.addFilter(ExcludeFilter('amqplib'))
 

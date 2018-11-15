@@ -18,7 +18,7 @@ class DummyFilter(logging.Filter):
 @pytest.fixture(params=[
     GELFTCPHandler(host='127.0.0.1', port=12201, extra_fields=True),
     GELFUDPHandler(host='127.0.0.1', port=12202, extra_fields=True),
-    GELFUDPHandler(host='127.0.0.1', port=12202, compress=False, extra_fields=True),
+    GELFUDPHandler(host='127.0.0.1', port=12202, extra_fields=True, compress=False),
 ])
 def handler(request):
     return request.param

@@ -17,17 +17,17 @@ import traceback
 import zlib
 from logging.handlers import DatagramHandler, SocketHandler
 
-PY3 = sys.version_info[0] == 3
-WAN_CHUNK, LAN_CHUNK = 1420, 8154
 
-if PY3:
+WAN_CHUNK = 1420
+LAN_CHUNK = 8154
+
+if sys.version_info[0] == 3:  # check if python3+
     data, text = bytes, str
 else:
     data, text = str, unicode  # pylint: disable=undefined-variable
 
-# TODO: cleanup
 # fixes for using ABC
-if sys.version_info >= (3, 4):
+if sys.version_info >= (3, 4):  # check if python3.4+
     ABC = abc.ABC
 else:
     ABC = abc.ABCMeta(str('ABC'), (), {})
@@ -52,18 +52,18 @@ class BaseGELFHandler(logging.Handler, ABC):
 
         :param chunk_size: Message chunk size. Messages larger than this
             size will be sent to graylog in multiple chunks. Defaults to
-            `WAN_CHUNK=1420`.
+            ``WAN_CHUNK=1420``.
         :param debugging_fields: Send debug fields if true (the default).
         :param extra_fields: Send extra fields on the log record to graylog
-            if true (the default).
+            if set to :obj:`True`. (:obj:`True` by default)
         :param fqdn: Use fully qualified domain name of localhost as source
-            host (socket.getfqdn()).
+            host (:meth:`socket.getfqdn`).
         :param localname: Use specified hostname as source host.
         :param facility: Replace facility with specified value. If specified,
             record.name will be passed as `logger` parameter.
         :param level_names: Allows the use of string error level names instead
-            of numerical values. Defaults to False
-        :param compress: Use message compression. Defaults to True
+            of numerical values. (:obj:`False` by default)
+        :param compress: Use message compression. (:obj:`True` by default)
         """
         logging.Handler.__init__(self)
         self.debugging_fields = debugging_fields
@@ -167,9 +167,8 @@ class BaseGELFHandler(logging.Handler, ABC):
     def pack(obj):
         """Convert object to a JSON-encoded string"""
         obj = BaseGELFHandler.sanitize_to_unicode(obj)
-        serialized = json.dumps(obj, separators=',:',
-                                default=BaseGELFHandler.object_to_json)
-        return serialized.encode('utf-8')
+        packed = json.dumps(obj, separators=',:', default=BaseGELFHandler.object_to_json)
+        return packed.encode('utf-8')
 
     @staticmethod
     def sanitize_to_unicode(obj):
@@ -208,18 +207,18 @@ class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
         :param port: The port of the graylog server (default 12201).
         :param chunk_size: Message chunk size. Messages larger than this
             size will be sent to graylog in multiple chunks. Defaults to
-            `WAN_CHUNK=1420`.
+            ``WAN_CHUNK=1420``.
         :param debugging_fields: Send debug fields if true (the default).
         :param extra_fields: Send extra fields on the log record to graylog
-            if true (the default).
+            if :obj:`True`. (:obj:`True` by default)
         :param fqdn: Use fully qualified domain name of localhost as source
-            host (socket.getfqdn()).
+            host (:meth:`socket.getfqdn`).
         :param localname: Use specified hostname as source host.
         :param facility: Replace facility with specified value. If specified,
             record.name will be passed as `logger` parameter.
         :param level_names: Allows the use of string error level names instead
-            of numerical values. Defaults to False
-        :param compress: Use message compression. Defaults to True
+            of numerical values. (:obj:`False` by default)
+        :param compress: Use message compression. (:obj:`True` by default)
         """
         BaseGELFHandler.__init__(self, chunk_size,
                                  debugging_fields, extra_fields, fqdn,
@@ -250,19 +249,19 @@ class GELFTCPHandler(BaseGELFHandler, SocketHandler):
         :param port: The port of the graylog server (default 12201).
         :param chunk_size: Message chunk size. Messages larger than this
             size will be sent to graylog in multiple chunks. Defaults to
-            `WAN_CHUNK=1420`.
+            ``WAN_CHUNK=1420``.
         :param debugging_fields: Send debug fields if true (the default).
         :param extra_fields: Send extra fields on the log record to graylog
-            if true (the default).
+            if set to :obj:`True`. (:obj:`True` by default)
         :param fqdn: Use fully qualified domain name of localhost as source
-            host (socket.getfqdn()).
+            host (:meth:`socket.getfqdn`).
         :param localname: Use specified hostname as source host.
         :param facility: Replace facility with specified value. If specified,
             record.name will be passed as `logger` parameter.
         :param level_names: Allows the use of string error level names instead
-            of numerical values. Defaults to False
+            of numerical values. (:obj:`False` by default)
         :param tls: Use transport layer security on connection to graylog
-            if true (not the default)
+            if set to :obj:`True`. (:obj:`False` by default)
         :param tls_server_name: If using TLS, specify the name of the host
             to which the connection is being made. If not specified, hostname
             checking will not be performed.
@@ -306,9 +305,8 @@ class GELFTCPHandler(BaseGELFHandler, SocketHandler):
                 )
 
     def makeSocket(self, timeout=None):
-        """Override SocketHandler.makeSocket, to allow creating
-        wrapped TLS sockets.
-        """
+        """Override SocketHandler.makeSocket, to allow creating wrapped
+        TLS sockets"""
         sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
 
         if self.tls:
@@ -338,8 +336,7 @@ class ChunkedGELF(object):
         """
         self.message = message
         self.size = size
-        self.pieces = struct.pack('B',
-                                  int(math.ceil(len(message) * 1.0 / size)))
+        self.pieces = struct.pack('B', int(math.ceil(len(message) * 1.0 / size)))
         self.id = struct.pack('Q', random.randint(0, 0xFFFFFFFFFFFFFFFF))
 
     def message_chunks(self):
