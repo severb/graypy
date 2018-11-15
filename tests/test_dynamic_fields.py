@@ -17,6 +17,10 @@ class DummyFilter(logging.Filter):
 
 @pytest.fixture(params=[
     GELFTCPHandler(host='127.0.0.1', port=12201, extra_fields=True),
+    GELFTCPHandler(host='127.0.0.1', port=12201, tls=True,
+                   tls_client_cert="config/cert.pem",
+                   tls_client_key="config/key.pem",
+                   tls_client_password="secret"),
     GELFUDPHandler(host='127.0.0.1', port=12202, extra_fields=True),
     GELFUDPHandler(host='127.0.0.1', port=12202, extra_fields=True, compress=False),
 ])
