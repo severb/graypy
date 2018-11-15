@@ -14,6 +14,7 @@ import struct
 import sys
 import traceback
 import zlib
+from abc import ABC
 from logging.handlers import DatagramHandler, SocketHandler
 
 PY3 = sys.version_info[0] == 3
@@ -33,11 +34,14 @@ SYSLOG_LEVELS = {
 }
 
 
-class BaseGELFHandler(object):
-    def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
+class BaseGELFHandler(logging.Handler, ABC):
+    """Abstract class noting the basic components of a GLEFHandler"""
+
+    def __init__(self, chunk_size=WAN_CHUNK,
                  debugging_fields=True, extra_fields=True, fqdn=False,
                  localname=None, facility=None, level_names=False,
                  compress=True):
+        logging.Handler.__init__(self)
         self.debugging_fields = debugging_fields
         self.extra_fields = extra_fields
         self.chunk_size = chunk_size
@@ -90,7 +94,7 @@ class GELFHandler(BaseGELFHandler, DatagramHandler):
                  debugging_fields=True, extra_fields=True, fqdn=False,
                  localname=None, facility=None, level_names=False,
                  compress=True):
-        BaseGELFHandler.__init__(self, host, port, chunk_size,
+        BaseGELFHandler.__init__(self, chunk_size,
                                  debugging_fields, extra_fields, fqdn,
                                  localname, facility, level_names, compress)
         DatagramHandler.__init__(self, host, int(port))
@@ -150,10 +154,11 @@ class GELFTcpHandler(BaseGELFHandler, SocketHandler):
                  tls=False, tls_server_name=None, tls_cafile=None,
                  tls_capath=None, tls_cadata=None, tls_client_cert=None,
                  tls_client_key=None, tls_client_password=None):
-        BaseGELFHandler.__init__(self, host, port, chunk_size,
+        BaseGELFHandler.__init__(self, chunk_size,
                                  debugging_fields, extra_fields, fqdn,
                                  localname, facility, level_names, False)
         SocketHandler.__init__(self, host, int(port))
+
         self.tls = tls
         if self.tls:
             self.tls_cafile = tls_cafile
