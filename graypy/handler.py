@@ -355,4 +355,3 @@ class ChunkedGELF(object):
     def __iter__(self):
         for sequence, chunk in enumerate(self.message_chunks()):
             yield self.encode(sequence, chunk)
-
