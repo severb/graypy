@@ -10,7 +10,7 @@ import zlib
 import mock
 import pytest
 
-from graypy.handler import GELFHandler, message_to_pickle
+from graypy.handler import GELFUDPHandler, BaseGELFHandler
 
 UNICODE_REPLACEMENT = u'\ufffd'
 
@@ -22,7 +22,7 @@ class A(object):
 
 @pytest.fixture
 def handler():
-    return GELFHandler('127.0.0.1')
+    return GELFUDPHandler('127.0.0.1')
 
 
 @pytest.yield_fixture
@@ -46,7 +46,7 @@ def mock_send(handler):
     (["a", b"\xc3"], ["a", UNICODE_REPLACEMENT]),
 ])
 def test_message_to_pickle(message, message2):
-    assert json.loads(message_to_pickle(message).decode('utf-8')) == message2
+    assert json.loads(BaseGELFHandler._message_to_pickle(message).decode('utf-8')) == message2
 
 
 def get_mock_send_arg(mock_send):
@@ -114,3 +114,11 @@ def test_message_to_pickle_serializes_datetime_objects_instead_of_blindly_reprin
 
     assert 'datetime.datetime' not in decoded['_ts']
     assert decoded['_ts'] == timestamp.isoformat()
+
+
+def test_setFormatter():
+    handler = BaseGELFHandler("127.0.0.1", 12207)
+    assert handler.formatter == None
+    handler.setFormatter(logging.Formatter('%(asctime)s : %(levelname)s : %(message)s'))
+    assert handler.formatter != None
+    assert isinstance(handler.formatter, logging.Formatter)
