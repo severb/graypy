@@ -6,8 +6,9 @@
 Python logging handler that sends messages in
 GELF (Graylog Extended Log Format).
 
-
-
+Modules:
+ + :mod:`.handler` - Logging Handlers that send messages in GELF
+ + :mod:`.rabbitmq` - RabbitMQ and BaseGELFHandler Logging Handler composition
 """
 
 from graypy.handler import GELFUDPHandler, GELFTCPHandler, WAN_CHUNK, LAN_CHUNK
