@@ -77,7 +77,7 @@ class BaseGELFHandler(logging.Handler, ABC):
 
     def makePickle(self, record):
         message_dict = self._make_message_dict(record)
-        packed = self._message_to_pickle(message_dict)
+        packed = self.pack(message_dict)
         frame = zlib.compress(packed) if self.compress else packed
         return frame
 
@@ -92,7 +92,7 @@ class BaseGELFHandler(logging.Handler, ABC):
             'version': "1.0",
             'host': host,
             'short_message': self.formatter.format(record) if self.formatter else record.getMessage(),
-            'full_message': self.formatter.format(record) if self.formatter else BaseGELFHandler._get_full_message(record),
+            'full_message': self.formatter.format(record) if self.formatter else BaseGELFHandler.get_full_message(record),
             'timestamp': record.created,
             'level': SYSLOG_LEVELS.get(record.levelno, record.levelno),
             'facility': self.facility or record.name,
@@ -119,11 +119,11 @@ class BaseGELFHandler(logging.Handler, ABC):
             if pn is not None:
                 fields['_process_name'] = pn
         if self.extra_fields:
-            fields = self._add_extra_fields(fields, record)
+            fields = self.add_extra_fields(fields, record)
         return fields
 
     @staticmethod
-    def _add_extra_fields(message_dict, record):
+    def add_extra_fields(message_dict, record):
         """Add extra fields to the given ``message_dict``
 
         However, this does not add additional fields in to ``message_dict``
@@ -151,9 +151,11 @@ class BaseGELFHandler(logging.Handler, ABC):
                 message_dict['_%s' % key] = value
         return message_dict
 
+    # TODO: refactor/comment better
+    # TODO: inspect this functions behaviour it seems odd
     @staticmethod
-    def _get_full_message(record):
-        """Given a logging.LogRecord return its full message"""
+    def get_full_message(record):
+        """Given a :class:`logging.LogRecord` return its full message"""
         # format exception information if present
         if record.exc_info:
             return '\n'.join(traceback.format_exception(*record.exc_info))
@@ -164,8 +166,28 @@ class BaseGELFHandler(logging.Handler, ABC):
         return record.getMessage()
 
     @staticmethod
-    def _smarter_repr(obj):
-        """Convert JSON incompatible objects into their string representation
+    def pack(obj):
+        """Convert object to a JSON-encoded string"""
+        obj = BaseGELFHandler.sanitize_to_unicode(obj)
+        serialized = json.dumps(obj, separators=',:',
+                                default=BaseGELFHandler.object_to_json)
+        return serialized.encode('utf-8')
+
+    @staticmethod
+    def sanitize_to_unicode(obj):
+        """Convert all strings records of the object to unicode"""
+        if isinstance(obj, dict):
+            return dict((BaseGELFHandler.sanitize_to_unicode(k), BaseGELFHandler.sanitize_to_unicode(v)) for k, v in obj.items())
+        if isinstance(obj, (list, tuple)):
+            return obj.__class__([BaseGELFHandler.sanitize_to_unicode(i) for i in obj])
+        if isinstance(obj, data):
+            obj = obj.decode('utf-8', errors='replace')
+        return obj
+
+    @staticmethod
+    def object_to_json(obj):
+        """Convert objects that cannot be natively serialized into JSON
+        into their string representation
 
         For datetime based objects convert them into their ISO formatted
         string as specified by :meth:`datetime.datetime.isoformat`.
@@ -173,25 +195,6 @@ class BaseGELFHandler(logging.Handler, ABC):
         if isinstance(obj, datetime.datetime):
             return obj.isoformat()
         return repr(obj)
-
-    @staticmethod
-    def _message_to_pickle(obj):
-        """Convert object to a JSON-encoded string"""
-        obj = BaseGELFHandler._sanitize(obj)
-        serialized = json.dumps(obj, separators=',:',
-                                default=BaseGELFHandler._smarter_repr)
-        return serialized.encode('utf-8')
-
-    @staticmethod
-    def _sanitize(obj):
-        """Convert all strings records of the object to unicode"""
-        if isinstance(obj, dict):
-            return dict((BaseGELFHandler._sanitize(k), BaseGELFHandler._sanitize(v)) for k, v in obj.items())
-        if isinstance(obj, (list, tuple)):
-            return obj.__class__([BaseGELFHandler._sanitize(i) for i in obj])
-        if isinstance(obj, data):
-            obj = obj.decode('utf-8', errors='replace')
-        return obj
 
 
 class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
@@ -327,7 +330,14 @@ class GELFTCPHandler(BaseGELFHandler, SocketHandler):
 
 
 class ChunkedGELF(object):
+    """Class that chunks a message into a GLEF compatible chunks"""
+
     def __init__(self, message, size):
+        """Initialize the ChunkedGELF message class
+
+        :param message: The message to chunk.
+        :param size: The size of the chunks.
+        """
         self.message = message
         self.size = size
         self.pieces = struct.pack('B',
