@@ -124,11 +124,22 @@ class BaseGELFHandler(logging.Handler, ABC):
 
     @staticmethod
     def _add_extra_fields(message_dict, record):
+        """Add extra fields to the given ``message_dict``
+
+        However, this does not add additional fields in to ``message_dict``
+        that are either duplicated from standard :class:`logging.LogRecord`
+        attributes, duplicated from the python logging module source
+        (e.g. ``exc_text``), or violate GLEF format (i.e. ``id``).
+
+        .. seealso::
+
+            The list of standard :class:`logging.LogRecord` attributes can be
+            found at:
+
+                http://docs.python.org/library/logging.html#logrecord-attributes
+        """
+
         # skip_list is used to filter additional fields in a log message.
-        # It contains all attributes listed in
-        # http://docs.python.org/library/logging.html#logrecord-attributes
-        # plus exc_text, which is only found in the logging module source,
-        # and id, which is prohibited by the GELF format.
         skip_list = (
             'args', 'asctime', 'created', 'exc_info', 'exc_text', 'filename',
             'funcName', 'id', 'levelname', 'levelno', 'lineno', 'module',
@@ -335,5 +346,4 @@ class ChunkedGELF(object):
     def __iter__(self):
         for sequence, chunk in enumerate(self.message_chunks()):
             yield self.encode(sequence, chunk)
-
 
