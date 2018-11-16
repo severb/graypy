@@ -79,14 +79,6 @@ def debugging_handler(request):
     return request.param
 
 
-@pytest.yield_fixture
-def logger(handler):
-    logger = logging.getLogger('test_logger')
-    logger.addHandler(handler)
-    yield logger
-    logger.removeHandler(handler)
-
-
 @pytest.fixture(params=[
     GELFTCPHandler(host='127.0.0.1', port=12201),
     GELFTCPHandler(host='127.0.0.1', port=12201, tls=True,
@@ -100,12 +92,28 @@ def simple_handler(request):
     return request.param
 
 
+@pytest.yield_fixture
+def logger(handler):
+    logger = logging.getLogger('test_logger')
+    logger.addHandler(handler)
+    yield logger
+    logger.removeHandler(handler)
+
+
+@pytest.yield_fixture
 def simple_logger(simple_handler):
-    yield from logger(simple_handler)
+    logger = logging.getLogger('simple_test_logger')
+    logger.addHandler(simple_handler)
+    yield logger
+    logger.removeHandler(simple_handler)
 
 
+@pytest.yield_fixture
 def debug_logger(debugging_handler):
-    yield from logger(debugging_handler)
+    logger = logging.getLogger('debugging_test_logger')
+    logger.addHandler(debugging_handler)
+    yield logger(debugging_handler)
+    logger.removeHandler(debugging_handler)
 
 
 class DummyFilter(logging.Filter):
