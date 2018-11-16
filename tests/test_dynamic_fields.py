@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from tests.helper import get_unique_message, log_warning, filtered_logger
+from tests.helper import filtered_logger, logger, handler, \
+    get_unique_message, log_warning
 
 
 def test_dynamic_fields(filtered_logger):

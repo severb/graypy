@@ -5,7 +5,6 @@ import datetime
 import json
 import sys
 import zlib
-from json import JSONDecodeError
 
 import mock
 import pytest
@@ -36,7 +35,7 @@ def get_mock_send_arg(mock_send):
     except zlib.error:  # we have a uncompress message
         try:
             return json.loads(arg)
-        except JSONDecodeError:  # that is null terminated
+        except Exception:  # that is null terminated
             return json.loads(arg[:-1])
 
 

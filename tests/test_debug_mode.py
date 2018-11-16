@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from tests.helper import debug_logger, get_unique_message, log_warning
+from tests.helper import debug_logger, debugging_handler, \
+    get_unique_message, log_warning
 
 
 def test_debug_mode(debug_logger):

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from tests.helper import _get_api_response, _parse_api_response, \
-    get_unique_message, logger
+    get_unique_message, logger, handler
 
 
 def test_status_field_issue(logger):

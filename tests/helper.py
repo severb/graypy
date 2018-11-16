@@ -112,7 +112,7 @@ def simple_logger(simple_handler):
 def debug_logger(debugging_handler):
     logger = logging.getLogger('debugging_test_logger')
     logger.addHandler(debugging_handler)
-    yield logger(debugging_handler)
+    yield logger
     logger.removeHandler(debugging_handler)
 
 

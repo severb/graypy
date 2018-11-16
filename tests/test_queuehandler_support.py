@@ -5,8 +5,7 @@ import logging
 import pytest
 import mock
 from graypy import GELFTCPHandler, GELFUDPHandler
-from tests.helper import logger, get_unique_message, log_exception, TEST_KEY, \
-    TEST_CERT
+from tests.helper import logger, handler, get_unique_message, log_exception
 
 
 def fake_handle(self, record):
