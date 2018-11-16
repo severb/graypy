@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-""""""
+"""pytests validating that :mod:`graypy` can make simple logs consisting of a
+limited number of fields within the GLEF format"""
 
 from tests.helper import simple_handler, simple_logger, log_warning, \
     get_unique_message
