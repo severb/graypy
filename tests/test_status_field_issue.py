@@ -6,7 +6,10 @@ import logging
 import pytest
 
 from graypy import GELFUDPHandler, GELFTCPHandler
-from tests.helper import log_warning, _get_api_response, _parse_api_response, get_unique_message
+from tests.helper import log_warning, _get_api_response, _parse_api_response, \
+    get_unique_message, TEST_KEY, TEST_CERT
+
+
 #
 # mylog=logging.getLogger('order.processing')
 # handler=GELFHandler('mylogserver',debugging_fields=True)
@@ -18,6 +21,10 @@ from tests.helper import log_warning, _get_api_response, _parse_api_response, ge
 
 @pytest.fixture(params=[
     GELFTCPHandler(host='127.0.0.1', port=12201, extra_fields=True),
+    GELFTCPHandler(host='127.0.0.1', port=12201, tls=True,
+                   tls_client_cert=TEST_CERT,
+                   tls_client_key=TEST_KEY,
+                   tls_client_password="secret"),
     GELFUDPHandler(host='127.0.0.1', port=12202, extra_fields=True),
     GELFUDPHandler(host='127.0.0.1', port=12202, extra_fields=True, compress=False),
 ])
@@ -33,8 +40,9 @@ def logger(handler):
     logger.removeHandler(handler)
 
 
-def status_field_issue(handler):
-    logger.info(get_unique_message(), extra={'fld1': 1, 'fld2': 2, 'status': 'OK'})
-    api_response = _get_api_response(get_unique_message(), [])
-    graylog_response =  _parse_api_response(api_response)
+def test_status_field_issue(logger):
+    message = get_unique_message()
+    logger.info(message, extra={'fld1': 1, 'fld2': 2, 'status': 'OK'})
+    api_response = _get_api_response(message, [])
+    graylog_response = _parse_api_response(api_response)
     assert graylog_response['status'] == "OK"

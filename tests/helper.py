@@ -2,13 +2,16 @@
 # -*- coding: utf-8 -*-
 
 """helper functions for testing graypy"""
-
+import os
 import uuid
 import time
 import logging
 import pytest
 import requests
 
+TEST_CONFIG_DIR = os.path.join(os.path.dirname(__file__), 'config')
+TEST_CERT = os.path.join(TEST_CONFIG_DIR, "cert.pem")
+TEST_KEY = os.path.join(TEST_CONFIG_DIR, "key.pem")
 
 @pytest.yield_fixture
 def logger(handler):

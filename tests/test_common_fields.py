@@ -5,8 +5,8 @@ import socket
 import pytest
 import mock
 from graypy import GELFTCPHandler, GELFUDPHandler
-from tests.helper import logger, get_unique_message, log_warning, log_exception
-
+from tests.helper import logger, get_unique_message, log_warning, \
+    log_exception, TEST_CERT, TEST_KEY
 
 SYSLOG_LEVEL_ERROR = 3
 SYSLOG_LEVEL_WARNING = 4
@@ -15,8 +15,8 @@ SYSLOG_LEVEL_WARNING = 4
 @pytest.fixture(params=[
     GELFTCPHandler(host='127.0.0.1', port=12201),
     GELFTCPHandler(host='127.0.0.1', port=12201, tls=True,
-                   tls_client_cert="config/cert.pem",
-                   tls_client_key="config/key.pem",
+                   tls_client_cert=TEST_CERT,
+                   tls_client_key=TEST_KEY,
                    tls_client_password="secret"),
     GELFUDPHandler(host='127.0.0.1', port=12202),
     GELFUDPHandler(host='127.0.0.1', port=12202, compress=False),

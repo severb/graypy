@@ -5,14 +5,15 @@ import logging
 import pytest
 import mock
 from graypy import GELFTCPHandler, GELFUDPHandler
-from tests.helper import logger, get_unique_message, log_exception
+from tests.helper import logger, get_unique_message, log_exception, TEST_KEY, \
+    TEST_CERT
 
 
 @pytest.fixture(params=[
     GELFTCPHandler(host='127.0.0.1', port=12201),
     GELFTCPHandler(host='127.0.0.1', port=12201, tls=True,
-                   tls_client_cert="config/cert.pem",
-                   tls_client_key="config/key.pem",
+                   tls_client_cert=TEST_CERT,
+                   tls_client_key=TEST_KEY,
                    tls_client_password="secret"),
 
     GELFUDPHandler(host='127.0.0.1', port=12202),
