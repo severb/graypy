@@ -5,7 +5,7 @@
 
 import pytest
 
-from graypy.rabbitmq import GELFRabbitHandler
+from graypy.rabbitmq import GELFRabbitHandler, ExcludeFilter
 
 
 def test_invalid_url():
@@ -14,4 +14,18 @@ def test_invalid_url():
 
 
 def test_valid_url():
-    GELFRabbitHandler("amqp://localhost")
+    handler = GELFRabbitHandler("amqp://localhost")
+    assert handler
+    assert "amqp://localhost" == handler.url
+
+
+def test_invalid_ExcludeFilter():
+    with pytest.raises(ValueError):
+        ExcludeFilter("")
+
+
+def test_ExcludeFilter():
+    filter = ExcludeFilter("foobar")
+    assert filter
+    assert "foobar" == filter.name
+    assert len("foobar") == filter.nlen
