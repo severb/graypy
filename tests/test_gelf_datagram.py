@@ -22,12 +22,19 @@ class A(object):
 
 
 @pytest.fixture(params=[
+    GELFTCPHandler(host='127.0.0.1', port=12201),
     GELFTCPHandler(host='127.0.0.1', port=12201, extra_fields=True),
+    GELFTCPHandler(host='127.0.0.1', port=12201, extra_fields=True,
+                   debugging_fields=True),
     GELFTCPHandler(host='127.0.0.1', port=12201, tls=True,
                    tls_client_cert=TEST_CERT,
                    tls_client_key=TEST_KEY,
                    tls_client_password="secret"),
+    GELFUDPHandler(host='127.0.0.1', port=12202, compress=False),
+    GELFUDPHandler(host='127.0.0.1', port=12202),
     GELFUDPHandler(host='127.0.0.1', port=12202, extra_fields=True),
+    GELFUDPHandler(host='127.0.0.1', port=12202, extra_fields=True,
+                   debugging_fields=True),
 ])
 def handler(request):
     return request.param
@@ -35,10 +42,25 @@ def handler(request):
 
 @pytest.yield_fixture
 def logger(handler):
-    logger = logging.getLogger('test')
+    logger = logging.getLogger('test_logger')
     logger.addHandler(handler)
     yield logger
     logger.removeHandler(handler)
+
+
+@pytest.yield_fixture
+def formatted_logger(handler):
+    logger = logging.getLogger('test_formatted_logger')
+    handler.setFormatter(logging.Formatter('%(levelname)s : %(message)s'))
+    logger.addHandler(handler)
+    yield logger
+    logger.removeHandler(handler)
+
+
+def test_setFormatter(formatted_logger, mock_send):
+    formatted_logger.error("test log")
+    decoded = get_mock_send_arg(mock_send)
+    assert (decoded['short_message'] == "ERROR : test log")
 
 
 @pytest.yield_fixture
@@ -62,19 +84,24 @@ def get_mock_send_arg(mock_send):
     [[[arg], _]] = mock_send.call_args_list
     try:
         return json.loads(zlib.decompress(arg).decode('utf-8'))
-    except zlib.error:
-        return json.loads(arg.decode('utf-8'))
+    except zlib.error:  # we have a uncompress message
+        try:
+            return json.loads(arg)
+        except json.JSONDecodeError:  # that is null terminated
+            return json.loads(arg[:-1])
 
 
-
-def test_manaul_exec_info_logging(logger):
-    """Check that a the full_message traceback info is passed when
+def test_manual_exc_info_handler(logger, mock_send):
+    """Check that a the ``full_message`` traceback info is passed when
     the ``exc_info=1`` flag is given within a log message"""
     try:
-        raise Exception("exception")
-    except Exception:
-        logger.error("caught test exception", exc_info=1)
-        # TODO: validate
+        raise SyntaxError('Syntax error')
+    except SyntaxError:
+        logger.error("Failed", exc_info=1)
+    arg = get_mock_send_arg(mock_send)
+    assert arg['short_message'] == 'Failed'
+    assert arg['full_message'].startswith('Traceback (most recent call last):')
+    assert arg['full_message'].endswith('SyntaxError: Syntax error\n')
 
 
 def test_normal_exception_handler(logger, mock_send):
@@ -135,17 +162,3 @@ def test_message_to_pickle_serializes_datetime_objects_instead_of_blindly_reprin
     assert 'datetime.datetime' not in decoded['_ts']
     assert decoded['_ts'] == timestamp.isoformat()
 
-
-@pytest.yield_fixture
-def formatted_logger(handler):
-    logger = logging.getLogger('test')
-    handler.setFormatter(logging.Formatter('%(levelname)s : %(message)s'))
-    logger.addHandler(handler)
-    yield logger
-    logger.removeHandler(handler)
-
-
-def test_setFormatter(formatted_logger, mock_send):
-    formatted_logger.error("test log")
-    decoded = get_mock_send_arg(mock_send)
-    assert (decoded['short_message'] == "ERROR : test log")
