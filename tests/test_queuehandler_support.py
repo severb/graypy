@@ -9,20 +9,6 @@ from tests.helper import logger, get_unique_message, log_exception, TEST_KEY, \
     TEST_CERT
 
 
-@pytest.fixture(params=[
-    GELFTCPHandler(host='127.0.0.1', port=12201),
-    GELFTCPHandler(host='127.0.0.1', port=12201, tls=True,
-                   tls_client_cert=TEST_CERT,
-                   tls_client_key=TEST_KEY,
-                   tls_client_password="secret"),
-
-    GELFUDPHandler(host='127.0.0.1', port=12202),
-    GELFUDPHandler(host='127.0.0.1', port=12202, compress=False),
-])
-def handler(request):
-    return request.param
-
-
 def fake_handle(self, record):
     self.format(record)
     record.exc_info = None

@@ -2,32 +2,17 @@
 # -*- coding: utf-8 -*-
 
 import socket
-import pytest
 import mock
-from graypy import GELFTCPHandler, GELFUDPHandler
-from tests.helper import logger, get_unique_message, log_warning, \
-    log_exception, TEST_CERT, TEST_KEY
+from tests.helper import logger, simple_logger, get_unique_message, log_warning, \
+    log_exception
 
 SYSLOG_LEVEL_ERROR = 3
 SYSLOG_LEVEL_WARNING = 4
 
 
-@pytest.fixture(params=[
-    GELFTCPHandler(host='127.0.0.1', port=12201),
-    GELFTCPHandler(host='127.0.0.1', port=12201, tls=True,
-                   tls_client_cert=TEST_CERT,
-                   tls_client_key=TEST_KEY,
-                   tls_client_password="secret"),
-    GELFUDPHandler(host='127.0.0.1', port=12202),
-    GELFUDPHandler(host='127.0.0.1', port=12202, compress=False),
-])
-def handler(request):
-    return request.param
-
-
-def test_simple_message(logger):
+def test_simple_message(simple_logger):
     message = get_unique_message()
-    graylog_response = log_warning(logger, message)
+    graylog_response = log_warning(simple_logger, message)
     assert graylog_response['message'] == message
     assert graylog_response['level'] == SYSLOG_LEVEL_WARNING
     assert 'full_message' not in graylog_response
