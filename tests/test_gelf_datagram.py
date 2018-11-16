@@ -10,7 +10,8 @@ import zlib
 import mock
 import pytest
 
-from graypy.handler import GELFUDPHandler, BaseGELFHandler
+from graypy.handler import GELFUDPHandler, BaseGELFHandler, GELFTCPHandler
+from tests.helper import TEST_KEY, TEST_CERT
 
 UNICODE_REPLACEMENT = u'\ufffd'
 
@@ -20,9 +21,16 @@ class A(object):
         return '<A>'
 
 
-@pytest.fixture
-def handler():
-    return GELFUDPHandler('127.0.0.1')
+@pytest.fixture(params=[
+    GELFTCPHandler(host='127.0.0.1', port=12201, extra_fields=True),
+    GELFTCPHandler(host='127.0.0.1', port=12201, tls=True,
+                   tls_client_cert=TEST_CERT,
+                   tls_client_key=TEST_KEY,
+                   tls_client_password="secret"),
+    GELFUDPHandler(host='127.0.0.1', port=12202, extra_fields=True),
+])
+def handler(request):
+    return request.param
 
 
 @pytest.yield_fixture
@@ -39,26 +47,40 @@ def mock_send(handler):
         yield mock_send
 
 
-@pytest.mark.parametrize('message,message2', [
+@pytest.mark.parametrize('message,expected', [
     (u'\u20AC', u'\u20AC'),
     (u'\u20AC'.encode('utf-8'), u'\u20AC'),
     (b"\xc3", UNICODE_REPLACEMENT),
     (["a", b"\xc3"], ["a", UNICODE_REPLACEMENT]),
 ])
-def test_message_to_pickle(message, message2):
-    assert json.loads(BaseGELFHandler.pack(message).decode('utf-8')) == message2
+def test_message_to_pickle(message, expected):
+    assert json.loads(BaseGELFHandler.pack(message).decode('utf-8')) == expected
 
 
 def get_mock_send_arg(mock_send):
     assert mock_send.call_args_list != []
     [[[arg], _]] = mock_send.call_args_list
-    return json.loads(zlib.decompress(arg).decode('utf-8'))
+    try:
+        return json.loads(zlib.decompress(arg).decode('utf-8'))
+    except zlib.error:
+        return json.loads(arg.decode('utf-8'))
+
+
+
+def test_manaul_exec_info_logging(logger):
+    """Check that a the full_message traceback info is passed when
+    the ``exc_info=1`` flag is given within a log message"""
+    try:
+        raise Exception("exception")
+    except Exception:
+        logger.error("caught test exception", exc_info=1)
+        # TODO: validate
 
 
 def test_normal_exception_handler(logger, mock_send):
     try:
         raise SyntaxError('Syntax error')
-    except Exception:
+    except SyntaxError:
         logger.exception('Failed')
     arg = get_mock_send_arg(mock_send)
     assert arg['short_message'] == 'Failed'
@@ -69,7 +91,7 @@ def test_normal_exception_handler(logger, mock_send):
 def test_unicode(logger, mock_send):
     logger.error(u'Mensaje de registro espa\xf1ol')
     arg = get_mock_send_arg(mock_send)
-    assert arg['short_message'] == arg['full_message'] == u'Mensaje de registro espa\xf1ol'
+    assert arg['short_message'] == u'Mensaje de registro espa\xf1ol'
 
 
 @pytest.mark.skipif(sys.version_info[0] >= 3, reason='python2 only')
@@ -90,9 +112,7 @@ def test_broken_unicode_python3(logger, mock_send):
     # message string is not a string, but a binary object: b"foo"
     logger.error(b'Broken \xde log message')
     decoded = get_mock_send_arg(mock_send)
-    assert (decoded['short_message']
-            == decoded['full_message']
-            == "b'Broken \\xde log message'")
+    assert (decoded['short_message'] == "b'Broken \\xde log message'")
 
 
 def test_arbitrary_object(logger, mock_send):
@@ -116,9 +136,16 @@ def test_message_to_pickle_serializes_datetime_objects_instead_of_blindly_reprin
     assert decoded['_ts'] == timestamp.isoformat()
 
 
-def test_setFormatter():
-    handler = BaseGELFHandler("127.0.0.1", 12207)
-    assert handler.formatter == None
-    handler.setFormatter(logging.Formatter('%(asctime)s : %(levelname)s : %(message)s'))
-    assert handler.formatter != None
-    assert isinstance(handler.formatter, logging.Formatter)
+@pytest.yield_fixture
+def formatted_logger(handler):
+    logger = logging.getLogger('test')
+    handler.setFormatter(logging.Formatter('%(levelname)s : %(message)s'))
+    logger.addHandler(handler)
+    yield logger
+    logger.removeHandler(handler)
+
+
+def test_setFormatter(formatted_logger, mock_send):
+    formatted_logger.error("test log")
+    decoded = get_mock_send_arg(mock_send)
+    assert (decoded['short_message'] == "ERROR : test log")
