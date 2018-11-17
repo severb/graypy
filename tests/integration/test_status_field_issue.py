@@ -1,6 +1,16 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+"""pytests for addressing potential issues with adding an ``status`` extra
+field withing a given log and having the log failing to appear within graylog.
+
+Related issue:
+- Fails to log silently with specific extra field #85
+
+URL:
+- https://github.com/severb/graypy/issues/85
+"""
+
 import pytest
 
 from tests.integration import LOCAL_GRAYLOG_UP
