@@ -10,13 +10,13 @@ import pytest
 
 from graypy.rabbitmq import GELFRabbitHandler
 
-MOCK_LOG_RECORD_NAME = 'MOCK_LOG_RECORD'
+MOCK_LOG_RECORD_NAME = "MOCK_LOG_RECORD"
 MOCK_LOG_RECORD = logging.LogRecord(
     MOCK_LOG_RECORD_NAME,
     logging.INFO,
     pathname=None,
     lineno=None,
-    msg='Log message',
+    msg="Log message",
     args=(),
     exc_info=(None, None, None),
 )
