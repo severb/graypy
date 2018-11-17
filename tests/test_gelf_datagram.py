@@ -1,6 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+"""pytests for the formatting and construction of graylog GLEF logs by graypy
+
+.. note::
+
+    These tests mock sending to graylog and do not require an active graylog
+    instance to operate.
+"""
+
 import datetime
 import json
 import sys
