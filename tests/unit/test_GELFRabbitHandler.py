@@ -41,7 +41,7 @@ def test_socket_creation_failure():
     """Test attempting to open a socket to a rabbitmq instance when no such
     service exists"""
     handler = GELFRabbitHandler("amqp://localhost")
-    with pytest.raises(UnboundLocalError):
+    with pytest.raises(UnboundLocalError or ConnectionRefusedError):
         handler.makeSocket()
 
 
