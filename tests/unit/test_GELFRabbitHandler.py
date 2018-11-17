@@ -9,6 +9,7 @@ import logging
 import pytest
 
 from graypy.rabbitmq import GELFRabbitHandler
+from graypy.handler import SYSLOG_LEVELS
 
 MOCK_LOG_RECORD_NAME = "MOCK_LOG_RECORD"
 MOCK_LOG_RECORD = logging.LogRecord(
@@ -49,3 +50,4 @@ def test_make_pickle():
     handler = GELFRabbitHandler("amqp://localhost")
     pickle = json.loads(handler.makePickle(MOCK_LOG_RECORD))
     assert "Log message" == pickle["short_message"]
+    assert SYSLOG_LEVELS[MOCK_LOG_RECORD.levelno] == pickle["level"]

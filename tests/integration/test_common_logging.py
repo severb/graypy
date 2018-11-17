@@ -3,13 +3,15 @@
 
 """pytests sending a common usage logs to a local graylog instance"""
 
+import logging
+
 import pytest
+
+from graypy.handler import SYSLOG_LEVELS
 
 from tests.integration import LOCAL_GRAYLOG_UP
 from tests.helper import get_graylog_response, get_unique_message, \
     logger, handler
-
-SYSLOG_LEVEL_ERROR = 3
 
 
 @pytest.mark.skipif(not LOCAL_GRAYLOG_UP,
@@ -22,4 +24,4 @@ def test_common_logging(logger):
     assert message == graylog_response["message"]
     assert "long_message" not in graylog_response
     assert "timestamp" in graylog_response
-    assert SYSLOG_LEVEL_ERROR == graylog_response["level"]
+    assert SYSLOG_LEVELS[logging.ERROR] == graylog_response["level"]
