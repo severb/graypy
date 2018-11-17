@@ -19,7 +19,7 @@ import pytest
 
 from graypy.handler import BaseGELFHandler
 
-from tests.helper import logger, handler, formatted_logger
+from tests.helper import formatted_logger, logger, handler
 
 UNICODE_REPLACEMENT = u'\ufffd'
 
@@ -126,6 +126,13 @@ def test_message_to_pickle_serializes_datetime_objects_instead_of_blindly_reprin
     assert timestamp.isoformat() == decoded['_ts']
 
 
+def test_status_field_issue(logger, mock_send):
+    logger.error("Log message", extra={'fld1': 1, 'fld2': 2, 'status': 'OK'})
+    decoded = get_mock_send_arg(mock_send)
+    assert "Log message" == decoded['short_message']
+    assert "OK" == decoded["_status"]
+
+
 def test_formatted_logger(formatted_logger, mock_send):
     """Test the ability to set and modify the graypy handler's
     :class:`logging.Formatter` and have the resultant ``short_message`` be
@@ -133,10 +140,3 @@ def test_formatted_logger(formatted_logger, mock_send):
     formatted_logger.error("test log")
     decoded = get_mock_send_arg(mock_send)
     assert "ERROR : test log" == decoded['short_message']
-
-
-def test_status_field_issue(logger, mock_send):
-    logger.error("Log message", extra={'fld1': 1, 'fld2': 2, 'status': 'OK'})
-    decoded = get_mock_send_arg(mock_send)
-    assert "Log message" == decoded['short_message']
-    assert "OK" == decoded["_status"]

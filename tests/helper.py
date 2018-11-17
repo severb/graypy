@@ -12,7 +12,8 @@ import requests
 
 from graypy import GELFUDPHandler, GELFTCPHandler
 
-TEST_CONFIG_DIR = os.path.join(os.path.dirname(__file__), 'config')
+TEST_CONFIG_DIR = os.path.join(os.path.dirname(__file__),
+                               os.path.join("integration", "config"))
 TEST_CERT = os.path.join(TEST_CONFIG_DIR, "cert.pem")
 TEST_KEY = os.path.join(TEST_CONFIG_DIR, "key.pem")
 KEY_PASS = "secret"
