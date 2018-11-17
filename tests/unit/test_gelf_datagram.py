@@ -106,16 +106,25 @@ def test_broken_unicode_python3(logger, mock_send):
     assert "b'Broken \\xde log message'" == decoded['short_message']
 
 
-def test_arbitrary_object(logger, mock_send):
-    logger.error('Log message', extra={'foo': TestClass()})
+def test_extra_field(logger, mock_send):
+    logger.error('Log message', extra={'foo': "bar"})
     decoded = get_mock_send_arg(mock_send)
-    assert '<TestClass>' == decoded['_foo']
+    assert "Log message" == decoded["short_message"]
+    assert 'bar' == decoded['_foo']
 
 
 def test_list(logger, mock_send):
     logger.error('Log message', extra={'foo': ['bar', 'baz']})
     decoded = get_mock_send_arg(mock_send)
+    assert "Log message" == decoded["short_message"]
     assert ['bar', 'baz'] == decoded['_foo']
+
+
+def test_arbitrary_object(logger, mock_send):
+    logger.error('Log message', extra={'foo': TestClass()})
+    decoded = get_mock_send_arg(mock_send)
+    assert "Log message" == decoded["short_message"]
+    assert '<TestClass>' == decoded['_foo']
 
 
 def test_message_to_pickle_serializes_datetime_objects_instead_of_blindly_repring_them(logger, mock_send):
@@ -137,6 +146,6 @@ def test_formatted_logger(formatted_logger, mock_send):
     """Test the ability to set and modify the graypy handler's
     :class:`logging.Formatter` and have the resultant ``short_message`` be
     formatted by the set :class:`logging.Formatter`"""
-    formatted_logger.error("test log")
+    formatted_logger.error("Log message")
     decoded = get_mock_send_arg(mock_send)
-    assert "ERROR : test log" == decoded['short_message']
+    assert "ERROR : Log message" == decoded['short_message']
