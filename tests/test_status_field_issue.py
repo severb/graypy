@@ -10,4 +10,4 @@ def test_status_field_issue(logger):
     logger.info(message, extra={'fld1': 1, 'fld2': 2, 'status': 'OK'})
     api_response = _get_api_response(message, [])
     graylog_response = _parse_api_response(api_response)
-    assert "OK" == graylog_response['status']
+    assert "OK" == graylog_response['_status']
