@@ -30,7 +30,7 @@ def _build_api_string(message, fields):
 
 
 def _get_api_response(message, fields):
-    time.sleep(3)
+    time.sleep(10)
     url = _build_api_string(message, fields)
     api_response = requests.get(
         url,
