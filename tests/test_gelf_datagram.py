@@ -24,9 +24,9 @@ from tests.helper import logger, handler, formatted_logger
 UNICODE_REPLACEMENT = u'\ufffd'
 
 
-class A(object):
+class TestClass(object):
     def __repr__(self):
-        return '<A>'
+        return '<TestClass>'
 
 
 @pytest.yield_fixture
@@ -107,9 +107,9 @@ def test_broken_unicode_python3(logger, mock_send):
 
 
 def test_arbitrary_object(logger, mock_send):
-    logger.error('Log message', extra={'foo': A()})
+    logger.error('Log message', extra={'foo': TestClass()})
     decoded = get_mock_send_arg(mock_send)
-    assert '<A>' == decoded['_foo']
+    assert '<TestClass>' == decoded['_foo']
 
 
 def test_list(logger, mock_send):
