@@ -129,7 +129,7 @@ class ExcludeFilter(Filter):
         """
         if not name:
             raise ValueError('ExcludeFilter requires a non-empty name')
-        super().__init__(name)
+        Filter.__init__(self, name)
 
     def filter(self, record):
         return not (record.name.startswith(self.name) and (
