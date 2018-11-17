@@ -20,34 +20,34 @@ KEY_PASS = "secret"
 
 
 @pytest.fixture(params=[
-    GELFTCPHandler(host='localhost', port=12201),
-    GELFTCPHandler(host='127.0.0.1', port=12201),
-    GELFTCPHandler(host='127.0.0.1', port=12201,
+    GELFTCPHandler(host="localhost", port=12201),
+    GELFTCPHandler(host="127.0.0.1", port=12201),
+    GELFTCPHandler(host="127.0.0.1", port=12201,
                    extra_fields=True),
-    GELFTCPHandler(host='127.0.0.1', port=12201,
+    GELFTCPHandler(host="127.0.0.1", port=12201,
                    extra_fields=True, debugging_fields=True),
-    GELFTCPHandler(host='127.0.0.1', port=12201,
+    GELFTCPHandler(host="127.0.0.1", port=12201,
                    tls=True, tls_client_cert=TEST_CERT,
                    tls_client_key=TEST_KEY, tls_client_password=KEY_PASS),
-    GELFTCPHandler(host='127.0.0.1', port=12201,
+    GELFTCPHandler(host="127.0.0.1", port=12201,
                    tls=True, tls_client_cert=TEST_CERT,
                    tls_client_key=TEST_KEY, tls_client_password=KEY_PASS,
                    extra_fields=True),
-    GELFTCPHandler(host='127.0.0.1', port=12201,
+    GELFTCPHandler(host="127.0.0.1", port=12201,
                    tls=True, tls_client_cert=TEST_CERT,
                    tls_client_key=TEST_KEY, tls_client_password=KEY_PASS,
                    extra_fields=True, debugging_fields=True),
-    GELFUDPHandler(host='localhost', port=12202),
-    GELFUDPHandler(host='127.0.0.1', port=12202),
-    GELFUDPHandler(host='127.0.0.1', port=12202,
+    GELFUDPHandler(host="localhost", port=12202),
+    GELFUDPHandler(host="127.0.0.1", port=12202),
+    GELFUDPHandler(host="127.0.0.1", port=12202,
                    compress=False),
-    GELFUDPHandler(host='127.0.0.1', port=12202,
+    GELFUDPHandler(host="127.0.0.1", port=12202,
                    extra_fields=True),
-    GELFUDPHandler(host='127.0.0.1', port=12202,
+    GELFUDPHandler(host="127.0.0.1", port=12202,
                    extra_fields=True, compress=False),
-    GELFUDPHandler(host='127.0.0.1', port=12202,
+    GELFUDPHandler(host="127.0.0.1", port=12202,
                    extra_fields=True, debugging_fields=True),
-    GELFUDPHandler(host='127.0.0.1', port=12202,
+    GELFUDPHandler(host="127.0.0.1", port=12202,
                    extra_fields=True, debugging_fields=True, compress=False),
 ])
 def handler(request):
@@ -56,7 +56,7 @@ def handler(request):
 
 @pytest.yield_fixture
 def logger(handler):
-    logger = logging.getLogger('test_logger')
+    logger = logging.getLogger("test_logger")
     logger.addHandler(handler)
     yield logger
     logger.removeHandler(handler)
@@ -64,8 +64,8 @@ def logger(handler):
 
 @pytest.yield_fixture
 def formatted_logger(handler):
-    logger = logging.getLogger('formatted_test_logger')
-    handler.setFormatter(logging.Formatter('%(levelname)s : %(message)s'))
+    logger = logging.getLogger("formatted_test_logger")
+    handler.setFormatter(logging.Formatter("%(levelname)s : %(message)s"))
     logger.addHandler(handler)
     yield logger
     logger.removeHandler(handler)
@@ -76,11 +76,11 @@ def get_unique_message():
 
 
 DEFAULT_FIELDS = [
-    'message', 'full_message', 'source', 'level',
-    'func', 'file', 'line', 'module', 'logger_name',
+    "message", "full_message", "source", "level",
+    "func", "file", "line", "module", "logger_name",
 ]
 
-BASE_API_URL = 'http://127.0.0.1:9000/api/search/universal/relative?query={0}&range=5&fields='
+BASE_API_URL = "http://127.0.0.1:9000/api/search/universal/relative?query={0}&range=5&fields="
 
 
 def get_graylog_response(message, fields=None):
@@ -90,7 +90,7 @@ def get_graylog_response(message, fields=None):
 
 
 def _build_api_string(message, fields):
-    return BASE_API_URL.format(message) + '%2C'.join(set(DEFAULT_FIELDS + fields))
+    return BASE_API_URL.format(message) + "%2C".join(set(DEFAULT_FIELDS + fields))
 
 
 def _get_api_response(message, fields):
@@ -98,13 +98,13 @@ def _get_api_response(message, fields):
     url = _build_api_string(message, fields)
     api_response = requests.get(
         url,
-        auth=('admin', 'admin'),
-        headers={'accept': 'application/json'}
+        auth=("admin", "admin"),
+        headers={"accept": "application/json"}
     )
     return api_response
 
 
 def _parse_api_response(api_response):
     assert api_response.status_code == 200
-    messages = api_response.json()['messages']
-    return messages[0]['message']
+    messages = api_response.json()["messages"]
+    return messages[0]["message"]
