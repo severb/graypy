@@ -136,7 +136,7 @@ def test_message_to_pickle_serializes_datetime_objects_instead_of_blindly_reprin
 
 
 def test_status_field_issue(logger, mock_send):
-    logger.error("Log message", extra={'fld1': 1, 'fld2': 2, 'status': 'OK'})
+    logger.error("Log message", extra={'status': 'OK'})
     decoded = get_mock_send_arg(mock_send)
     assert "Log message" == decoded['short_message']
     assert "OK" == decoded["_status"]
