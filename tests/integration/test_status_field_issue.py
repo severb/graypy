@@ -1,10 +1,25 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import pytest
+
+from tests.integration import LOCAL_GRAYLOG_UP
 from tests.helper import get_graylog_response, get_unique_message, \
     logger, handler
 
 
+@pytest.mark.skipif(not LOCAL_GRAYLOG_UP,
+                    reason="local graylog instance not up")
+def test_non_status_field_log(logger):
+    message = get_unique_message()
+    logger.error(message, extra={'foo': 'bar'})
+    graylog_response = get_graylog_response(message)
+    assert message == graylog_response['message']
+    assert "bar" == graylog_response['_foo']
+
+
+@pytest.mark.skipif(not LOCAL_GRAYLOG_UP,
+                    reason="local graylog instance not up")
 def test_status_field_issue(logger):
     message = get_unique_message()
     logger.error(message, extra={'status': 'OK'})
