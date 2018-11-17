@@ -42,9 +42,9 @@ def get_mock_send_arg(mock_send):
         return json.loads(zlib.decompress(arg).decode('utf-8'))
     except zlib.error:  # we have a uncompress message
         try:
-            return json.loads(arg)
+            return json.loads(arg.decode('utf-8'))
         except Exception:  # that is null terminated
-            return json.loads(arg[:-1])
+            return json.loads(arg[:-1].decode('utf-8'))
 
 
 @pytest.mark.parametrize('message,expected', [
