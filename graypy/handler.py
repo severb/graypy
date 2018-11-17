@@ -230,7 +230,6 @@ class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
                 DatagramHandler.send(self, chunk)
 
 
-# TODO: Write tests
 class GELFTCPHandler(BaseGELFHandler, SocketHandler):
     """Graylog Extended Log Format TCP handler"""
 
