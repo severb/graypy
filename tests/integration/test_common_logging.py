@@ -21,6 +21,5 @@ def test_common_logging(logger):
     graylog_response = get_graylog_response(message)
     assert message == graylog_response["message"]
     assert "long_message" not in graylog_response
-    assert "1.0" == graylog_response["version"]
     assert "timestamp" in graylog_response
     assert SYSLOG_LEVEL_ERROR == graylog_response["level"]
