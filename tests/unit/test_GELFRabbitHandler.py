@@ -3,9 +3,23 @@
 
 """pytests for :class:`graypy.rabbitmq.GELFRabbitHandler`"""
 
+import json
+import logging
+
 import pytest
 
 from graypy.rabbitmq import GELFRabbitHandler
+
+MOCK_LOG_RECORD_NAME = 'MOCK_LOG_RECORD'
+MOCK_LOG_RECORD = logging.LogRecord(
+    MOCK_LOG_RECORD_NAME,
+    logging.INFO,
+    pathname=None,
+    lineno=None,
+    msg='Log message',
+    args=(),
+    exc_info=(None, None, None),
+)
 
 
 def test_invalid_url():
@@ -29,3 +43,9 @@ def test_socket_creation_failure():
     handler = GELFRabbitHandler("amqp://localhost")
     with pytest.raises(UnboundLocalError):
         handler.makeSocket()
+
+
+def test_make_pickle():
+    handler = GELFRabbitHandler("amqp://localhost")
+    pickle = json.loads(handler.makePickle(MOCK_LOG_RECORD))
+    assert "Log message" == pickle["short_message"]
