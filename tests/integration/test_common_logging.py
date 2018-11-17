@@ -17,7 +17,8 @@ from tests.integration.helper import get_unique_message, get_graylog_response
 @pytest.mark.skipif(not LOCAL_GRAYLOG_UP,
                     reason="local graylog instance not up")
 def test_common_logging(logger):
-    """Test sending a common usage log"""
+    """Test sending a log message that requires chunking to be sent to
+    graylog"""
     message = get_unique_message()
     logger.error(message)
     graylog_response = get_graylog_response(message)
