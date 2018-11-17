@@ -142,21 +142,6 @@ def formatted_logger(handler):
     logger.removeHandler(handler)
 
 
-def log_warning(logger, message, args=None, fields=None):
-    args = args if args else []
-    fields = fields if fields else []
-    logger.warning(message, *args)
-    api_response = _get_api_response(message % args, fields)
-    return _parse_api_response(api_response)
-
-
-def log_exception(logger, message, exception, fields=None):
-    fields = fields if fields else []
-    logger.exception(exception)
-    api_response = _get_api_response(message, fields)
-    return _parse_api_response(api_response)
-
-
 def get_unique_message():
     return str(uuid.uuid4())
 
@@ -167,6 +152,12 @@ DEFAULT_FIELDS = [
 ]
 
 BASE_API_URL = 'http://127.0.0.1:9000/api/search/universal/relative?query={0}&range=5&fields='
+
+
+def get_graylog_response(message, fields=None):
+    fields = fields if fields else []
+    api_resp = _get_api_response(message, fields)
+    return _parse_api_response(api_resp)
 
 
 def _build_api_string(message, fields):

@@ -1,14 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from tests.helper import _get_api_response, _parse_api_response, \
+from tests.helper import get_graylog_response, \
     get_unique_message, logger, handler
 
 
 def test_status_field_issue(logger):
     message = get_unique_message()
     logger.error(message, extra={'fld1': 1, 'fld2': 2, 'status': 'OK'})
-    api_response = _get_api_response(message, [])
-    graylog_response = _parse_api_response(api_response)
+    graylog_response = get_graylog_response(message)
     assert message == graylog_response['message']
     assert "OK" == graylog_response['status']
