@@ -32,6 +32,11 @@ if sys.version_info >= (3, 4):  # check if python3.4+
 else:
     ABC = abc.ABCMeta(str('ABC'), (), {})
 
+try:
+    import httplib
+except ImportError:
+    import http.client as httplib
+
 SYSLOG_LEVELS = {
     logging.CRITICAL: 2,
     logging.ERROR: 3,
@@ -317,6 +322,45 @@ class GELFTLSHandler(GELFTCPHandler):
         wrapped_socket.connect((self.host, self.port))
 
         return wrapped_socket
+
+
+# TODO: add https?
+class GELFHTTPHandler(BaseGELFHandler):
+    """Graylog Extended Log Format HTTP handler"""
+
+    def __init__(self, host, port=12203, compress=True, path='/gelf',
+                 timeout=5, **kwargs):
+        """Initialize the GELFHTTPHandler
+
+        :param host: GELF HTTP input host
+        :param port: GELF HTTP input port
+        :param compress: compress message before sending it to the server
+            or not
+        :param path: path of the HTTP input
+            (http://docs.graylog.org/en/latest/pages/sending_data.html#gelf-via-http)
+        :param timeout: amount of seconds that HTTP client should wait before
+            it discards the request if the server doesn't respond
+        """
+
+        BaseGELFHandler.__init__(self, compress=compress, **kwargs)
+
+        self.host = host
+        self.port = port
+        self.path = path
+        self.timeout = timeout
+        self.headers = {}
+
+        if compress:
+            self.headers['Content-Encoding'] = 'gzip,deflate'
+
+    def emit(self, record):
+        data = self.convert_record_to_gelf(record)
+        connection = httplib.HTTPConnection(
+            host=self.host,
+            port=self.port,
+            timeout=self.timeout
+        )
+        connection.request('POST', self.path, data, self.headers)
 
 
 class ChunkedGELF(object):
