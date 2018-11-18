@@ -11,16 +11,7 @@ import pytest
 from graypy.rabbitmq import GELFRabbitHandler
 from graypy.handler import SYSLOG_LEVELS
 
-MOCK_LOG_RECORD_NAME = "MOCK_LOG_RECORD"
-MOCK_LOG_RECORD = logging.LogRecord(
-    MOCK_LOG_RECORD_NAME,
-    logging.INFO,
-    pathname=None,
-    lineno=None,
-    msg="Log message",
-    args=(),
-    exc_info=None,
-)
+from tests.unit.helper import MOCK_LOG_RECORD
 
 
 def test_invalid_url():

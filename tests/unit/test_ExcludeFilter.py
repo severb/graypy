@@ -3,22 +3,10 @@
 
 """pytests for :class:`graypy.rabbitmq.ExcludeFilter`"""
 
-import logging
-
 import pytest
 
 from graypy import ExcludeFilter
-
-MOCK_LOG_RECORD_NAME = "MOCK_LOG_RECORD"
-MOCK_LOG_RECORD = logging.LogRecord(
-    MOCK_LOG_RECORD_NAME,
-    logging.INFO,
-    pathname=None,
-    lineno=None,
-    msg="Log message",
-    args=(),
-    exc_info=None,
-)
+from tests.unit.helper import MOCK_LOG_RECORD_NAME, MOCK_LOG_RECORD
 
 
 @pytest.mark.parametrize("name", [None, ""])
