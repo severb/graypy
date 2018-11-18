@@ -44,5 +44,6 @@ def _get_api_response(message, fields):
 def _parse_api_response(api_response):
     assert api_response.status_code == 200
     messages = api_response.json()["messages"]
+    assert 0 != len(messages)
     assert 1 == len(messages)
     return messages[0]["message"]
