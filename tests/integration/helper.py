@@ -18,7 +18,7 @@ DEFAULT_FIELDS = [
     "func", "file", "line", "module", "logger_name",
 ]
 
-BASE_API_URL = "http://127.0.0.1:9000/api/search/universal/relative?query={0}&range=25&fields="
+BASE_API_URL = "http://127.0.0.1:9000/api/search/universal/relative?query={0}&range=45&fields="
 
 
 def get_graylog_response(message, fields=None):
