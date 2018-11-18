@@ -18,7 +18,7 @@ from tests.integration.helper import get_unique_message, get_graylog_response
                     reason="local graylog instance not up")
 def test_chunked_logging():
     """Test sending a common usage log"""
-    logger = logging.getLogger("test_logger")
+    logger = logging.getLogger("test_chunked_logger")
     handler = GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, chunk_size=10)
     logger.addHandler(handler)
     message = get_unique_message()
