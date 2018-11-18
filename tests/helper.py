@@ -11,7 +11,7 @@ import pytest
 
 from graypy import GELFUDPHandler, GELFTCPHandler, GELFTLSHandler, GELFHTTPHandler
 
-TEST_CERT = "tests/integration/config/cert.pem"
+TEST_CERT = "tests/config/cert.pem"
 KEY_PASS = "secret"
 
 TEST_TCP_PORT = 12201
