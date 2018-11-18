@@ -114,6 +114,7 @@ class RabbitSocket(object):
         )
 
     def close(self):
+        """Close the connection to the RabbitMQ socket"""
         try:
             self.connection.close()
         except Exception:
@@ -121,11 +122,15 @@ class RabbitSocket(object):
 
 
 class ExcludeFilter(Filter):
-    def __init__(self, name):
-        """Initialize filter.
+    """A subclass of :class:`logging.Filter` which should be instantiated
+    with the name of the logger which, together with its children, will have
+    its events excluded (filtered out)"""
 
-        Initialize with the name of the logger which, together with its
-        children, will have its events excluded (filtered out).
+    def __init__(self, name):
+        """Initialize the ExcludeFilter
+
+        :param name: the name to match for within a
+            :class:`logging.LogRecord`'s ``name`` field for filtering
         """
         if not name:
             raise ValueError('ExcludeFilter requires a non-empty name')
