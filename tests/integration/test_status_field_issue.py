@@ -14,8 +14,8 @@ URL:
 import pytest
 
 from tests.integration import LOCAL_GRAYLOG_UP
-from tests.helper import logger, handler
 from tests.integration.helper import get_unique_message, get_graylog_response
+from tests.helper import handler, logger
 
 
 @pytest.mark.skipif(not LOCAL_GRAYLOG_UP,

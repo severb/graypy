@@ -24,25 +24,16 @@ TEST_TLS_PORT = 12204
 
 
 @pytest.fixture(params=[
-    GELFTCPHandler(host="127.0.0.1", port=TEST_TCP_PORT),
-    GELFTCPHandler(host="127.0.0.1", port=TEST_TCP_PORT, extra_fields=True),
-    GELFTCPHandler(host="127.0.0.1", port=TEST_TCP_PORT, extra_fields=True, debugging_fields=True),
-    GELFTCPHandler(host="127.0.0.1", port=TEST_TLS_PORT,
-                   tls=True, tls_client_cert=TEST_CERT,
-                   tls_client_key=TEST_KEY, tls_client_password=KEY_PASS),
-    GELFTCPHandler(host="127.0.0.1", port=TEST_TLS_PORT,
-                   tls=True, tls_client_cert=TEST_CERT,
-                   tls_client_key=TEST_KEY, tls_client_password=KEY_PASS,
-                   extra_fields=True),
-    GELFTCPHandler(host="127.0.0.1", port=TEST_TLS_PORT,
-                   tls=True, tls_cafile=TEST_CERT,
-                   extra_fields=True, debugging_fields=True),
-    GELFUDPHandler(host="127.0.0.1", port=12202),
-    GELFUDPHandler(host="127.0.0.1", port=12202, compress=False),
-    GELFUDPHandler(host="127.0.0.1", port=12202, extra_fields=True),
-    GELFUDPHandler(host="127.0.0.1", port=12202, extra_fields=True, compress=False),
-    GELFUDPHandler(host="127.0.0.1", port=12202, extra_fields=True, debugging_fields=True),
-    GELFUDPHandler(host="127.0.0.1", port=12202, extra_fields=True, debugging_fields=True, compress=False),
+    GELFTCPHandler("127.0.0.1", TEST_TCP_PORT),
+    GELFTCPHandler("127.0.0.1", TEST_TCP_PORT, extra_fields=True),
+    GELFTCPHandler("127.0.0.1", TEST_TCP_PORT, extra_fields=True, debugging_fields=True),
+    GELFTCPHandler("127.0.0.1", TEST_TLS_PORT, tls=True, tls_cafile=TEST_CERT),
+    GELFUDPHandler("127.0.0.1", TEST_UDP_PORT),
+    GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, compress=False),
+    GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True),
+    GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True, compress=False),
+    GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True, debugging_fields=True),
+    GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True, debugging_fields=True, compress=False),
 ])
 def handler(request):
     return request.param
