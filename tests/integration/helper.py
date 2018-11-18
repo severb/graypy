@@ -32,7 +32,7 @@ def _build_api_string(message, fields):
 
 
 def _get_api_response(message, fields):
-    sleep(10)
+    sleep(2)
     url = _build_api_string(message, fields)
     api_response = requests.get(
         url,
