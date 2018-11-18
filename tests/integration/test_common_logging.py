@@ -39,11 +39,15 @@ def logger(handler):
     yield logger
     logger.removeHandler(handler)
 
+
 @pytest.mark.skipif(not LOCAL_GRAYLOG_UP,
                     reason="local graylog instance not up")
 def test_common_logging(logger):
     """Test sending a log message that requires chunking to be sent to
     graylog"""
+    logger = logging.getLogger("test_logger")
+    logger.addHandler(GELFUDPHandler("127.0.0.1", TEST_UDP_PORT))
+
     message = get_unique_message()
     logger.error(message)
     graylog_response = get_graylog_response(message)
