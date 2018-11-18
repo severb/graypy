@@ -44,10 +44,9 @@ def get_mock_send_arg(mock_send):
     assert mock_send.call_args_list != []
     [[[arg], _]] = mock_send.call_args_list
 
+    # TODO: this is inaccurate solution for mocking non-send handlers
     if isinstance(arg, logging.LogRecord):
-        out = json.loads(BaseGELFHandler(compress=False).makePickle(arg).decode("utf-8"))
-        print(out)
-        return out
+        return json.loads(BaseGELFHandler(compress=False).makePickle(arg).decode("utf-8"))
     try:
         return json.loads(zlib.decompress(arg).decode("utf-8"))
     except zlib.error:  # we have a uncompress message
