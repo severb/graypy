@@ -46,3 +46,11 @@ def logger(handler):
     yield logger_
     logger_.removeHandler(handler)
 
+
+@pytest.yield_fixture
+def formatted_logger(handler):
+    logger_ = logging.getLogger("formatted_test_logger")
+    handler.setFormatter(logging.Formatter("%(levelname)s : %(message)s"))
+    logger_.addHandler(handler)
+    yield logger_
+    logger_.removeHandler(handler)

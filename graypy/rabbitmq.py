@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-"""Logging Handler integrating RabbitMQ and Graylog Extended Log Format
+"""Logging Handler integrating RabbitMQ and Graylog Extended Log Format (GELF)
 handler"""
 
 import json
@@ -84,7 +84,7 @@ class GELFRabbitHandler(BaseGELFHandler, SocketHandler):
                             self.exchange_type, self.routing_key)
 
     def makePickle(self, record):
-        message_dict = self._make_message_dict(record)
+        message_dict = self._make_gelf_dict(record)
         return json.dumps(message_dict)
 
 

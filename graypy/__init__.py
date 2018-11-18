@@ -4,7 +4,7 @@
 """graypy
 
 Python logging handler that sends messages in
-GELF (Graylog Extended Log Format).
+Graylog Extended Log Format (GELF).
 
 Modules:
  + :mod:`.handler` - Logging Handlers that send messages in GELF

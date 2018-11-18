@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-"""Logging Handlers that send messages in GELF (Graylog Extended Log Format)"""
+"""Logging Handlers that send messages in Graylog Extended Log Format (GELF)"""
 
 import abc
 import datetime
@@ -76,64 +76,95 @@ class BaseGELFHandler(logging.Handler, ABC):
         self.compress = compress
 
     def makePickle(self, record):
-        message_dict = self._make_message_dict(record)
-        packed = self._pack(message_dict)
+        gelf_dict = self._make_gelf_dict(record)
+        packed = self._pack_gelf_dict(gelf_dict)
         frame = zlib.compress(packed) if self.compress else packed
         return frame
 
-    def _make_message_dict(self, record):
-        if self.fqdn:
-            host = socket.getfqdn()
-        elif self.localname:
-            host = self.localname
-        else:
-            host = socket.gethostname()
-        fields = {
+    def _make_gelf_dict(self, record):
+        """Create a dictionary representing a Graylog GELF log from a
+        python :class:`logging.LogRecord`"""
+        # construct the base GELF format
+        gelf_dict = {
             'version': "1.0",
-            'host': host,
+            'host': BaseGELFHandler._resolve_host(self.fqdn, self.localname),
             'short_message': self.formatter.format(record) if self.formatter else record.getMessage(),
             'timestamp': record.created,
             'level': SYSLOG_LEVELS.get(record.levelno, record.levelno),
             'facility': self.facility or record.name,
         }
 
+        # add in specified optional extras
+        self._add_full_message(gelf_dict, record)
+        if self.level_names:
+            self._add_level_names(gelf_dict, record)
+        if self.facility is not None:
+            self._set_custom_facility(gelf_dict, self.facility, record)
+        if self.debugging_fields:
+            self._add_debugging_fields(gelf_dict, record)
+        if self.extra_fields:
+            self._add_extra_fields(gelf_dict, record)
+        return gelf_dict
+
+    @staticmethod
+    def _add_level_names(gelf_dict, record):
+        """Add the ``level_name`` field to the ``gelf_dict`` which notes
+        the logging level via the string error level names instead of
+        numerical values"""
+        gelf_dict['level_name'] = logging.getLevelName(record.levelno)
+
+    @staticmethod
+    def _set_custom_facility(gelf_dict, facility_value, record):
+        """Set the ``gelf_dict``'s ``facility`` field to the specified value
+        also add the the extra ``_logger`` field containing the log
+        records name"""
+        gelf_dict.update({"facility": facility_value, '_logger': record.name})
+
+    @staticmethod
+    def _add_full_message(gelf_dict, record):
+        """Add the ``full_message`` field to the ``gelf_dict`` if any
+        traceback information exists within the logging record"""
         # if a traceback exists add it to the log as the full_message field
         full_message = None
         # format exception information if present
         if record.exc_info:
-                full_message = '\n'.join(traceback.format_exception(*record.exc_info))
+            full_message = '\n'.join(
+                traceback.format_exception(*record.exc_info))
         # use pre-formatted exception information in cases where the primary
         # exception information was removed, eg. for LogRecord serialization
         if record.exc_text:
             full_message = record.exc_text
         if full_message:
-            fields["full_message"] = full_message
-
-        if self.level_names:
-            fields['level_name'] = logging.getLevelName(record.levelno)
-
-        if self.facility is not None:
-            fields.update({'_logger': record.name})
-
-        if self.debugging_fields:
-            fields.update({
-                'file': record.pathname,
-                'line': record.lineno,
-                '_function': record.funcName,
-                '_pid': record.process,
-                '_thread_name': record.threadName,
-            })
-            # record.processName was added in Python 2.6.2
-            pn = getattr(record, 'processName', None)
-            if pn is not None:
-                fields['_process_name'] = pn
-        if self.extra_fields:
-            fields = self._add_extra_fields(fields, record)
-        return fields
+            gelf_dict["full_message"] = full_message
 
     @staticmethod
-    def _add_extra_fields(message_dict, record):
-        """Add extra fields to the given ``message_dict``
+    def _resolve_host(fqdn=None, localname=None):
+        """Resolve the ``host`` GELF field"""
+        if fqdn:
+            return socket.getfqdn()
+        elif localname:
+            return localname
+        else:
+            return socket.gethostname()
+
+    @staticmethod
+    def _add_debugging_fields(gelf_dict, record):
+        """Add debugging fields to the given ``gelf_dict``"""
+        gelf_dict.update({
+            'file': record.pathname,
+            'line': record.lineno,
+            '_function': record.funcName,
+            '_pid': record.process,
+            '_thread_name': record.threadName,
+        })
+        # record.processName was added in Python 2.6.2
+        pn = getattr(record, 'processName', None)
+        if pn is not None:
+            gelf_dict['_process_name'] = pn
+
+    @staticmethod
+    def _add_extra_fields(gelf_dict, record):
+        """Add extra fields to the given ``gelf_dict``
 
         However, this does not add additional fields in to ``message_dict``
         that are either duplicated from standard :class:`logging.LogRecord`
@@ -157,14 +188,18 @@ class BaseGELFHandler(logging.Handler, ABC):
 
         for key, value in record.__dict__.items():
             if key not in skip_list and not key.startswith('_'):
-                message_dict['_%s' % key] = value
-        return message_dict
+                gelf_dict['_%s' % key] = value
 
     @staticmethod
-    def _pack(obj):
-        """Convert object to a JSON-encoded string"""
-        obj = BaseGELFHandler._sanitize_to_unicode(obj)
-        packed = json.dumps(obj, separators=',:', default=BaseGELFHandler._object_to_json)
+    def _pack_gelf_dict(gelf_dict):
+        """Convert a given ``gelf_dict`` to a JSON-encoded string, thus,
+        creating an uncompressed GELF log ready for consumption by graylog.
+
+        Since we cannot be 100% sure of what is contained in the ``gelf_dict``
+        we have to do some sanitation.
+        """
+        gelf_dict = BaseGELFHandler._sanitize_to_unicode(gelf_dict)
+        packed = json.dumps(gelf_dict, separators=',:', default=BaseGELFHandler._object_to_json)
         return packed.encode('utf-8')
 
     @staticmethod
