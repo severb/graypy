@@ -354,6 +354,7 @@ class GELFHTTPHandler(BaseGELFHandler):
             self.headers['Content-Encoding'] = 'gzip,deflate'
 
     def emit(self, record):
+        """Emit the GELF record to graylog via an HTTP POST request"""
         data = self.convert_record_to_gelf(record)
         connection = httplib.HTTPConnection(
             host=self.host,
