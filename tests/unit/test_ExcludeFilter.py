@@ -17,7 +17,7 @@ MOCK_LOG_RECORD = logging.LogRecord(
     lineno=None,
     msg="Log message",
     args=(),
-    exc_info=(None, None, None),
+    exc_info=None,
 )
 
 

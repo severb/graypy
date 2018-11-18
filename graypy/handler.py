@@ -100,14 +100,11 @@ class BaseGELFHandler(logging.Handler, ABC):
         # if a traceback exists add it to the log as the full_message field
         full_message = None
         # format exception information if present
-        if not full_message and record.exc_info:
-            try:
+        if record.exc_info:
                 full_message = '\n'.join(traceback.format_exception(*record.exc_info))
-            except AttributeError:  # TODO: python3.4 error
-                pass
         # use pre-formatted exception information in cases where the primary
         # exception information was removed, eg. for LogRecord serialization
-        if not full_message and record.exc_text:
+        if record.exc_text:
             full_message = record.exc_text
         if full_message:
             fields["full_message"] = full_message
