@@ -145,11 +145,11 @@ def test_status_field_issue(logger, mock_send):
 
 @pytest.yield_fixture
 def formatted_logger(handler):
-    logger = logging.getLogger("formatted_test_logger")
+    logger_ = logging.getLogger("formatted_test_logger")
     handler.setFormatter(logging.Formatter("%(levelname)s : %(message)s"))
-    logger.addHandler(handler)
-    yield logger
-    logger.removeHandler(handler)
+    logger_.addHandler(handler)
+    yield logger_
+    logger_.removeHandler(handler)
 
 
 def test_formatted_logger(formatted_logger, mock_send):

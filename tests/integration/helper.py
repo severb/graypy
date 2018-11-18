@@ -17,6 +17,7 @@ DEFAULT_FIELDS = [
     "message", "full_message", "source", "level",
     "func", "file", "line", "module", "logger_name",
 ]
+
 BASE_API_URL = "http://127.0.0.1:9000/api/search/universal/relative?query={0}&range=5&fields="
 
 
@@ -31,7 +32,7 @@ def _build_api_string(message, fields):
 
 
 def _get_api_response(message, fields):
-    sleep(5)
+    sleep(3)
     url = _build_api_string(message, fields)
     api_response = requests.get(
         url,
@@ -44,5 +45,5 @@ def _get_api_response(message, fields):
 def _parse_api_response(api_response):
     assert api_response.status_code == 200
     messages = api_response.json()["messages"]
-    assert 0 != len(messages)
+    assert 1 == len(messages)
     return messages[0]["message"]

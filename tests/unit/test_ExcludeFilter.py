@@ -29,7 +29,7 @@ def test_invalid_name(name):
         ExcludeFilter(name)
 
 
-@pytest.mark.parametrize("name", ["foobar", ".", b"\00"])
+@pytest.mark.parametrize("name", ["foobar", ".", " "])
 def test_valid_name(name):
     """Test constructing :class:`graypy.rabbitmq.ExcludeFilter` with a
     valid ``name`` argument"""
