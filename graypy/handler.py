@@ -154,8 +154,7 @@ class BaseGELFHandler(logging.Handler, ABC):
             return socket.getfqdn()
         elif localname:
             return localname
-        else:
-            return socket.gethostname()
+        return socket.gethostname()
 
     @staticmethod
     def _add_debugging_fields(gelf_dict, record):
