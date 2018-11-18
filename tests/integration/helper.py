@@ -2,14 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """helper functions for testing graypy with a local graylog instance"""
-import time
-import uuid
+
+from time import sleep
+from uuid import uuid4
 
 import requests
 
 
 def get_unique_message():
-    return str(uuid.uuid4())
+    return str(uuid4())
 
 
 DEFAULT_FIELDS = [
@@ -30,7 +31,7 @@ def _build_api_string(message, fields):
 
 
 def _get_api_response(message, fields):
-    time.sleep(3)
+    sleep(3)
     url = _build_api_string(message, fields)
     api_response = requests.get(
         url,

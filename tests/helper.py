@@ -18,18 +18,15 @@ TEST_CERT = os.path.join(TEST_CONFIG_DIR, "cert.pem")
 TEST_KEY = os.path.join(TEST_CONFIG_DIR, "key.pem")
 KEY_PASS = "secret"
 
-TEST_UDP_PORT = 12202
 TEST_TCP_PORT = 12201
+TEST_UDP_PORT = 12202
 TEST_TLS_PORT = 12204
 
 
 @pytest.fixture(params=[
-    GELFTCPHandler(host="localhost", port=TEST_TCP_PORT),
     GELFTCPHandler(host="127.0.0.1", port=TEST_TCP_PORT),
-    GELFTCPHandler(host="127.0.0.1", port=TEST_TCP_PORT,
-                   extra_fields=True),
-    GELFTCPHandler(host="127.0.0.1", port=TEST_TCP_PORT,
-                   extra_fields=True, debugging_fields=True),
+    GELFTCPHandler(host="127.0.0.1", port=TEST_TCP_PORT, extra_fields=True),
+    GELFTCPHandler(host="127.0.0.1", port=TEST_TCP_PORT, extra_fields=True, debugging_fields=True),
     GELFTCPHandler(host="127.0.0.1", port=TEST_TLS_PORT,
                    tls=True, tls_client_cert=TEST_CERT,
                    tls_client_key=TEST_KEY, tls_client_password=KEY_PASS),
@@ -38,21 +35,14 @@ TEST_TLS_PORT = 12204
                    tls_client_key=TEST_KEY, tls_client_password=KEY_PASS,
                    extra_fields=True),
     GELFTCPHandler(host="127.0.0.1", port=TEST_TLS_PORT,
-                   tls=True, tls_client_cert=TEST_CERT,
-                   tls_client_key=TEST_KEY, tls_client_password=KEY_PASS,
+                   tls=True, tls_cafile=TEST_CERT,
                    extra_fields=True, debugging_fields=True),
-    GELFUDPHandler(host="localhost", port=TEST_UDP_PORT),
     GELFUDPHandler(host="127.0.0.1", port=TEST_UDP_PORT),
-    GELFUDPHandler(host="127.0.0.1", port=TEST_UDP_PORT,
-                   compress=False),
-    GELFUDPHandler(host="127.0.0.1", port=TEST_UDP_PORT,
-                   extra_fields=True),
-    GELFUDPHandler(host="127.0.0.1", port=TEST_UDP_PORT,
-                   extra_fields=True, compress=False),
-    GELFUDPHandler(host="127.0.0.1", port=TEST_UDP_PORT,
-                   extra_fields=True, debugging_fields=True),
-    GELFUDPHandler(host="127.0.0.1", port=TEST_UDP_PORT,
-                   extra_fields=True, debugging_fields=True, compress=False),
+    GELFUDPHandler(host="127.0.0.1", port=TEST_UDP_PORT, compress=False),
+    GELFUDPHandler(host="127.0.0.1", port=TEST_UDP_PORT, extra_fields=True),
+    GELFUDPHandler(host="127.0.0.1", port=TEST_UDP_PORT, extra_fields=True, compress=False),
+    GELFUDPHandler(host="127.0.0.1", port=TEST_UDP_PORT, extra_fields=True, debugging_fields=True),
+    GELFUDPHandler(host="127.0.0.1", port=TEST_UDP_PORT, extra_fields=True, debugging_fields=True, compress=False),
 ])
 def handler(request):
     return request.param
