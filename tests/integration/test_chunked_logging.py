@@ -28,4 +28,7 @@ def test_chunked_logging():
     assert message == graylog_response["message"]
     assert "long_message" not in graylog_response
     assert "timestamp" in graylog_response
+    assert "facility" in graylog_response
+    assert "host" in graylog_response
+    assert "1.0" == graylog_response["version"]
     assert SYSLOG_LEVELS[logging.ERROR] == graylog_response["level"]
