@@ -15,8 +15,8 @@ services:
       GRAYLOG_ELASTICSEARCH_HOSTS: http://elasticsearch:9200
     volumes:
       - ./inputs.json:/usr/share/graylog/data/contentpacks/inputs.json
-      - ./cert.pem:/usr/share/graylog/data/cert.pem
-      - ./key.pem:/usr/share/graylog/data/key.pem
+      - ./localhost.cert.pem:/usr/share/graylog/data/cert.pem
+      - ./localhost.pkcs8-encrypted.key.pem:/usr/share/graylog/data/key.pem
     links:
       - mongo
       - elasticsearch
