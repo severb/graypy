@@ -41,16 +41,8 @@ def handler(request):
 
 @pytest.yield_fixture
 def logger(handler):
-    logger = logging.getLogger("test_logger")
-    logger.addHandler(handler)
-    yield logger
-    logger.removeHandler(handler)
+    logger_ = logging.getLogger("test_logger")
+    logger_.addHandler(handler)
+    yield logger_
+    logger_.removeHandler(handler)
 
-
-@pytest.yield_fixture
-def formatted_logger(handler):
-    logger = logging.getLogger("formatted_test_logger")
-    handler.setFormatter(logging.Formatter("%(levelname)s : %(message)s"))
-    logger.addHandler(handler)
-    yield logger
-    logger.removeHandler(handler)

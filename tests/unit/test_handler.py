@@ -11,6 +11,7 @@
 
 import datetime
 import json
+import logging
 import sys
 import zlib
 
@@ -19,7 +20,7 @@ import pytest
 
 from graypy.handler import BaseGELFHandler
 
-from tests.helper import formatted_logger, logger, handler
+from tests.helper import logger, handler
 
 UNICODE_REPLACEMENT = u"\ufffd"
 
@@ -140,6 +141,15 @@ def test_status_field_issue(logger, mock_send):
     decoded = get_mock_send_arg(mock_send)
     assert "Log message" == decoded["short_message"]
     assert "OK" == decoded["_status"]
+
+
+@pytest.yield_fixture
+def formatted_logger(handler):
+    logger = logging.getLogger("formatted_test_logger")
+    handler.setFormatter(logging.Formatter("%(levelname)s : %(message)s"))
+    logger.addHandler(handler)
+    yield logger
+    logger.removeHandler(handler)
 
 
 def test_formatted_logger(formatted_logger, mock_send):
