@@ -69,6 +69,11 @@ class BaseGELFHandler(logging.Handler, ABC):
         self.debugging_fields = debugging_fields
         self.extra_fields = extra_fields
         self.chunk_size = chunk_size
+
+        if fqdn and localname:
+            raise ValueError(
+                "cannot specify 'fqdn' and 'localname' arguments together")
+
         self.fqdn = fqdn
         self.localname = localname
         self.facility = facility

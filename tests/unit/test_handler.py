@@ -149,3 +149,8 @@ def test_formatted_logger(formatted_logger, mock_send):
     formatted_logger.error("Log message")
     decoded = get_mock_send_arg(mock_send)
     assert "ERROR : Log message" == decoded["short_message"]
+
+
+def test_invalid_fqdn_localhost():
+    with pytest.raises(ValueError):
+        BaseGELFHandler("127.0.0.1", 12202, fqdn=True, localname="localhost")
