@@ -27,6 +27,7 @@ TEST_TLS_PORT = 12204
     GELFTCPHandler("127.0.0.1", TEST_TCP_PORT),
     GELFTCPHandler("127.0.0.1", TEST_TCP_PORT, extra_fields=True),
     GELFTCPHandler("127.0.0.1", TEST_TCP_PORT, extra_fields=True, debugging_fields=True),
+    GELFTLSHandler("127.0.0.1", TEST_TLS_PORT),
     GELFTLSHandler("127.0.0.1", TEST_TLS_PORT, validate=True, ca_certs=TEST_CERT),
     GELFUDPHandler("127.0.0.1", TEST_UDP_PORT),
     GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, compress=False),
