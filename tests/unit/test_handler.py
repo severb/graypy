@@ -18,7 +18,7 @@ import zlib
 import mock
 import pytest
 
-from graypy.handler import BaseGELFHandler, GELFHTTPHandler
+from graypy.handler import BaseGELFHandler, GELFHTTPHandler, GELFTLSHandler
 
 from tests.helper import handler, logger, formatted_logger
 
@@ -181,3 +181,18 @@ def test_formatted_logger(formatted_logger, mock_send):
 def test_invalid_fqdn_localhost():
     with pytest.raises(ValueError):
         BaseGELFHandler("127.0.0.1", 12202, fqdn=True, localname="localhost")
+
+
+def test_invalid_ca_certs():
+    """Test constructing :class:`graypy.handler.GELFTLSHandler` with
+    incorrect arguments specifying server ca cert verification"""
+    with pytest.raises(ValueError):
+        GELFTLSHandler("127.0.0.1", validate=True)
+
+
+def test_invalid_client_certs():
+    """Test constructing :class:`graypy.handler.GELFTLSHandler` with
+    incorrect arguments specifying client cert/key verification"""
+    with pytest.raises(ValueError):
+        # missing client cert
+        GELFTLSHandler("127.0.0.1", keyfile="badkey")
