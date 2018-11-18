@@ -26,7 +26,7 @@ install:
   - pip install .
 before_script:
   - cd tests/config
-  - ./create_ssl_certs.sh -h localhost -i 127.0.0.1
+  - bash create_ssl_certs.sh -h localhost -i 127.0.0.1
   - cd ../..
   - docker-compose -f tests/config/docker-compose.yml down
   - docker-compose -f tests/config/docker-compose.yml up -d
