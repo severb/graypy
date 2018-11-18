@@ -6,6 +6,7 @@
 import pytest
 
 from graypy import ExcludeFilter
+
 from tests.unit.helper import MOCK_LOG_RECORD_NAME, MOCK_LOG_RECORD
 
 

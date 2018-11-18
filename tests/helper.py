@@ -9,7 +9,8 @@ These functions are used for both the integration and unit testing.
 import logging
 import pytest
 
-from graypy import GELFUDPHandler, GELFTCPHandler, GELFTLSHandler, GELFHTTPHandler
+from graypy import GELFUDPHandler, GELFTCPHandler, GELFTLSHandler, \
+    GELFHTTPHandler
 
 TEST_CERT = "tests/config/localhost.cert.pem"
 KEY_PASS = "secret"

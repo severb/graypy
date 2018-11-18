@@ -80,11 +80,8 @@ def test_manual_exc_info_handler(logger, mock_send):
 
     # GELFHTTPHandler mocking does not complete the stacktrace
     # thus a missing \n
-    for handler in logger.handlers:
-        if isinstance(handler, GELFHTTPHandler):
-            assert arg["full_message"].endswith("SyntaxError: Syntax error")
-        else:
-            assert arg["full_message"].endswith("SyntaxError: Syntax error\n")
+    assert arg["full_message"].endswith("SyntaxError: Syntax error") or \
+           arg["full_message"].endswith("SyntaxError: Syntax error\n")
 
 
 def test_normal_exception_handler(logger, mock_send):
@@ -98,11 +95,8 @@ def test_normal_exception_handler(logger, mock_send):
 
     # GELFHTTPHandler mocking does not complete the stacktrace
     # thus a missing \n
-    for handler in logger.handlers:
-        if isinstance(handler, GELFHTTPHandler):
-            assert arg["full_message"].endswith("SyntaxError: Syntax error")
-        else:
-            assert arg["full_message"].endswith("SyntaxError: Syntax error\n")
+    assert arg["full_message"].endswith("SyntaxError: Syntax error") or \
+           arg["full_message"].endswith("SyntaxError: Syntax error\n")
 
 
 def test_unicode(logger, mock_send):
@@ -179,6 +173,8 @@ def test_formatted_logger(formatted_logger, mock_send):
 
 
 def test_invalid_fqdn_localhost():
+    """Test constructing :class:`graypy.handler.BaseGELFHandler` with
+    specifying conflicting arguments ``fqdn`` and ``localname``"""
     with pytest.raises(ValueError):
         BaseGELFHandler("127.0.0.1", 12202, fqdn=True, localname="localhost")
 

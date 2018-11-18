@@ -3,6 +3,7 @@
 
 """helper functions for testing graypy with mocks of python logging and
 graylog services"""
+
 import logging
 
 MOCK_LOG_RECORD_NAME = "MOCK_LOG_RECORD"

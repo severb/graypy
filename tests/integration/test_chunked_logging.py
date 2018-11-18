@@ -9,8 +9,8 @@ import pytest
 
 from graypy.handler import SYSLOG_LEVELS, GELFUDPHandler
 
-from tests.integration import LOCAL_GRAYLOG_UP
 from tests.helper import TEST_UDP_PORT
+from tests.integration import LOCAL_GRAYLOG_UP
 from tests.integration.helper import get_unique_message, get_graylog_response
 
 

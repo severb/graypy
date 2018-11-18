@@ -22,6 +22,8 @@ BASE_API_URL = "http://127.0.0.1:9000/api/search/universal/relative?query={0}&ra
 
 
 def get_graylog_response(message, fields=None):
+    """Search for a given log message (with possible additional fields)
+    within a local graylog instance"""
     fields = fields if fields else []
     api_resp = _get_api_response(message, fields)
     return _parse_api_response(api_resp)

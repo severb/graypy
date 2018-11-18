@@ -4,7 +4,6 @@
 """pytests for :class:`graypy.rabbitmq.GELFRabbitHandler`"""
 
 import json
-import logging
 
 import pytest
 
