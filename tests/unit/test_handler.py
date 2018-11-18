@@ -54,8 +54,8 @@ def get_mock_send_arg(mock_send):
     (b"\xc3", UNICODE_REPLACEMENT),
     (["a", b"\xc3"], ["a", UNICODE_REPLACEMENT]),
 ])
-def test_message_to_pickle(message, expected):
-    assert expected == json.loads(BaseGELFHandler.pack(message).decode("utf-8"))
+def test_pack(message, expected):
+    assert expected == json.loads(BaseGELFHandler._pack(message).decode("utf-8"))
 
 
 def test_manual_exc_info_handler(logger, mock_send):

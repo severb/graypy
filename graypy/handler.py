@@ -77,7 +77,7 @@ class BaseGELFHandler(logging.Handler, ABC):
 
     def makePickle(self, record):
         message_dict = self._make_message_dict(record)
-        packed = self.pack(message_dict)
+        packed = self._pack(message_dict)
         frame = zlib.compress(packed) if self.compress else packed
         return frame
 
@@ -131,11 +131,11 @@ class BaseGELFHandler(logging.Handler, ABC):
             if pn is not None:
                 fields['_process_name'] = pn
         if self.extra_fields:
-            fields = self.add_extra_fields(fields, record)
+            fields = self._add_extra_fields(fields, record)
         return fields
 
     @staticmethod
-    def add_extra_fields(message_dict, record):
+    def _add_extra_fields(message_dict, record):
         """Add extra fields to the given ``message_dict``
 
         However, this does not add additional fields in to ``message_dict``
@@ -164,25 +164,25 @@ class BaseGELFHandler(logging.Handler, ABC):
         return message_dict
 
     @staticmethod
-    def pack(obj):
+    def _pack(obj):
         """Convert object to a JSON-encoded string"""
-        obj = BaseGELFHandler.sanitize_to_unicode(obj)
-        packed = json.dumps(obj, separators=',:', default=BaseGELFHandler.object_to_json)
+        obj = BaseGELFHandler._sanitize_to_unicode(obj)
+        packed = json.dumps(obj, separators=',:', default=BaseGELFHandler._object_to_json)
         return packed.encode('utf-8')
 
     @staticmethod
-    def sanitize_to_unicode(obj):
+    def _sanitize_to_unicode(obj):
         """Convert all strings records of the object to unicode"""
         if isinstance(obj, dict):
-            return dict((BaseGELFHandler.sanitize_to_unicode(k), BaseGELFHandler.sanitize_to_unicode(v)) for k, v in obj.items())
+            return dict((BaseGELFHandler._sanitize_to_unicode(k), BaseGELFHandler._sanitize_to_unicode(v)) for k, v in obj.items())
         if isinstance(obj, (list, tuple)):
-            return obj.__class__([BaseGELFHandler.sanitize_to_unicode(i) for i in obj])
+            return obj.__class__([BaseGELFHandler._sanitize_to_unicode(i) for i in obj])
         if isinstance(obj, data):
             obj = obj.decode('utf-8', errors='replace')
         return obj
 
     @staticmethod
-    def object_to_json(obj):
+    def _object_to_json(obj):
         """Convert objects that cannot be natively serialized into JSON
         into their string representation
 
