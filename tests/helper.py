@@ -21,7 +21,7 @@ KEY_PASS = "secret"
 TEST_TCP_PORT = 12201
 TEST_UDP_PORT = 12202
 TEST_HTTP_PORT = 12203
-TEST_TLS_PORT = 12204
+TEST_TLS_PORT = 12207
 
 
 @pytest.fixture(params=[
@@ -30,6 +30,8 @@ TEST_TLS_PORT = 12204
     GELFTCPHandler("127.0.0.1", TEST_TCP_PORT, extra_fields=True, debugging_fields=True),
     GELFTLSHandler("localhost", TEST_TLS_PORT),
     GELFTLSHandler("localhost", TEST_TLS_PORT, validate=True, ca_certs=TEST_CERT),
+    GELFTLSHandler("127.0.0.1", TEST_TLS_PORT),
+    GELFTLSHandler("127.0.0.1", TEST_TLS_PORT, validate=True, ca_certs=TEST_CERT),
     GELFHTTPHandler('127.0.0.1', TEST_HTTP_PORT),
     GELFHTTPHandler('127.0.0.1', TEST_HTTP_PORT, compress=False),
     GELFUDPHandler("127.0.0.1", TEST_UDP_PORT),
