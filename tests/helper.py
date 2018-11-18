@@ -10,7 +10,7 @@ import os
 import logging
 import pytest
 
-from graypy import GELFUDPHandler, GELFTCPHandler
+from graypy import GELFUDPHandler, GELFTCPHandler, GELFTLSHandler
 
 TEST_CONFIG_DIR = os.path.join(os.path.dirname(__file__),
                                os.path.join("integration", "config"))
@@ -27,9 +27,7 @@ TEST_TLS_PORT = 12204
     GELFTCPHandler("127.0.0.1", TEST_TCP_PORT),
     GELFTCPHandler("127.0.0.1", TEST_TCP_PORT, extra_fields=True),
     GELFTCPHandler("127.0.0.1", TEST_TCP_PORT, extra_fields=True, debugging_fields=True),
-    GELFTCPHandler("127.0.0.1", TEST_TLS_PORT, tls=True, tls_capath=TEST_CERT),
-    GELFTCPHandler("127.0.0.1", TEST_TLS_PORT, tls=True, tls_client_cert=TEST_CERT,
-                 tls_client_key=TEST_KEY, tls_client_password=KEY_PASS),
+    GELFTLSHandler("127.0.0.1", TEST_TLS_PORT, validate=True, ca_certs=TEST_CERT),
     GELFUDPHandler("127.0.0.1", TEST_UDP_PORT),
     GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, compress=False),
     GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True),

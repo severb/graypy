@@ -11,7 +11,8 @@ Modules:
  + :mod:`.rabbitmq` - RabbitMQ and BaseGELFHandler Logging Handler composition
 """
 
-from graypy.handler import GELFUDPHandler, GELFTCPHandler, WAN_CHUNK, LAN_CHUNK
+from graypy.handler import GELFUDPHandler, GELFTCPHandler, GELFTLSHandler, \
+    WAN_CHUNK, LAN_CHUNK
 
 try:
     from graypy.rabbitmq import GELFRabbitHandler, ExcludeFilter

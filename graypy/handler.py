@@ -234,11 +234,11 @@ class BaseGELFHandler(logging.Handler, ABC):
 class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
     """Graylog Extended Log Format UDP handler"""
 
-    def __init__(self, host, port=12201, **kwargs):
+    def __init__(self, host, port=12202, **kwargs):
         """Initialize the GELFUDPHandler
 
         :param host: The host of the graylog server.
-        :param port: The port of the graylog server (default 12201).
+        :param port: The port of the graylog server (default ``12202``).
         """
         BaseGELFHandler.__init__(self, **kwargs)
         DatagramHandler.__init__(self, host, port)
@@ -254,75 +254,69 @@ class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
 class GELFTCPHandler(BaseGELFHandler, SocketHandler):
     """Graylog Extended Log Format TCP handler"""
 
-    def __init__(self, host, port=12201,
-                 tls=False, tls_server_name=None, tls_cafile=None,
-                 tls_capath=None, tls_cadata=None, tls_client_cert=None,
-                 tls_client_key=None, tls_client_password=None, **kwargs):
+    def __init__(self, host, port=12201, **kwargs):
         """Initialize the GELFTCPHandler
 
         :param host: The host of the graylog server.
-        :param port: The port of the graylog server (default 12201).
-        :param tls: Use transport layer security on connection to graylog
-            if set to :obj:`True`. (:obj:`False` by default)
-        :param tls_server_name: If using TLS, specify the name of the host
-            to which the connection is being made. If not specified, hostname
-            checking will not be performed.
-        :param tls_cafile: If using TLS, optionally specify a file with a set
-            of certificate authority certificates to use in certificate
-            validation.
-        :param tls_capath: If using TLS, optionally specify a path to files
-            with a set of certificate authority certificates to use in
-            certificate validation.
-        :param tls_cadata: If using TLS, optionally specify an object with
-            a set of certificate authority certificates to use in certificate
-            validation.
-        :param tls_client_cert: If using TLS, optionally specify a certificate
-            to authenticate the client to the graylog server.
-        :param tls_client_key: If using TLS, optionally specify a key file
-            corresponding to the client certificate.
-        :param tls_client_password: If using TLS, optionally specify a
-            password corresponding to the client key file.
+        :param port: The port of the graylog server (default ``12201``).
         """
         BaseGELFHandler.__init__(self, compress=False, **kwargs)
         SocketHandler.__init__(self, host, port)
-
-        self.tls = tls
-        if self.tls:  # create an ssl_context if tls is enabled
-            self.ssl_context = ssl.create_default_context(
-                purpose=ssl.Purpose.SERVER_AUTH,
-                cafile=tls_cafile,
-                capath=tls_capath,
-                cadata=tls_cadata
-            )
-            self.tls_server_name = tls_server_name
-            self.ssl_context.check_hostname = (self.tls_server_name
-                                               is not None)
-            if tls_client_cert is not None:
-                self.ssl_context.load_cert_chain(
-                    certfile=tls_client_cert,
-                    keyfile=tls_client_key,
-                    password=tls_client_password
-                )
-
-    def makeSocket(self, timeout=None):
-        """Override SocketHandler.makeSocket, to allow creating wrapped
-        TLS sockets"""
-        sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
-
-        if self.tls:
-            sock = self.ssl_context.wrap_socket(
-                sock=sock,
-                server_side=False,
-                server_hostname=self.tls_server_name
-            )
-
-        sock.connect((self.host, self.port))
-        return sock
 
     def makePickle(self, record):
         """Add a null terminator to a GELFTCPHandler's pickles as a TCP frame
         object needs to be null terminated"""
         return BaseGELFHandler.makePickle(self, record) + b'\x00'
+
+
+class GELFTLSHandler(GELFTCPHandler):
+    """Graylog Extended Log Format TCP handler with TLS support"""
+
+    def __init__(self, host, port=12204, validate=False, ca_certs=None, certfile=None,
+                 keyfile=None, **kwargs):
+        """Initialize the GELFTLSHandler
+
+        :param host: The host of the graylog server.
+        :param port: The port of the graylog server (default ``12204``).
+        :param validate: if true, validate server certificate.
+            In that case specifying ``ca_certs`` is required.
+        :param ca_certs: path to CA bundle file.
+        :param certfile: path to the client certificate file.
+        :param keyfile: path to the client private key. If the private key is
+            stored with the certificate, this parameter can be ignored
+        """
+
+        if validate and ca_certs is None:
+            raise ValueError('CA bundle file path must be specified')
+
+        if keyfile is not None and certfile is None:
+            raise ValueError('certfile must be specified')
+
+        GELFTCPHandler.__init__(self, host=host, port=port, **kwargs)
+
+        self.ca_certs = ca_certs
+        self.reqs = ssl.CERT_REQUIRED if validate else ssl.CERT_NONE
+        self.certfile = certfile
+        self.keyfile = keyfile if keyfile else certfile
+
+    def makeSocket(self, timeout=1):
+        """Override SocketHandler.makeSocket, to allow creating wrapped
+        TLS sockets"""
+        plain_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        if hasattr(plain_socket, 'settimeout'):
+            plain_socket.settimeout(timeout)
+
+        wrapped_socket = ssl.wrap_socket(
+            plain_socket,
+            ca_certs=self.ca_certs,
+            cert_reqs=self.reqs,
+            keyfile=self.keyfile,
+            certfile=self.certfile
+        )
+        wrapped_socket.connect((self.host, self.port))
+
+        return wrapped_socket
 
 
 class ChunkedGELF(object):
