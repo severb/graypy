@@ -194,32 +194,13 @@ class BaseGELFHandler(logging.Handler, ABC):
 class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
     """Graylog Extended Log Format UDP handler"""
 
-    def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
-                 debugging_fields=True, extra_fields=True, fqdn=False,
-                 localname=None, facility=None, level_names=False,
-                 compress=True):
+    def __init__(self, host, port=12201, **kwargs):
         """Initialize the GELFUDPHandler
 
         :param host: The host of the graylog server.
         :param port: The port of the graylog server (default 12201).
-        :param chunk_size: Message chunk size. Messages larger than this
-            size will be sent to graylog in multiple chunks. Defaults to
-            ``WAN_CHUNK=1420``.
-        :param debugging_fields: Send debug fields if true (the default).
-        :param extra_fields: Send extra fields on the log record to graylog
-            if :obj:`True`. (:obj:`True` by default)
-        :param fqdn: Use fully qualified domain name of localhost as source
-            host (:meth:`socket.getfqdn`).
-        :param localname: Use specified hostname as source host.
-        :param facility: Replace facility with specified value. If specified,
-            record.name will be passed as `logger` parameter.
-        :param level_names: Allows the use of string error level names instead
-            of numerical values. (:obj:`False` by default)
-        :param compress: Use message compression. (:obj:`True` by default)
         """
-        BaseGELFHandler.__init__(self, chunk_size,
-                                 debugging_fields, extra_fields, fqdn,
-                                 localname, facility, level_names, compress)
+        BaseGELFHandler.__init__(self, **kwargs)
         DatagramHandler.__init__(self, host, port)
 
     def send(self, s):
@@ -233,29 +214,14 @@ class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
 class GELFTCPHandler(BaseGELFHandler, SocketHandler):
     """Graylog Extended Log Format TCP handler"""
 
-    def __init__(self, host, port=12201, chunk_size=WAN_CHUNK,
-                 debugging_fields=True, extra_fields=True, fqdn=False,
-                 localname=None, facility=None, level_names=False,
+    def __init__(self, host, port=12201,
                  tls=False, tls_server_name=None, tls_cafile=None,
                  tls_capath=None, tls_cadata=None, tls_client_cert=None,
-                 tls_client_key=None, tls_client_password=None):
+                 tls_client_key=None, tls_client_password=None, **kwargs):
         """Initialize the GELFTCPHandler
 
         :param host: The host of the graylog server.
         :param port: The port of the graylog server (default 12201).
-        :param chunk_size: Message chunk size. Messages larger than this
-            size will be sent to graylog in multiple chunks. Defaults to
-            ``WAN_CHUNK=1420``.
-        :param debugging_fields: Send debug fields if true (the default).
-        :param extra_fields: Send extra fields on the log record to graylog
-            if set to :obj:`True`. (:obj:`True` by default)
-        :param fqdn: Use fully qualified domain name of localhost as source
-            host (:meth:`socket.getfqdn`).
-        :param localname: Use specified hostname as source host.
-        :param facility: Replace facility with specified value. If specified,
-            record.name will be passed as `logger` parameter.
-        :param level_names: Allows the use of string error level names instead
-            of numerical values. (:obj:`False` by default)
         :param tls: Use transport layer security on connection to graylog
             if set to :obj:`True`. (:obj:`False` by default)
         :param tls_server_name: If using TLS, specify the name of the host
@@ -277,9 +243,7 @@ class GELFTCPHandler(BaseGELFHandler, SocketHandler):
         :param tls_client_password: If using TLS, optionally specify a
             password corresponding to the client key file.
         """
-        BaseGELFHandler.__init__(self, chunk_size,
-                                 debugging_fields, extra_fields, fqdn,
-                                 localname, facility, level_names, False)
+        BaseGELFHandler.__init__(self, compress=False, **kwargs)
         SocketHandler.__init__(self, host, port)
 
         self.tls = tls
