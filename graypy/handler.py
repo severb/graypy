@@ -355,7 +355,7 @@ class GELFHTTPHandler(BaseGELFHandler):
 
     def emit(self, record):
         """Emit the GELF record to graylog via an HTTP POST request"""
-        data = self.convert_record_to_gelf(record)
+        data = self.makePickle(record)
         connection = httplib.HTTPConnection(
             host=self.host,
             port=self.port,
