@@ -6,16 +6,12 @@
 These functions are used for both the integration and unit testing.
 """
 
-import os
 import logging
 import pytest
 
 from graypy import GELFUDPHandler, GELFTCPHandler, GELFTLSHandler, GELFHTTPHandler
 
-TEST_CONFIG_DIR = os.path.join(os.path.dirname(__file__),
-                               os.path.join("integration", "config"))
-TEST_CERT = os.path.join(TEST_CONFIG_DIR, "cert.pem")
-TEST_KEY = os.path.join(TEST_CONFIG_DIR, "key.pem")
+TEST_CERT = "tests/integration/config/cert.pem"
 KEY_PASS = "secret"
 
 TEST_TCP_PORT = 12201
