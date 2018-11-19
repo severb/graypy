@@ -190,4 +190,4 @@ def test_invalid_client_certs():
     incorrect arguments specifying client cert/key verification"""
     with pytest.raises(ValueError):
         # missing client cert
-        GELFTLSHandler("127.0.0.1", keyfile="badkey")
+        GELFTLSHandler("127.0.0.1", keyfile="/dev/null")
