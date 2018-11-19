@@ -50,9 +50,9 @@ def test_dynamic_fields(logger):
     logger.error(message)
     graylog_response = get_graylog_response(message, fields=['ozzy', 'van_halen'])
     assert message == graylog_response['message']
+    assert "long_message" not in graylog_response
+    assert "timestamp" in graylog_response
     assert 'diary of a madman' == graylog_response['ozzy']
     assert 1984 == graylog_response['van_halen']
     assert 42 != graylog_response['_id']
     assert 'id' not in graylog_response
-    assert "long_message" not in graylog_response
-    assert "timestamp" in graylog_response

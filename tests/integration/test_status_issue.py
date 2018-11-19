@@ -25,6 +25,8 @@ def test_non_status_field_log(logger):
     logger.error(message, extra={"foo": "bar"})
     graylog_response = get_graylog_response(message, fields=["foo"])
     assert message == graylog_response["message"]
+    assert "long_message" not in graylog_response
+    assert "timestamp" in graylog_response
     assert "bar" == graylog_response["foo"]
 
 
@@ -35,6 +37,8 @@ def test_status_field_issue(logger):
     logger.error(message, extra={"status": "OK"})
     graylog_response = get_graylog_response(message, fields=["status"])
     assert message == graylog_response["message"]
+    assert "long_message" not in graylog_response
+    assert "timestamp" in graylog_response
     assert "OK" == graylog_response["status"]
 
 
@@ -45,5 +49,7 @@ def test_status_field_issue_multi(logger):
     logger.error(message, extra={"foo": "bar", "status": "OK"})
     graylog_response = get_graylog_response(message, fields=["foo", "status"])
     assert message == graylog_response["message"]
+    assert "long_message" not in graylog_response
+    assert "timestamp" in graylog_response
     assert "bar" == graylog_response["foo"]
     assert "OK" == graylog_response["status"]

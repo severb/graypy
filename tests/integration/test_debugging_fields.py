@@ -35,11 +35,11 @@ def test_debug_mode(logger):
     logger.error(message)
     graylog_response = get_graylog_response(message, fields=["function", "pid", "thread_name"])
     assert message == graylog_response['message']
+    assert "long_message" not in graylog_response
+    assert "timestamp" in graylog_response
     assert graylog_response['file'].endswith("test_debugging_fields.py")
     assert 'test_debug_mode' == graylog_response['function']
     assert 'line' in graylog_response
     assert "file" in graylog_response
     assert "pid" in graylog_response
     assert "thread_name" in graylog_response
-    assert "long_message" not in graylog_response
-    assert "timestamp" in graylog_response
