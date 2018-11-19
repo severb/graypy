@@ -18,7 +18,7 @@ from graypy import GELFUDPHandler, GELFTCPHandler, GELFTLSHandler, \
     GELFTCPHandler('127.0.0.1', TEST_TCP_PORT, debugging_fields=True),
     GELFUDPHandler('127.0.0.1', TEST_UDP_PORT, debugging_fields=True),
     GELFUDPHandler('127.0.0.1', TEST_UDP_PORT, compress=False, debugging_fields=True),
-    GELFHTTPHandler('127.0.0.1', TEST_HTTP_PORT, debug=True),
+    GELFHTTPHandler('127.0.0.1', TEST_HTTP_PORT, debugging_fields=True),
     GELFHTTPHandler('127.0.0.1', TEST_HTTP_PORT, compress=False, debugging_fields=True),
     GELFTLSHandler('127.0.0.1', TEST_TLS_PORT, debugging_fields=True),
     GELFTLSHandler('127.0.0.1', TEST_TLS_PORT, debugging_fields=True, validate=True, ca_certs=TEST_CERT),
@@ -32,8 +32,8 @@ def test_debug_mode(logger):
     logger.error(message)
     graylog_response = get_graylog_response(message)
     assert message == graylog_response['message']
-    assert 'helper.py' == graylog_response['file']
-    assert 'helper' == graylog_response['module']
+    assert 'test_debugging_fields.py' == graylog_response['file']
+    assert 'test_debugging_fields' == graylog_response['module']
     assert 'test_debug_mode' == graylog_response['func']
     assert 'test_logger' == graylog_response['logger_name']
     assert 'line' in graylog_response
