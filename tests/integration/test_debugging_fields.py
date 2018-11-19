@@ -8,6 +8,7 @@ import pytest
 
 from tests.helper import logger, TEST_CERT, TEST_TCP_PORT, TEST_HTTP_PORT, \
     TEST_TLS_PORT, TEST_UDP_PORT
+from tests.integration import LOCAL_GRAYLOG_UP
 from tests.integration.helper import get_graylog_response, get_unique_message
 
 from graypy import GELFUDPHandler, GELFTCPHandler, GELFTLSHandler, \
@@ -27,6 +28,8 @@ def handler(request):
     return request.param
 
 
+@pytest.mark.skipif(not LOCAL_GRAYLOG_UP,
+                    reason="local graylog instance not up")
 def test_debug_mode(logger):
     message = get_unique_message()
     logger.error(message)
