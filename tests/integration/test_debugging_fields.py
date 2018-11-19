@@ -33,12 +33,13 @@ def handler(request):
 def test_debug_mode(logger):
     message = get_unique_message()
     logger.error(message)
-    graylog_response = get_graylog_response(message)
+    graylog_response = get_graylog_response(message, fields=["function", "pid", "thread_name"])
     assert message == graylog_response['message']
-    assert 'test_debugging_fields.py' == graylog_response['file']
-    assert 'test_debugging_fields' == graylog_response['module']
-    assert 'test_debug_mode' == graylog_response['func']
-    assert 'test_logger' == graylog_response['logger_name']
+    assert graylog_response['file'].endswith("test_debugging_fields.py")
+    assert 'test_debug_mode' == graylog_response['function']
     assert 'line' in graylog_response
+    assert "file" in graylog_response
+    assert "pid" in graylog_response
+    assert "thread_name" in graylog_response
     assert "long_message" not in graylog_response
     assert "timestamp" in graylog_response
