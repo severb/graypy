@@ -10,6 +10,7 @@ from graypy import GELFTLSHandler, GELFTCPHandler, GELFUDPHandler, \
 
 from tests.helper import  TEST_CERT, TEST_TCP_PORT, TEST_HTTP_PORT, \
     TEST_TLS_PORT, TEST_UDP_PORT
+from tests.integration import LOCAL_GRAYLOG_UP
 from tests.integration.helper import get_unique_message, get_graylog_response
 
 
@@ -45,6 +46,8 @@ def logger(handler):
     logger.removeFilter(dummy_filter)
 
 
+@pytest.mark.skipif(not LOCAL_GRAYLOG_UP,
+                    reason="local graylog instance not up")
 def test_dynamic_fields(logger):
     message = get_unique_message()
     logger.error(message)
