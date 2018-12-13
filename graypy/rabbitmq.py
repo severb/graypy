@@ -33,7 +33,7 @@ class GELFRabbitHandler(BaseGELFHandler, SocketHandler):
     def __init__(self, url, exchange='logging.gelf', debugging_fields=True,
                  extra_fields=True, fqdn=False, exchange_type='fanout',
                  localname=None, facility=None, virtual_host='/',
-                 routing_key=''):
+                 routing_key='', **kwargs):
         """Initialize the GELFRabbitHandler
 
         :param url: RabbitMQ URL (ex: amqp://guest:guest@localhost:5672/)
@@ -89,7 +89,8 @@ class GELFRabbitHandler(BaseGELFHandler, SocketHandler):
             extra_fields=extra_fields,
             fqdn=fqdn,
             localname=localname,
-            facility=facility
+            facility=facility,
+            **kwargs
         )
         SocketHandler.__init__(self, host, port)
         self.addFilter(ExcludeFilter('amqplib'))
