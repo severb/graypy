@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-""""""
+"""pytests for validating the addition of extra fields within GELF logs"""
 
 import logging
 import pytest
