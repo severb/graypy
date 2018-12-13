@@ -113,8 +113,8 @@ class BaseGELFHandler(logging.Handler, ABC):
         """
         gelf_dict = self._make_gelf_dict(record)
         packed = self._pack_gelf_dict(gelf_dict)
-        frame = zlib.compress(packed) if self.compress else packed
-        return frame
+        pickle = zlib.compress(packed) if self.compress else packed
+        return pickle
 
     def _make_gelf_dict(self, record):
         """Create a dictionary representing a Graylog GELF log from a
@@ -303,7 +303,11 @@ class BaseGELFHandler(logging.Handler, ABC):
         :rtype: bytes
         """
         gelf_dict = BaseGELFHandler._sanitize_to_unicode(gelf_dict)
-        packed = json.dumps(gelf_dict, separators=',:', default=BaseGELFHandler._object_to_json)
+        packed = json.dumps(
+            gelf_dict,
+            separators=',:',
+            default=BaseGELFHandler._object_to_json
+        )
         return packed.encode('utf-8')
 
     @staticmethod
@@ -400,8 +404,8 @@ class GELFTCPHandler(BaseGELFHandler, SocketHandler):
 class GELFTLSHandler(GELFTCPHandler):
     """Graylog Extended Log Format TCP handler with TLS support"""
 
-    def __init__(self, host, port=12204, validate=False, ca_certs=None, certfile=None,
-                 keyfile=None, **kwargs):
+    def __init__(self, host, port=12204, validate=False, ca_certs=None,
+                 certfile=None, keyfile=None, **kwargs):
         """Initialize the GELFTLSHandler
 
         :param host: The host of the Graylog server.
@@ -504,13 +508,13 @@ class GELFHTTPHandler(BaseGELFHandler):
             Graylog GELF log and emit to Graylog via HTTP POST
         :type record: logging.LogRecord
         """
-        data = self.makePickle(record)
+        pickle = self.makePickle(record)
         connection = httplib.HTTPConnection(
             host=self.host,
             port=self.port,
             timeout=self.timeout
         )
-        connection.request('POST', self.path, data, self.headers)
+        connection.request('POST', self.path, pickle, self.headers)
 
 
 class ChunkedGELF(object):
@@ -527,7 +531,8 @@ class ChunkedGELF(object):
         """
         self.message = message
         self.size = size
-        self.pieces = struct.pack('B', int(math.ceil(len(message) * 1.0 / size)))
+        self.pieces = \
+            struct.pack('B', int(math.ceil(len(message) * 1.0 / size)))
         self.id = struct.pack('Q', random.randint(0, 0xFFFFFFFFFFFFFFFF))
 
     def message_chunks(self):
