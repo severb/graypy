@@ -30,40 +30,26 @@ class GELFRabbitHandler(BaseGELFHandler, SocketHandler):
         This handler ignores all messages logged by amqplib.
     """
 
-    def __init__(self, url, exchange='logging.gelf', debugging_fields=True,
-                 extra_fields=True, fqdn=False, exchange_type='fanout',
-                 localname=None, facility=None, virtual_host='/',
-                 routing_key='', **kwargs):
+    def __init__(self, url, exchange='logging.gelf', exchange_type='fanout',
+                 virtual_host='/', routing_key='', **kwargs):
         """Initialize the GELFRabbitHandler
 
         :param url: RabbitMQ URL (ex: amqp://guest:guest@localhost:5672/)
         :type url: str
 
-        :param exchange: RabbitMQ exchange. Default 'logging.gelf'.
+        :param exchange: RabbitMQ exchange. (default 'logging.gelf').
             A queue binding must be defined on the server to prevent
             log messages from being dropped.
         :type exchange: str
 
-        :param debugging_fields: Send debug fields if true (the default).
-        :type debugging_fields: bool
-
-        :param extra_fields: Send extra fields on the log record to graylog
-            if true (the default).
-        :type extra_fields: bool
-
-        :param fqdn: Use fully qualified domain name of localhost as source
-            host (socket.getfqdn()).
-        :type fqdn: bool
-
         :param exchange_type: RabbitMQ exchange type (default 'fanout').
         :type exchange_type: str
 
-        :param localname: Use specified hostname as source host.
-        :type localname: str
+        :param virtual_host:
+        :type virtual_host: str
 
-        :param facility: Replace facility with specified value. If specified,
-            record.name will be passed as `logger` parameter.
-        :type facility: str
+        :param routing_key:
+        :type routing_key: str
         """
         self.url = url
         parsed = urlparse(url)
@@ -85,11 +71,6 @@ class GELFRabbitHandler(BaseGELFHandler, SocketHandler):
         self.routing_key = routing_key
         BaseGELFHandler.__init__(
             self,
-            debugging_fields=debugging_fields,
-            extra_fields=extra_fields,
-            fqdn=fqdn,
-            localname=localname,
-            facility=facility,
             **kwargs
         )
         SocketHandler.__init__(self, host, port)
