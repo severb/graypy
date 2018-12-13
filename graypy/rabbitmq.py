@@ -36,19 +36,34 @@ class GELFRabbitHandler(BaseGELFHandler, SocketHandler):
                  routing_key=''):
         """Initialize the GELFRabbitHandler
 
-        :param url: RabbitMQ URL (ex: amqp://guest:guest@localhost:5672/).
+        :param url: RabbitMQ URL (ex: amqp://guest:guest@localhost:5672/)
+        :type url: str
+
         :param exchange: RabbitMQ exchange. Default 'logging.gelf'.
             A queue binding must be defined on the server to prevent
             log messages from being dropped.
+        :type exchange: str
+
         :param debugging_fields: Send debug fields if true (the default).
+        :type debugging_fields: bool
+
         :param extra_fields: Send extra fields on the log record to graylog
             if true (the default).
+        :type extra_fields: bool
+
         :param fqdn: Use fully qualified domain name of localhost as source
             host (socket.getfqdn()).
+        :type fqdn: bool
+
         :param exchange_type: RabbitMQ exchange type (default 'fanout').
+        :type exchange_type: str
+
         :param localname: Use specified hostname as source host.
+        :type localname: str
+
         :param facility: Replace facility with specified value. If specified,
             record.name will be passed as `logger` parameter.
+        :type facility: str
         """
         self.url = url
         parsed = urlparse(url)
@@ -129,8 +144,9 @@ class ExcludeFilter(Filter):
     def __init__(self, name):
         """Initialize the ExcludeFilter
 
-        :param name: the name to match for within a
-            :class:`logging.LogRecord`'s ``name`` field for filtering
+        :param name: Name to match for within a:class:`logging.LogRecord`'s
+            ``name`` field for filtering.
+        :type name: str
         """
         if not name:
             raise ValueError('ExcludeFilter requires a non-empty name')
