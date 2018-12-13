@@ -8,7 +8,7 @@ import re
 import sys
 import os
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Command
 from setuptools.command.test import test
 
 
@@ -22,6 +22,53 @@ def find_version(*file_paths):
 
 
 VERSION = find_version("graypy", "__init__.py")
+
+
+class Tag(Command):
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        from subprocess import call
+        version = "v{}".format(VERSION)
+        errno = call(['git', 'tag', '--annotate', version,
+                      '--message', 'Version {}'.format(version)])
+        if errno == 0:
+            print("Added tag for version %s" % version)
+        sys.exit(errno)
+
+
+class ReleaseCheck(Command):
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        from subprocess import check_output
+        git_out = check_output(['git', 'describe', '--all',
+                                '--exact-match', 'HEAD'])
+        tag = git_out.decode("UTF-8").strip().split('/')[-1]
+        version = "v{}".format(VERSION)
+        if tag != version:
+            print('Missing {} tag on release'.format(version))
+            sys.exit(1)
+
+        current_branch = check_output(['git', 'rev-parse',
+                                       '--abbrev-ref', 'HEAD']).strip()
+        if current_branch != 'master':
+            print('Only release from master')
+            sys.exit(1)
+
+        print("Ok to distribute files")
 
 
 class Pylint(test):
@@ -70,6 +117,7 @@ setup(
     extras_require={'amqp': ['amqplib==1.0.2']},
     classifiers=[
         'License :: OSI Approved :: BSD License',
+        'Intended Audience :: Developers',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
@@ -79,9 +127,16 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Topic :: System :: Logging',
     ],
-    cmdclass={"test": PyTest, "lint": Pylint},
+    cmdclass={
+        "tag": Tag,
+        "release_check": ReleaseCheck,
+        "test": PyTest,
+        "lint": Pylint
+    },
 )
+
