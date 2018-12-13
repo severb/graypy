@@ -49,10 +49,9 @@ SYSLOG_LEVELS = {
 class BaseGELFHandler(logging.Handler, ABC):
     """Abstract class noting the basic components of a GLEFHandler"""
 
-    def __init__(self, chunk_size=WAN_CHUNK,
-                 debugging_fields=True, extra_fields=True, fqdn=False,
-                 localname=None, facility=None, level_names=False,
-                 compress=True):
+    def __init__(self, chunk_size=WAN_CHUNK, debugging_fields=True,
+                 extra_fields=True, fqdn=False, localname=None, facility=None,
+                 level_names=False, compress=True):
         """Initialize the BaseGELFHandler.
 
         :param chunk_size: Message chunk size. Messages larger than this
@@ -60,15 +59,17 @@ class BaseGELFHandler(logging.Handler, ABC):
             ``WAN_CHUNK=1420``.
         :type chunk_size: int
 
-        :param debugging_fields: Add debug fields from the log record into
-            the GELF logs to be sent to Graylog (:obj:`True` by default).
+        :param debugging_fields: If :obj:`True` add debug fields from the
+            log record into the GELF logs to be sent to Graylog
+            (:obj:`True` by default).
         :type debugging_fields: bool
 
-        :param extra_fields: Add extra fields from the log record into the
-            GELF logs to be sent to Graylog (:obj:`True` by default).
+        :param extra_fields: If :obj:`True` add extra fields from the log
+            record into the GELF logs to be sent to Graylog
+            (:obj:`True` by default).
         :type extra_fields: bool
 
-        :param fqdn: If :obj:`True` use fully qualified domain name of
+        :param fqdn: If :obj:`True` use the fully qualified domain name of
             localhost to populate the ``host`` GELF field
             (:obj:`False` by default).
         :type fqdn: bool
@@ -78,16 +79,17 @@ class BaseGELFHandler(logging.Handler, ABC):
             ``host`` GELF field.
         :type localname: str
 
-        :param facility: Replace the ``facility`` GELF field with the specified
-            value. If specified, the LogRecord.name will populate the
-            ``_logger`` GELF field as well.
+        :param facility: If specified, replace the ``facility`` GELF field
+            with the specified value. Additionally, the LogRecord.name will
+            used populate the ``_logger`` GELF field.
         :type facility: str
 
-        :param level_names: Allow the use of string error level names instead
-            of numerical values (:obj:`False` by default).
+        :param level_names: If :obj:`True` use string error level names
+            instead of numerical values (:obj:`False` by default).
         :type level_names: bool
 
-        :param compress: Use message compression (:obj:`True` by default).
+        :param compress: If :obj:`True` compress the GELF message before
+            sending it to the server (:obj:`True` by default).
         :type compress: bool
         """
         logging.Handler.__init__(self)
@@ -399,7 +401,7 @@ class GELFTCPHandler(BaseGELFHandler, SocketHandler):
             terminated GELF log.
         :type record: logging.LogRecord
 
-        :return: A GELF log encoded as a null terminated bytes string
+        :return: A GELF log encoded as a null terminated bytes string.
         :rtype: bytes
         """
         return BaseGELFHandler.makePickle(self, record) + b'\x00'
@@ -429,7 +431,7 @@ class GELFTLSHandler(GELFTCPHandler):
         :type certfile: str
 
         :param keyfile: Path to the client private key. If the private key is
-            stored with the certificate, this parameter can be ignored
+            stored with the certificate, this parameter can be ignored.
         :type keyfile: str
         """
 
@@ -480,8 +482,8 @@ class GELFHTTPHandler(BaseGELFHandler):
         :param port: GELF HTTP input port.
         :type port: int
 
-        :param compress: If :obj:`True` compress message before sending it
-            to the server (:obj:`True` by default).
+        :param compress: If :obj:`True` compress the GELF message before
+            sending it to the server (:obj:`True` by default).
         :type compress: bool
 
         :param path: Path of the HTTP input.
