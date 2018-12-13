@@ -161,6 +161,18 @@ def test_status_field_issue(logger, mock_send):
     assert "OK" == decoded["_status"]
 
 
+def test_set_custom_facility():
+    gelf_dict = dict()
+    mock_log_record = logging.LogRecord(
+        "test name",
+        logging.INFO, None, None, None, None, None
+    )
+    facility = "test facility"
+    BaseGELFHandler._set_custom_facility(gelf_dict, facility, mock_log_record)
+    assert "test name" == gelf_dict["_logger"]
+    assert "test facility" == gelf_dict["facility"]
+
+
 def test_formatted_logger(formatted_logger, mock_send):
     """Test the ability to set and modify the graypy handler's
     :class:`logging.Formatter` and have the resultant ``short_message`` be
