@@ -47,7 +47,7 @@ def logger(handler):
 
 
 @pytest.mark.skipif(not LOCAL_GRAYLOG_UP,
-                    reason="local graylog instance not up")
+                    reason="local Graylog instance not up")
 def test_dynamic_fields(logger):
     message = get_unique_message()
     logger.error(message)

@@ -1,11 +1,11 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-"""pytests for the formatting and construction of graylog GLEF logs by graypy
+"""pytests for the formatting and construction of Graylog GLEF logs by graypy
 
 .. note::
 
-    These tests mock sending to graylog and do not require an active graylog
+    These tests mock sending to Graylog and do not require an active graylog
     instance to operate.
 """
 

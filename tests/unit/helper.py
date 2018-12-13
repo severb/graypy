@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """helper functions for testing graypy with mocks of python logging and
-graylog services"""
+Graylog services"""
 
 import logging
 

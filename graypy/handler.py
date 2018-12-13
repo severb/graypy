@@ -60,25 +60,30 @@ class BaseGELFHandler(logging.Handler, ABC):
             ``WAN_CHUNK=1420``.
         :type chunk_size: int
 
-        :param debugging_fields: Send debug fields if true (the default).
+        :param debugging_fields: Add debug fields from the log record into
+            the GELF logs to be sent to Graylog (:obj:`True` by default).
         :type debugging_fields: bool
 
-        :param extra_fields: Send extra fields on the log record to Graylog
-            if set to :obj:`True` (:obj:`True` by default).
+        :param extra_fields: Add extra fields from the log record into the
+            GELF logs to be sent to Graylog (:obj:`True` by default).
         :type extra_fields: bool
 
-        :param fqdn: Use fully qualified domain name of localhost as source
-            host (:meth:`socket.getfqdn`).
+        :param fqdn: If :obj:`True` use fully qualified domain name of
+            localhost to populate the ``host`` GELF field
+            (:obj:`False` by default).
         :type fqdn: bool
 
-        :param localname: Use specified hostname as source host.
+        :param localname: If ``fqdn`` is :obj:`False` and ``localname`` is
+            specified, used the specified hostname to populate the
+            ``host`` GELF field.
         :type localname: str
 
-        :param facility: Replace facility with specified value. If specified,
-            record.name will be passed as `logger` parameter.
+        :param facility: Replace the ``facility`` GELF field with the specified
+            value. If specified, the LogRecord.name will populate the
+            ``_logger`` GELF field as well.
         :type facility: str
 
-        :param level_names: Allows the use of string error level names instead
+        :param level_names: Allow the use of string error level names instead
             of numerical values (:obj:`False` by default).
         :type level_names: bool
 
@@ -167,8 +172,7 @@ class BaseGELFHandler(logging.Handler, ABC):
     @staticmethod
     def _set_custom_facility(gelf_dict, facility_value, record):
         """Set the ``gelf_dict``'s ``facility`` field to the specified value
-        also add the the extra ``_logger`` field containing the log
-        records name
+        also add the the extra ``_logger`` field containing the LogRecord.name
 
         :param gelf_dict: dictionary representation of a GELF log.
         :type gelf_dict: dict
@@ -501,11 +505,11 @@ class GELFHTTPHandler(BaseGELFHandler):
             self.headers['Content-Encoding'] = 'gzip,deflate'
 
     def emit(self, record):
-        """Convert and emit a :class:`logging.LogRecord` to Graylog via an
-        HTTP POST request
+        """Convert a :class:`logging.LogRecord` to GELF and emit it to Graylog
+        via an HTTP POST request
 
         :param record: :class:`logging.LogRecord` to convert into a
-            Graylog GELF log and emit to Graylog via HTTP POST
+            Graylog GELF log and emit to Graylog via HTTP POST.
         :type record: logging.LogRecord
         """
         pickle = self.makePickle(record)

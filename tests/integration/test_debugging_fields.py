@@ -29,7 +29,7 @@ def handler(request):
 
 
 @pytest.mark.skipif(not LOCAL_GRAYLOG_UP,
-                    reason="local graylog instance not up")
+                    reason="local Graylog instance not up")
 def test_debug_mode(logger):
     message = get_unique_message()
     logger.error(message)

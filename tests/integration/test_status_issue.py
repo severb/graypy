@@ -19,7 +19,7 @@ from tests.integration.helper import get_unique_message, get_graylog_response
 
 
 @pytest.mark.skipif(not LOCAL_GRAYLOG_UP,
-                    reason="local graylog instance not up")
+                    reason="local Graylog instance not up")
 def test_non_status_field_log(logger):
     message = get_unique_message()
     logger.error(message, extra={"foo": "bar"})
@@ -31,7 +31,7 @@ def test_non_status_field_log(logger):
 
 
 @pytest.mark.skipif(not LOCAL_GRAYLOG_UP,
-                    reason="local graylog instance not up")
+                    reason="local Graylog instance not up")
 def test_status_field_issue(logger):
     message = get_unique_message()
     logger.error(message, extra={"status": "OK"})
@@ -43,7 +43,7 @@ def test_status_field_issue(logger):
 
 
 @pytest.mark.skipif(not LOCAL_GRAYLOG_UP,
-                    reason="local graylog instance not up")
+                    reason="local Graylog instance not up")
 def test_status_field_issue_multi(logger):
     message = get_unique_message()
     logger.error(message, extra={"foo": "bar", "status": "OK"})

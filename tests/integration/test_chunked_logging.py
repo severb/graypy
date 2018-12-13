@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-"""pytests sending logs to a local graylog instance that need to be chunked"""
+"""pytests sending logs to a local Graylog instance that need to be chunked"""
 
 import logging
 
@@ -15,7 +15,7 @@ from tests.integration.helper import get_unique_message, get_graylog_response
 
 
 @pytest.mark.skipif(not LOCAL_GRAYLOG_UP,
-                    reason="local graylog instance not up")
+                    reason="local Graylog instance not up")
 def test_chunked_logging():
     """Test sending a common usage log that requires chunking to be fully
     sent"""
