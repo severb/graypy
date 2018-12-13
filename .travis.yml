@@ -4,6 +4,8 @@ stages:
   - linting
   - test
   - build
+# TODO: needs additional setup
+#  - deploy
 
 before_install:
   - pip install codecov
@@ -62,3 +64,14 @@ jobs:
       after_script: skip
       script:
         - python setup.py sdist
+# TODO: fill in for automatic pypi releases
+#    - stage: deploy
+#      deploy:
+#        provider: pypi
+#        user: # TODO: FILL IN
+#        password:
+#          secure: # TODO: fill in
+#        on:
+#          python: 3.6
+#          tags: true
+#          repo: severb/graypy
