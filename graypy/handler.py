@@ -210,8 +210,19 @@ class BaseGELFHandler(logging.Handler, ABC):
             gelf_dict["full_message"] = full_message
 
     @staticmethod
-    def _resolve_host(fqdn=None, localname=None):
-        """Resolve the ``host`` GELF field"""
+    def _resolve_host(fqdn, localname):
+        """Resolve the ``host`` GELF field
+
+        :param fqdn: Boolean indicating whether to use :meth:`socket.getfqdn`
+            to obtain the ``host`` GELF field.
+        :type fqdn: bool
+
+        :param localname: Use specified hostname as the ``host`` GELF field.
+        :type localname: str
+
+        :return: String value representing the ``host`` GELF field.
+        :rtype: str
+        """
         if fqdn:
             return socket.getfqdn()
         elif localname:
