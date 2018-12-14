@@ -12,6 +12,7 @@
 import datetime
 import json
 import logging
+import socket
 import struct
 import sys
 import zlib
@@ -160,6 +161,21 @@ def test_status_field_issue(logger, mock_send):
     decoded = get_mock_send_arg(mock_send)
     assert "Log message" == decoded["short_message"]
     assert "OK" == decoded["_status"]
+
+
+def test_add_level_name():
+    gelf_dict = dict()
+    BaseGELFHandler._add_level_names(gelf_dict, MOCK_LOG_RECORD)
+    assert "INFO" == gelf_dict["level_name"]
+
+
+def test_resolve_host():
+    """Test all posible resolutions of :meth:`BaseGELFHandler._resolve_host`"""
+    assert socket.gethostname() == BaseGELFHandler._resolve_host(False, None)
+    assert socket.getfqdn() == BaseGELFHandler._resolve_host(True, None)
+    assert socket.gethostname() == BaseGELFHandler._resolve_host(True, "localhost")
+    assert "localhost" == BaseGELFHandler._resolve_host(False, "localhost")
+    assert "" == BaseGELFHandler._resolve_host(False, "")
 
 
 def test_set_custom_facility():

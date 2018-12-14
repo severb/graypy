@@ -77,7 +77,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         :param localname: If ``fqdn`` is :obj:`False` and ``localname`` is
             specified, used the specified hostname to populate the
             ``host`` GELF field.
-        :type localname: str
+        :type localname: str or None
 
         :param facility: If specified, replace the ``facility`` GELF field
             with the specified value. Additionally, the LogRecord.name will
@@ -224,14 +224,14 @@ class BaseGELFHandler(logging.Handler, ABC):
         :type fqdn: bool
 
         :param localname: Use specified hostname as the ``host`` GELF field.
-        :type localname: str
+        :type localname: str or None
 
         :return: String value representing the ``host`` GELF field.
         :rtype: str
         """
         if fqdn:
             return socket.getfqdn()
-        elif localname:
+        elif localname is not None:
             return localname
         return socket.gethostname()
 
