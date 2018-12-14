@@ -23,6 +23,7 @@ from graypy.handler import BaseGELFHandler, GELFHTTPHandler, GELFTLSHandler, \
     ChunkedGELF
 
 from tests.helper import handler, logger, formatted_logger
+from tests.unit.helper import MOCK_LOG_RECORD, MOCK_LOG_RECORD_NAME
 
 UNICODE_REPLACEMENT = u"\ufffd"
 
@@ -163,13 +164,9 @@ def test_status_field_issue(logger, mock_send):
 
 def test_set_custom_facility():
     gelf_dict = dict()
-    mock_log_record = logging.LogRecord(
-        "test name",
-        logging.INFO, None, None, None, None, None
-    )
     facility = "test facility"
-    BaseGELFHandler._set_custom_facility(gelf_dict, facility, mock_log_record)
-    assert "test name" == gelf_dict["_logger"]
+    BaseGELFHandler._set_custom_facility(gelf_dict, facility, MOCK_LOG_RECORD)
+    assert MOCK_LOG_RECORD_NAME == gelf_dict["_logger"]
     assert "test facility" == gelf_dict["facility"]
 
 
