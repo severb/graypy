@@ -107,9 +107,9 @@ setup(
     include_package_data=True,
     zip_safe=False,
     tests_require=[
-        "pytest",
-        "pytest-cov",
-        "pylint>=1.9.1,<2.0.0",
+        "pytest>=2.8.7,<4.0.0",
+        "pytest-cov<=2.6.0,<3.0.0",
+        "pylint>=1.9.3,<2.0.0",
         "mock>=2.0.0,<3.0.0",
         "requests>=2.20.1,<3.0.0",
         "amqplib>=1.0.2,<2.0.0"
