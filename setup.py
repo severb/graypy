@@ -64,6 +64,7 @@ setup(
         "pytest-cov",
         "pylint>=1.9.1,<2.0.0",
         "mock>=2.0.0,<3.0.0",
+        "amqplib",
     ],
     extras_require={'amqp': ['amqplib==1.0.2']},
     classifiers=[

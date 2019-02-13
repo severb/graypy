@@ -63,6 +63,11 @@ def main(argv=sys.argv):
             'formatter': 'message',
         }
         config['root']['handlers'].append('graylog_rabbit')
+        try:
+            from amqplib import client_0_8 as amqp
+        except ImportError:
+            msg = "Unable to test GELFRabbitHandler due to missing external dependency: amqplib"
+            raise RuntimeError(msg)
 
     if args.console_logger:
         config['handlers']['console'] = {

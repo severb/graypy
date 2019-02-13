@@ -103,6 +103,7 @@ GELFRabbitHandler:
   * **exchange_type** - RabbitMQ exchange type (default `fanout`).
   * **localname** - use specified hostname as source host.
   * **facility** - replace facility with specified value. if specified, record.name will be passed as `logger` parameter.
+  * **level_names** - allows the use of string error level names instead in addition to their numerical representation.
 
 Using with Django
 =================
