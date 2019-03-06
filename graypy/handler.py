@@ -298,8 +298,19 @@ def smarter_repr(obj):
     """Convert JSON incompatible object to string"""
     if isinstance(obj, datetime.datetime):
         return obj.isoformat()
+      
     return repr(obj)
 
+def introspective_repr(obj):
+    """ introspective repr() - alternative to smarter_repr() """
+
+    if isinstance(obj, datetime.datetime):
+        return obj.isoformat()
+
+    if isinstance(obj, enum.Enum):
+        return repr({obj.name: obj.value})
+    
+    return repr(dir(obj))
 
 def message_to_pickle(obj):
     """Convert object to a JSON-encoded string"""

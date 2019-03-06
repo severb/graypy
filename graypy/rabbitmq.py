@@ -5,6 +5,7 @@
 handler"""
 
 import json
+from graypy.handler import make_message_dict, introspective_repr
 from logging import Filter
 from logging.handlers import SocketHandler
 
@@ -86,7 +87,11 @@ class GELFRabbitHandler(SocketHandler):
             self.localname,
             self.facility
         )
-        return json.dumps(message_dict)
+
+        try:
+            return json.dumps(message_dict)
+        except TypeError:
+            return json.dumps(message_dict, default=introspective_repr)
 
 
 class RabbitSocket(object):
