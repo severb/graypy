@@ -8,7 +8,7 @@ import re
 import sys
 import os
 
-from setuptools import setup, find_packages, Command
+from setuptools import setup, find_packages
 from setuptools.command.test import test
 
 
