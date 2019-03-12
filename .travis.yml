@@ -1,7 +1,7 @@
 language: python
 
 stages:
-  - linting
+  - lint
   - test
   - build
 # TODO: needs additional setup
@@ -9,22 +9,10 @@ stages:
 
 before_install:
   - pip install codecov
-  - |
-        if [ "$TRAVIS_PYTHON_VERSION" = "pypy" ]; then
-          export PYENV_ROOT="$HOME/.pyenv"
-          if [ -f "$PYENV_ROOT/bin/pyenv" ]; then
-            pushd "$PYENV_ROOT" && git pull && popd
-          else
-            rm -rf "$PYENV_ROOT" && git clone --depth 1 https://github.com/yyuu/pyenv.git "$PYENV_ROOT"
-          fi
-          export PYPY_VERSION="5.6.0"
-          "$PYENV_ROOT/bin/pyenv" install --skip-existing "pypy-$PYPY_VERSION"
-          virtualenv --python="$PYENV_ROOT/versions/pypy-$PYPY_VERSION/bin/python" "$HOME/virtualenvs/pypy-$PYPY_VERSION"
-          source "$HOME/virtualenvs/pypy-$PYPY_VERSION/bin/activate"
-        fi
 
 install:
   - pip install .
+
 before_script:
   - cd tests/config
   - bash create_ssl_certs.sh -h localhost -i 127.0.0.1
@@ -33,10 +21,13 @@ before_script:
   - docker-compose -f tests/config/docker-compose.yml up -d
   - sleep 40
   - "curl -u admin:admin 'http://127.0.0.1:9000/api/search/universal/relative?query=test&range=5&fields=message' || true"
+
 script:
   - python setup.py test
+
 after_script:
   - docker-compose -f tests/config/docker-compose.yml down
+
 after_success:
   - codecov
 
@@ -50,7 +41,7 @@ jobs:
       dist: xenial
     - python: pypy
     - python: pypy3
-    - stage: linting
+    - stage: lint
       python:
         - 3.6
       before_script: skip
@@ -58,20 +49,33 @@ jobs:
       script:
         - python setup.py lint || exit $(($? & 35))
     - stage: build
+      name: "sdist"
       python:
         - 3.6
       before_script: skip
-      after_script: skip
       script:
         - python setup.py sdist
+      after_script: skip
+    - name: "bdist_wheel"
+      python:
+        - 3.6
+      install:
+        - pip install . wheel
+      before_script: skip
+      script:
+        - python setup.py bdist_wheel
+      after_script: skip
 # TODO: fill in for automatic pypi releases
 #    - stage: deploy
 #      deploy:
+#        python:
+#          - 3.6
 #        provider: pypi
 #        user: # TODO: FILL IN
 #        password:
 #          secure: # TODO: fill in
 #        on:
-#          python: 3.6
 #          tags: true
+#          branch: master
 #          repo: severb/graypy
+#        distributions: "sdist bdist_wheel"
