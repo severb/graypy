@@ -43,34 +43,6 @@ class Tag(Command):
         sys.exit(errno)
 
 
-class ReleaseCheck(Command):
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        from subprocess import check_output
-        git_out = check_output(['git', 'describe', '--all',
-                                '--exact-match', 'HEAD'])
-        tag = git_out.decode("UTF-8").strip().split('/')[-1]
-        version = "v{}".format(VERSION)
-        if tag != version:
-            print('Missing {} tag on release'.format(version))
-            sys.exit(1)
-
-        current_branch = check_output(['git', 'rev-parse',
-                                       '--abbrev-ref', 'HEAD']).strip()
-        if current_branch != 'master':
-            print('Only release from master')
-            sys.exit(1)
-
-        print("Ok to distribute files")
-
-
 class Pylint(test):
     def run_tests(self):
         from pylint.lint import Run
@@ -134,7 +106,6 @@ setup(
     ],
     cmdclass={
         "tag": Tag,
-        "release_check": ReleaseCheck,
         "test": PyTest,
         "lint": Pylint
     },
