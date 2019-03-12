@@ -24,25 +24,6 @@ def find_version(*file_paths):
 VERSION = find_version("graypy", "__init__.py")
 
 
-class Tag(Command):
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        from subprocess import call
-        version = "v{}".format(VERSION)
-        errno = call(['git', 'tag', '--annotate', version,
-                      '--message', 'Version {}'.format(version)])
-        if errno == 0:
-            print("Added tag for version %s" % version)
-        sys.exit(errno)
-
-
 class Pylint(test):
     def run_tests(self):
         from pylint.lint import Run
@@ -104,10 +85,6 @@ setup(
         'Programming Language :: Python :: Implementation :: PyPy',
         'Topic :: System :: Logging',
     ],
-    cmdclass={
-        "tag": Tag,
-        "test": PyTest,
-        "lint": Pylint
-    },
+    cmdclass={"test": PyTest, "lint": Pylint},
 )
 
