@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """Logging Handler integrating RabbitMQ and Graylog Extended Log Format (GELF)

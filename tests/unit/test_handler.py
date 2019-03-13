@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """pytests for the formatting and construction of Graylog GLEF logs by graypy
