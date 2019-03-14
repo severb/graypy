@@ -1,7 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Logging Handler intergrating RabbitMQ and Graylog Extended Log Format
+"""Logging Handler integrating RabbitMQ and Graylog Extended Log Format (GELF)
 handler"""
 
 import json
@@ -10,7 +10,7 @@ from logging.handlers import SocketHandler
 
 from amqplib import client_0_8 as amqp  # pylint: disable=import-error
 
-from graypy.handler import make_message_dict
+from graypy.handler import BaseGELFHandler
 
 try:
     from urllib.parse import urlparse, unquote
@@ -22,54 +22,57 @@ except ImportError:
 _ifnone = lambda v, x: x if v is None else v
 
 
-class GELFRabbitHandler(SocketHandler):
+class GELFRabbitHandler(BaseGELFHandler, SocketHandler):
     """RabbitMQ / Graylog Extended Log Format handler
 
-    NOTE: this handler ingores all messages logged by amqplib.
+    .. note::
 
-    :param url: RabbitMQ URL (ex: amqp://guest:guest@localhost:5672/).
-    :param exchange: RabbitMQ exchange. Default 'logging.gelf'.
-        A queue binding must be defined on the server to prevent
-        log messages from being dropped.
-    :param debugging_fields: Send debug fields if true (the default).
-    :param extra_fields: Send extra fields on the log record to graylog
-        if true (the default).
-    :param fqdn: Use fully qualified domain name of localhost as source 
-        host (socket.getfqdn()).
-    :param exchange_type: RabbitMQ exchange type (default 'fanout').
-    :param localname: Use specified hostname as source host.
-    :param facility: Replace facility with specified value. If specified,
-        record.name will be passed as `logger` parameter.
+        This handler ignores all messages logged by amqplib.
     """
 
-    def __init__(self, url, exchange='logging.gelf', debugging_fields=True,
-                 extra_fields=True, fqdn=False, exchange_type='fanout',
-                 localname=None, facility=None, virtual_host='/',
-                 routing_key=''):
+    def __init__(self, url, exchange='logging.gelf', exchange_type='fanout',
+                 virtual_host='/', routing_key='', **kwargs):
+        """Initialize the GELFRabbitHandler
+
+        :param url: RabbitMQ URL (ex: amqp://guest:guest@localhost:5672/)
+        :type url: str
+
+        :param exchange: RabbitMQ exchange. (default 'logging.gelf').
+            A queue binding must be defined on the server to prevent
+            log messages from being dropped.
+        :type exchange: str
+
+        :param exchange_type: RabbitMQ exchange type (default 'fanout').
+        :type exchange_type: str
+
+        :param virtual_host:
+        :type virtual_host: str
+
+        :param routing_key:
+        :type routing_key: str
+        """
         self.url = url
         parsed = urlparse(url)
         if parsed.scheme != 'amqp':
             raise ValueError('invalid URL scheme (expected "amqp"): %s' % url)
         host = parsed.hostname or 'localhost'
         port = _ifnone(parsed.port, 5672)
-        virtual_host = virtual_host if not unquote(
+        self.virtual_host = virtual_host if not unquote(
             parsed.path[1:]) else unquote(parsed.path[1:])
         self.cn_args = {
             'host': '%s:%s' % (host, port),
             'userid': _ifnone(parsed.username, 'guest'),
             'password': _ifnone(parsed.password, 'guest'),
-            'virtual_host': virtual_host,
+            'virtual_host': self.virtual_host,
             'insist': False,
         }
         self.exchange = exchange
-        self.debugging_fields = debugging_fields
-        self.extra_fields = extra_fields
-        self.fqdn = fqdn
         self.exchange_type = exchange_type
-        self.localname = localname
-        self.facility = facility
-        self.virtual_host = virtual_host
         self.routing_key = routing_key
+        BaseGELFHandler.__init__(
+            self,
+            **kwargs
+        )
         SocketHandler.__init__(self, host, port)
         self.addFilter(ExcludeFilter('amqplib'))
 
@@ -78,14 +81,7 @@ class GELFRabbitHandler(SocketHandler):
                             self.exchange_type, self.routing_key)
 
     def makePickle(self, record):
-        message_dict = make_message_dict(
-            record,
-            self.debugging_fields,
-            self.extra_fields,
-            self.fqdn,
-            self.localname,
-            self.facility
-        )
+        message_dict = self._make_gelf_dict(record)
         return json.dumps(message_dict)
 
 
@@ -115,6 +111,7 @@ class RabbitSocket(object):
         )
 
     def close(self):
+        """Close the connection to the RabbitMQ socket"""
         try:
             self.connection.close()
         except Exception:
@@ -122,16 +119,20 @@ class RabbitSocket(object):
 
 
 class ExcludeFilter(Filter):
-    def __init__(self, name):
-        """Initialize filter.
+    """A subclass of :class:`logging.Filter` which should be instantiated
+    with the name of the logger which, together with its children, will have
+    its events excluded (filtered out)"""
 
-        Initialize with the name of the logger which, together with its
-        children, will have its events excluded (filtered out).
+    def __init__(self, name):
+        """Initialize the ExcludeFilter
+
+        :param name: Name to match for within a:class:`logging.LogRecord`'s
+            ``name`` field for filtering.
+        :type name: str
         """
         if not name:
             raise ValueError('ExcludeFilter requires a non-empty name')
-        self.name = name
-        self.nlen = len(name)
+        Filter.__init__(self, name)
 
     def filter(self, record):
         return not (record.name.startswith(self.name) and (

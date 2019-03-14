@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """setup.py for graypy"""
@@ -49,7 +49,7 @@ class PyTest(test):
 setup(
     name='graypy',
     version=VERSION,
-    description="Python logging handler that sends messages in GELF (Graylog Extended Log Format).",
+    description="Python logging handler that sends messages in Graylog Extended Log Format (GLEF).",
     long_description=open('README.rst').read(),
     keywords='logging gelf graylog2 graylog udp amqp',
     author='Sever Banesiu',
@@ -60,16 +60,31 @@ setup(
     include_package_data=True,
     zip_safe=False,
     tests_require=[
-        "pytest",
-        "pytest-cov",
-        "pylint>=1.9.1,<2.0.0",
+        "pytest>=2.8.7,<4.0.0",
+        "pytest-cov<=2.6.0,<3.0.0",
+        "pylint>=1.9.3,<2.0.0",
         "mock>=2.0.0,<3.0.0",
+        "requests>=2.20.1,<3.0.0",
+        "amqplib>=1.0.2,<2.0.0"
     ],
     extras_require={'amqp': ['amqplib==1.0.2']},
     classifiers=[
         'License :: OSI Approved :: BSD License',
+        'Intended Audience :: Developers',
+        'Programming Language :: Python',
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 3'
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: Implementation :: PyPy',
+        'Topic :: System :: Logging',
     ],
     cmdclass={"test": PyTest, "lint": Pylint},
 )
+
