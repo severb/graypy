@@ -67,7 +67,17 @@ setup(
         "requests>=2.20.1,<3.0.0",
         "amqplib>=1.0.2,<2.0.0"
     ],
-    extras_require={'amqp': ['amqplib==1.0.2']},
+    extras_require={
+        'amqp': [
+            'amqplib==1.0.2'
+        ],
+        "docs": [
+            "sphinx>=1.7.5,<2.0.0",
+            "sphinx_rtd_theme>=0.3.1,<1.0.0",
+            "sphinx-autodoc-typehints>=1.3.0,<2.0.0",
+            "sphinx-argparse>=0.2.2,<1.0.0",
+        ],
+    },
     classifiers=[
         'License :: OSI Approved :: BSD License',
         'Intended Audience :: Developers',

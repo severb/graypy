@@ -45,9 +45,9 @@ jobs:
       python:
         - 3.6
       before_script: skip
-      after_script: skip
       script:
         - python setup.py lint || exit $(($? & 35))
+      after_script: skip
     - stage: build
       name: "sdist"
       python:
@@ -64,6 +64,15 @@ jobs:
       before_script: skip
       script:
         - python setup.py bdist_wheel
+      after_script: skip
+    - name: "sphinx docs"
+      python:
+        - 3.6
+      install:
+        - pip install .["docs"]
+      before_script: skip
+      script:
+        - sphinx-build docs/ build/
       after_script: skip
 # TODO: fill in for automatic pypi releases
 #    - stage: deploy
