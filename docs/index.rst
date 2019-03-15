@@ -12,6 +12,8 @@ This code is open source, and is `available on GitHub`_.
    :caption: Contents:
 
    Overview<readme>
+   Basic GELF Handlers<api/graypy.handler>
+   RabbitMQ GELF Handler<api/graypy.rabbitmq>
 
 Indices and tables
 ==================
