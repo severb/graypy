@@ -56,23 +56,19 @@ class BaseGELFHandler(logging.Handler, ABC):
         """Initialize the BaseGELFHandler.
 
         :param chunk_size: Message chunk size. Messages larger than this
-            size will be sent to Graylog in multiple chunks. Defaults to
-            ``WAN_CHUNK=1420``.
+            size will be sent to Graylog in multiple chunks.
         :type chunk_size: int
 
         :param debugging_fields: If :obj:`True` add debug fields from the
-            log record into the GELF logs to be sent to Graylog
-            (:obj:`True` by default).
+            log record into the GELF logs to be sent to Graylog.
         :type debugging_fields: bool
 
         :param extra_fields: If :obj:`True` add extra fields from the log
-            record into the GELF logs to be sent to Graylog
-            (:obj:`True` by default).
+            record into the GELF logs to be sent to Graylog.
         :type extra_fields: bool
 
         :param fqdn: If :obj:`True` use the fully qualified domain name of
-            localhost to populate the ``host`` GELF field
-            (:obj:`False` by default).
+            localhost to populate the ``host`` GELF field.
         :type fqdn: bool
 
         :param localname: If ``fqdn`` is :obj:`False` and ``localname`` is
@@ -86,11 +82,11 @@ class BaseGELFHandler(logging.Handler, ABC):
         :type facility: str
 
         :param level_names: If :obj:`True` use string error level names
-            instead of numerical values (:obj:`False` by default).
+            instead of numerical values.
         :type level_names: bool
 
         :param compress: If :obj:`True` compress the GELF message before
-            sending it to the server (:obj:`True` by default).
+            sending it to the server.
         :type compress: bool
         """
         logging.Handler.__init__(self)
@@ -340,8 +336,8 @@ class BaseGELFHandler(logging.Handler, ABC):
         """Convert objects that cannot be natively serialized into JSON
         into their string representation
 
-        For datetime based objects convert them into their ISO formatted
-        string as specified by :meth:`datetime.datetime.isoformat`.
+        :class:`datetime.datetime` based objects will be converted into a
+        ISO formatted string timestamp.
 
         :param obj: object to convert into a JSON via getting its string
             representation.
@@ -365,7 +361,7 @@ class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
         :param host: The host of the Graylog server.
         :type host: str
 
-        :param port: The port of the Graylog server (default ``12202``).
+        :param port: The port of the Graylog server.
         :type port: int
         """
         BaseGELFHandler.__init__(self, **kwargs)
@@ -388,7 +384,7 @@ class GELFTCPHandler(BaseGELFHandler, SocketHandler):
         :param host: The host of the Graylog server.
         :type host: str
 
-        :param port: The port of the Graylog server (default ``12201``).
+        :param port: The port of the Graylog server.
         :type port: int
         """
         BaseGELFHandler.__init__(self, compress=False, **kwargs)
@@ -418,7 +414,7 @@ class GELFTLSHandler(GELFTCPHandler):
         :param host: The host of the Graylog server.
         :type host: str
 
-        :param port: The port of the Graylog server (default ``12204``).
+        :param port: The port of the Graylog server.
         :type port: int
 
         :param validate: If :obj:`True`, validate server certificate.
@@ -484,7 +480,7 @@ class GELFHTTPHandler(BaseGELFHandler):
         :type port: int
 
         :param compress: If :obj:`True` compress the GELF message before
-            sending it to the server (:obj:`True` by default).
+            sending it to the server.
         :type compress: bool
 
         :param path: Path of the HTTP input.
