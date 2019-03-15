@@ -389,8 +389,8 @@ class GELFTCPHandler(BaseGELFHandler, SocketHandler):
         SocketHandler.__init__(self, host, port)
 
     def makePickle(self, record):
-        """Add a null terminator to a GELFTCPHandler's pickles as a TCP frame
-        object needs to be null terminated
+        """Add a null terminator to generated pickles as TCP frame objects
+        need to be null terminated
 
         :param record: :class:`logging.LogRecord` to create a null
             terminated GELF log.
@@ -503,7 +503,7 @@ class GELFHTTPHandler(BaseGELFHandler):
 
     def emit(self, record):
         """Convert a :class:`logging.LogRecord` to GELF and emit it to Graylog
-        via an HTTP POST request
+        via a HTTP POST request
 
         :param record: :class:`logging.LogRecord` to convert into a GELF log
             and emit to Graylog via HTTP POST.
@@ -519,7 +519,7 @@ class GELFHTTPHandler(BaseGELFHandler):
 
 
 class ChunkedGELF(object):
-    """Class that chunks a message into a GLEF compatible chunks"""
+    """Class that chunks a message into a GELF compatible chunks"""
 
     def __init__(self, message, size):
         """Initialize the ChunkedGELF message class
