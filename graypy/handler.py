@@ -105,14 +105,13 @@ class BaseGELFHandler(logging.Handler, ABC):
         self.compress = compress
 
     def makePickle(self, record):
-        """Convert a :class:`logging.LogRecord` into a bytes object
-        representing a GELF log
+        """Convert a :class:`logging.LogRecord` into bytes representing
+        a GELF log
 
-        :param record: :class:`logging.LogRecord` to convert into a
-            Graylog GELF log.
+        :param record: :class:`logging.LogRecord` to convert into a GELF log.
         :type record: logging.LogRecord
 
-        :return: A bytes object representing a GELF log.
+        :return: bytes representing a GELF log.
         :rtype: bytes
         """
         gelf_dict = self._make_gelf_dict(record)
@@ -121,14 +120,13 @@ class BaseGELFHandler(logging.Handler, ABC):
         return pickle
 
     def _make_gelf_dict(self, record):
-        """Create a dictionary representing a Graylog GELF log from a
+        """Create a dictionary representing a GELF log from a
         python :class:`logging.LogRecord`
 
-        :param record: :class:`logging.LogRecord` to create a Graylog GELF
-            log from.
+        :param record: :class:`logging.LogRecord` to create a GELF log from.
         :type record: logging.LogRecord
 
-        :return: dictionary representing a Graylog GELF log.
+        :return: dictionary representing a GELF log.
         :rtype: dict
         """
         # construct the base GELF format
@@ -507,8 +505,8 @@ class GELFHTTPHandler(BaseGELFHandler):
         """Convert a :class:`logging.LogRecord` to GELF and emit it to Graylog
         via an HTTP POST request
 
-        :param record: :class:`logging.LogRecord` to convert into a
-            Graylog GELF log and emit to Graylog via HTTP POST.
+        :param record: :class:`logging.LogRecord` to convert into a GELF log
+            and emit to Graylog via HTTP POST.
         :type record: logging.LogRecord
         """
         pickle = self.makePickle(record)

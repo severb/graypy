@@ -23,7 +23,7 @@ _ifnone = lambda v, x: x if v is None else v
 
 
 class GELFRabbitHandler(BaseGELFHandler, SocketHandler):
-    """RabbitMQ / Graylog Extended Log Format handler
+    """RabbitMQ / GELF handler
 
     .. note::
 
@@ -37,12 +37,11 @@ class GELFRabbitHandler(BaseGELFHandler, SocketHandler):
         :param url: RabbitMQ URL (ex: amqp://guest:guest@localhost:5672/)
         :type url: str
 
-        :param exchange: RabbitMQ exchange. (default 'logging.gelf').
-            A queue binding must be defined on the server to prevent
-            log messages from being dropped.
+        :param exchange: RabbitMQ exchange. A queue binding must be defined
+            on the server to prevent log messages from being dropped.
         :type exchange: str
 
-        :param exchange_type: RabbitMQ exchange type (default 'fanout').
+        :param exchange_type: RabbitMQ exchange type.
         :type exchange_type: str
 
         :param virtual_host:
