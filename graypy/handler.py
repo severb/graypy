@@ -261,7 +261,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         However, this does not add additional fields in to ``message_dict``
         that are either duplicated from standard :class:`logging.LogRecord`
         attributes, duplicated from the python logging module source
-        (e.g. ``exc_text``), or violate GLEF format (i.e. ``id``).
+        (e.g. ``exc_text``), or violate GELF format (i.e. ``id``).
 
         .. seealso::
 
@@ -300,8 +300,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         :param gelf_dict: dictionary representation of a GELF log.
         :type gelf_dict: dict
 
-        :return: A prepped JSON-encoded GELF log as a bytes string
-            encoded in UTF-8.
+        :return: bytes representing a uncompressed GELF log.
         :rtype: bytes
         """
         gelf_dict = BaseGELFHandler._sanitize_to_unicode(gelf_dict)
@@ -397,7 +396,7 @@ class GELFTCPHandler(BaseGELFHandler, SocketHandler):
             terminated GELF log.
         :type record: logging.LogRecord
 
-        :return: A GELF log encoded as a null terminated bytes string.
+        :return: GELF log encoded as a null terminated bytes string.
         :rtype: bytes
         """
         return BaseGELFHandler.makePickle(self, record) + b'\x00'
