@@ -332,17 +332,15 @@ class BaseGELFHandler(logging.Handler, ABC):
     @staticmethod
     def _object_to_json(obj):
         """Convert objects that cannot be natively serialized into JSON
-        into their string representation
+        into their string representation (for later JSON serialization).
 
         :class:`datetime.datetime` based objects will be converted into a
         ISO formatted string timestamp.
 
-        :param obj: object to convert into a JSON via getting its string
-            representation.
+        :param obj: object to convert into a string representation.
         :type obj: object
 
-        :return: String value representing the given object ready to be
-            encoded into a JSON.
+        :return: String representing the given object.
         :rtype: str
         """
         if isinstance(obj, datetime.datetime):
