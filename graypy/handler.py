@@ -72,13 +72,13 @@ class BaseGELFHandler(logging.Handler, ABC):
         :type fqdn: bool
 
         :param localname: If ``fqdn`` is :obj:`False` and ``localname`` is
-            specified, used the specified hostname to populate the
+            specified, use the specified hostname to populate the
             ``host`` GELF field.
         :type localname: str or None
 
         :param facility: If specified, replace the ``facility`` GELF field
             with the specified value. Additionally, the LogRecord.name will
-            used populate the ``_logger`` GELF field.
+            be used to populate the ``_logger`` GELF field.
         :type facility: str
 
         :param level_names: If :obj:`True` use string error level names
