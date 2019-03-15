@@ -291,7 +291,7 @@ class BaseGELFHandler(logging.Handler, ABC):
 
     @staticmethod
     def _pack_gelf_dict(gelf_dict):
-        """Convert a given ``gelf_dict`` to a JSON-encoded string, thus,
+        """Convert a given ``gelf_dict`` into JSON-encoded UTF-8 bytes, thus,
         creating an uncompressed GELF log ready for consumption by Graylog.
 
         Since we cannot be 100% sure of what is contained in the ``gelf_dict``
