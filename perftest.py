@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import argparse
@@ -11,7 +11,7 @@ import time
 def main(argv=sys.argv):
     parser = argparse.ArgumentParser(prog="perftest.py")
     parser.add_argument('--graylog-host',
-        help='Graylog2 host. Do not test GELFHandler if not specified.')
+        help='Graylog2 host. Do not test GELFUDPHandler if not specified.')
     parser.add_argument('--graylog-port', type=int, default=12201,
         help='Graylog2 GELF UDP port. Default: 12201')
     parser.add_argument('--graylog-chunked', action='store_true', default=None,
@@ -43,7 +43,7 @@ def main(argv=sys.argv):
     
     if args.graylog_host is not None:
         config['handlers']['graylog_udp'] = {
-            'class': 'graypy.GELFHandler',
+            'class': 'graypy.GELFUDPHandler',
             'host': args.graylog_host,
             'port': args.graylog_port,
             'debugging_fields': 0,
@@ -104,8 +104,6 @@ def main(argv=sys.argv):
     elapsed = time.time() - t_start
     print('%s messages in %.3f seconds (%.3f msg/s)'
           % (total, elapsed, total / elapsed))
-
-
 
 
 if __name__ == '__main__':

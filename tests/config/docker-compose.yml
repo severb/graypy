@@ -1,0 +1,31 @@
+version: '2'
+services:
+  mongo:
+    image: "mongo:3"
+  elasticsearch:
+    image: "elasticsearch:2"
+    command: "elasticsearch -Des.cluster.name='graylog'"
+  graylog:
+    image: graylog2/server
+    environment:
+      GRAYLOG_PASSWORD_SECRET: CVanHILkuYhsxE50BrNR6FFt75rS3h0V2uUlHxAshGB90guZznEoDxN7zhPx6Bcn61mfhY2T5r0PRkZVwowsTkHU2rBZnv0d
+      GRAYLOG_ROOT_PASSWORD_SHA2: 8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+      GRAYLOG_WEB_ENDPOINT_URI: http://127.0.0.1:9000/api
+      GRAYLOG_CONTENT_PACKS_AUTO_LOAD: grok-patterns.json,inputs.json
+      GRAYLOG_ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    volumes:
+      - ./inputs.json:/usr/share/graylog/data/contentpacks/inputs.json
+      - ./localhost.cert.pem:/usr/share/graylog/data/cert.pem
+      - ./localhost.pkcs8-encrypted.key.pem:/usr/share/graylog/data/key.pem
+    links:
+      - mongo
+      - elasticsearch
+    depends_on:
+      - mongo
+      - elasticsearch
+    ports:
+      - "9000:9000"
+      - "12201:12201/tcp"
+      - "12202:12202/udp"
+      - "12203:12203"
+      - "12204:12204/tcp"
