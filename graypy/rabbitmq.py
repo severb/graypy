@@ -125,7 +125,7 @@ class ExcludeFilter(Filter):
     def __init__(self, name):
         """Initialize the ExcludeFilter
 
-        :param name: Name to match for within a:class:`logging.LogRecord`'s
+        :param name: Name to match for within a :class:`logging.LogRecord`'s
             ``name`` field for filtering.
         :type name: str
         """
