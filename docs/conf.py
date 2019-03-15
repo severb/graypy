@@ -134,7 +134,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'graypy', 'graypy Documentation', author, 'graypy',
-     'A python FTP console that provides a simple secure file system (SFS)',
+     'Python logging handler that sends messages in Graylog Extended Log Format (GLEF).',
      'Miscellaneous'),
 ]
 
