@@ -158,7 +158,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         the logging level via the string error level names instead of
         numerical values
 
-        :param gelf_dict: dictionary representation of a GELF log.
+        :param gelf_dict: dictionary representing a GELF log.
         :type gelf_dict: dict
 
         :param record: :class:`logging.LogRecord` to extract a logging
@@ -172,7 +172,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         """Set the ``gelf_dict``'s ``facility`` field to the specified value
         also add the the extra ``_logger`` field containing the LogRecord.name
 
-        :param gelf_dict: dictionary representation of a GELF log.
+        :param gelf_dict: dictionary representing a GELF log.
         :type gelf_dict: dict
 
         :param facility_value: Value to set as the ``gelf_dict``'s
@@ -191,7 +191,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         """Add the ``full_message`` field to the ``gelf_dict`` if any
         traceback information exists within the logging record
 
-        :param gelf_dict: dictionary representation of a GELF log.
+        :param gelf_dict: dictionary representing a GELF log.
         :type gelf_dict: dict
 
         :param record: :class:`logging.LogRecord` to extract a full
@@ -235,7 +235,7 @@ class BaseGELFHandler(logging.Handler, ABC):
     def _add_debugging_fields(gelf_dict, record):
         """Add debugging fields to the given ``gelf_dict``
 
-        :param gelf_dict: dictionary representation of a GELF log.
+        :param gelf_dict: dictionary representing a GELF log.
         :type gelf_dict: dict
 
         :param record: :class:`logging.LogRecord` to extract debugging
@@ -270,7 +270,7 @@ class BaseGELFHandler(logging.Handler, ABC):
 
                 http://docs.python.org/library/logging.html#logrecord-attributes
 
-        :param gelf_dict: dictionary representation of a GELF log.
+        :param gelf_dict: dictionary representing a GELF log.
         :type gelf_dict: dict
 
         :param record: :class:`logging.LogRecord` to extract extra fields
@@ -297,7 +297,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         Since we cannot be 100% sure of what is contained in the ``gelf_dict``
         we have to do some sanitation.
 
-        :param gelf_dict: dictionary representation of a GELF log.
+        :param gelf_dict: dictionary representing a GELF log.
         :type gelf_dict: dict
 
         :return: bytes representing a uncompressed GELF log.
