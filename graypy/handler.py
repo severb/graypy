@@ -47,8 +47,9 @@ SYSLOG_LEVELS = {
 
 
 class BaseGELFHandler(logging.Handler, ABC):
-    """Abstract class noting the basic components of a GELF compatible
-    log handler"""
+    """Abstract class defining the basic functionality of converting a
+    :obj:`logging.LogRecord` into a GELF log. Provides the boilerplate for
+    all GELF handlers defined within graypy."""
 
     def __init__(self, chunk_size=WAN_CHUNK, debugging_fields=True,
                  extra_fields=True, fqdn=False, localname=None, facility=None,
