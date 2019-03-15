@@ -76,6 +76,15 @@ jobs:
       script:
         - python setup.py bdist_wheel
       after_script: skip
+    - name: "sphinx docs"
+      python:
+        - 3.6
+      install:
+        - pip install .["docs"]
+      before_script: skip
+      script:
+        - sphinx-build docs/ build/
+      after_script: skip
     - stage: deploy
       deploy:
         python:
