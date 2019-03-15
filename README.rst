@@ -1,6 +1,18 @@
-|PyPI_Status|
-|Build_Status|
-|Coverage_Status|
+######
+graypy
+######
+
+.. image:: https://travis-ci.org/severb/graypy.svg?branch=master
+    :target: https://travis-ci.org/severb/graypy
+    :alt: Build Status
+
+.. image:: https://codecov.io/gh/severb/graypy/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/severb/graypy
+    :alt: Coverage Status
+
+.. image:: https://img.shields.io/pypi/v/graypy.svg
+    :target: https://pypi.python.org/pypi/graypy
+    :alt: PyPI Status
 
 Description
 ===========
@@ -20,7 +32,7 @@ Install the basic graypy python logging handlers
 
     pip install graypy
 
-Install with requirements for ``GELFRabbitHandler``
+Install with requirements for :class:`graypy.rabbitmq.GELFRabbitHandler`
 
 .. code-block:: bash
 
@@ -35,7 +47,7 @@ Install the basic graypy python logging handlers
 
    easy_install graypy
 
-Install with requirements for ``GELFRabbitHandler``
+Install with requirements for :class:`graypy.rabbitmq.GELFRabbitHandler`
 
 .. code-block:: bash
 
@@ -60,13 +72,14 @@ library in GELF format
 
     my_logger.debug('Hello Graylog2.')
 
-Alternately, use ``GELFRabbitHandler`` to send messages to RabbitMQ and
-configure your Graylog2 server to consume messages via AMQP. This prevents
-log messages from being lost due to dropped UDP packets (``GELFUDPHandler``
-sends messages to Graylog2 using UDP). You will need to configure RabbitMQ
-with a 'gelf_log' queue and bind it to the 'logging.gelf' exchange so
-messages are properly routed to a queue that can be consumed by
-Graylog2 (the queue and exchange names may be customized to your liking)
+Alternately, use :class:`graypy.rabbitmq.GELFRabbitHandler` to send messages
+to RabbitMQ and configure your Graylog2 server to consume messages via AMQP.
+This prevents log messages from being lost due to dropped UDP packets
+(:class:`graypy.handler.GELFUDPHandler` sends messages to Graylog2 using UDP).
+You will need to configure RabbitMQ with a 'gelf_log' queue and bind it to the
+'logging.gelf' exchange so messages are properly routed to a queue that can be
+consumed by Graylog2 (the queue and exchange names may be customized to
+your liking).
 
 .. code-block:: python
 
@@ -209,13 +222,3 @@ Contributors:
 .. _GELF: http://docs.graylog.org/en/latest/pages/gelf.html
 .. _LoggerAdapter: http://docs.python.org/howto/logging-cookbook.html#using-loggeradapters-to-impart-contextual-information
 .. _Filter: http://docs.python.org/howto/logging-cookbook.html#using-filters-to-impart-contextual-information
-
-.. |Build_Status| image:: https://travis-ci.org/severb/graypy.svg?branch=master
-    :target: https://travis-ci.org/severb/graypy
-
-
-.. |Coverage_Status| image:: https://codecov.io/gh/severb/graypy/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/severb/graypy
-
-.. |PyPI_Status| image:: https://img.shields.io/pypi/v/graypy.svg
-    :target: https://pypi.python.org/pypi/graypy
