@@ -222,7 +222,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         :param localname: Use specified hostname as the ``host`` GELF field.
         :type localname: str or None
 
-        :return: String value representing the ``host`` GELF field.
+        :return: String representing the ``host`` GELF field.
         :rtype: str
         """
         if fqdn:
