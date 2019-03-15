@@ -47,7 +47,8 @@ SYSLOG_LEVELS = {
 
 
 class BaseGELFHandler(logging.Handler, ABC):
-    """Abstract class noting the basic components of a GLEFHandler"""
+    """Abstract class noting the basic components of a GELF compatible
+    log handler"""
 
     def __init__(self, chunk_size=WAN_CHUNK, debugging_fields=True,
                  extra_fields=True, fqdn=False, localname=None, facility=None,
@@ -356,7 +357,7 @@ class BaseGELFHandler(logging.Handler, ABC):
 
 
 class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
-    """Graylog Extended Log Format UDP handler"""
+    """GELF UDP handler"""
 
     def __init__(self, host, port=12202, **kwargs):
         """Initialize the GELFUDPHandler
@@ -379,7 +380,7 @@ class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
 
 
 class GELFTCPHandler(BaseGELFHandler, SocketHandler):
-    """Graylog Extended Log Format TCP handler"""
+    """GELF TCP handler"""
 
     def __init__(self, host, port=12201, **kwargs):
         """Initialize the GELFTCPHandler
@@ -408,7 +409,7 @@ class GELFTCPHandler(BaseGELFHandler, SocketHandler):
 
 
 class GELFTLSHandler(GELFTCPHandler):
-    """Graylog Extended Log Format TCP handler with TLS support"""
+    """GELF TCP handler with TLS support"""
 
     def __init__(self, host, port=12204, validate=False, ca_certs=None,
                  certfile=None, keyfile=None, **kwargs):
@@ -470,7 +471,7 @@ class GELFTLSHandler(GELFTCPHandler):
 
 # TODO: add https?
 class GELFHTTPHandler(BaseGELFHandler):
-    """Graylog Extended Log Format HTTP handler"""
+    """GELF HTTP handler"""
 
     def __init__(self, host, port=12203, compress=True, path='/gelf',
                  timeout=5, **kwargs):
