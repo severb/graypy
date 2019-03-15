@@ -318,7 +318,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         :param obj: object to sanitize to unicode.
         :type obj: object
 
-        :return: Unicode string representation of the given object.
+        :return: Unicode string representing the given object.
         :rtype: str
         """
         if isinstance(obj, dict):
@@ -394,7 +394,7 @@ class GELFTCPHandler(BaseGELFHandler, SocketHandler):
             terminated GELF log.
         :type record: logging.LogRecord
 
-        :return: GELF log encoded as a null terminated bytes string.
+        :return: Null terminated bytes representing a GELF log.
         :rtype: bytes
         """
         return BaseGELFHandler.makePickle(self, record) + b'\x00'
