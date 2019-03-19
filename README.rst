@@ -2,6 +2,10 @@
 graypy
 ######
 
+.. image:: https://img.shields.io/pypi/v/graypy.svg
+    :target: https://pypi.python.org/pypi/graypy
+    :alt: PyPI Status
+
 .. image:: https://travis-ci.org/severb/graypy.svg?branch=master
     :target: https://travis-ci.org/severb/graypy
     :alt: Build Status
@@ -9,10 +13,6 @@ graypy
 .. image:: https://codecov.io/gh/severb/graypy/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/severb/graypy
     :alt: Coverage Status
-
-.. image:: https://img.shields.io/pypi/v/graypy.svg
-    :target: https://pypi.python.org/pypi/graypy
-    :alt: PyPI Status
 
 Description
 ===========
