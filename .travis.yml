@@ -42,12 +42,23 @@ jobs:
     - python: "pypy2.7-5.10.0"
     - python: "pypy3.5-5.10.0"
     - stage: lint
+      name: "pylint"
       python:
         - 3.6
       before_script: skip
-      after_script: skip
       script:
         - python setup.py lint || exit $(($? & 35))
+      after_script: skip
+    - name: "twine check"
+      python:
+        - 3.6
+      before_install:
+        - pip install docutils twine
+      before_script:
+        - python setup.py sdist
+      script:
+        - twine check dist/*
+      after_script: skip
     - stage: build
       name: "sdist"
       python:
