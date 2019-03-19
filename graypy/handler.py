@@ -504,7 +504,7 @@ class GELFHTTPHandler(BaseGELFHandler):
         via a HTTP POST request
 
         :param record: :class:`logging.LogRecord` to convert into a GELF log
-            and emit to Graylog via HTTP POST.
+            and emit to Graylog via a HTTP POST request.
         :type record: logging.LogRecord
         """
         pickle = self.makePickle(record)
