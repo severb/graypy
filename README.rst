@@ -72,14 +72,13 @@ library in GELF format
 
     my_logger.debug('Hello Graylog2.')
 
-Alternately, use ``GELFRabbitHandler`` to send messages
-to RabbitMQ and configure your Graylog2 server to consume messages via AMQP.
-This prevents log messages from being lost due to dropped UDP packets
-(``GELFUDPHandler`` sends messages to Graylog2 using UDP).
-You will need to configure RabbitMQ with a ``gelf_log`` queue and bind it to
-the ``logging.gelf`` exchange so messages are properly routed to a queue that
-can be consumed by Graylog2 (the queue and exchange names may be customized to
-your liking).
+Alternately, use ``GELFRabbitHandler`` to send messages to RabbitMQ and
+configure your Graylog2 server to consume messages via AMQP. This prevents log
+messages from being lost due to dropped UDP packets (``GELFUDPHandler`` sends
+messages to Graylog2 using UDP). You will need to configure RabbitMQ with a
+``gelf_log`` queue and bind it to the ``logging.gelf`` exchange so messages
+are properly routed to a queue that can be consumed by Graylog2 (the queue and
+exchange names may be customized to your liking).
 
 .. code-block:: python
 
@@ -162,10 +161,10 @@ an the ``debugging_fields=False`` to the handler:
     handler = graypy.GELFUDPHandler('localhost', 12201, debugging_fields=False)
 
 graypy also supports additional fields to be included in the messages sent
-to Graylog2. This can be done by using Python's LoggerAdapter_ and
-Filter_. In general, LoggerAdapter makes it easy to add static information
-to your log messages and Filters give you more flexibility, for example to
-add additional information based on the message that is being logged.
+to Graylog2. This can be done by using Python's LoggerAdapter_ and Filter_.
+In general, LoggerAdapter makes it easy to add static information to your log
+messages and Filters give you more flexibility, for example to add additional
+information based on the message that is being logged.
 
 Example using LoggerAdapter_
 
