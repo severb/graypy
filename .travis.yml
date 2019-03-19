@@ -72,7 +72,7 @@ jobs:
         provider: pypi
         user: nklapste
         password:
-          secure: ApbGgk15roR9k5tc8iwb9NLbTTXc3Gz34eAJOZ83NhH2EPwTPIU4KH8ZKsXznrUSYbYRWGJbkrClKCXsu2ZOOc9WkHfwwzZ/EnkW0G97Kd2QRz8oN6yDHcIrZw43Tz28HUGeov/ncFWJA7zxaNoYAVlNF6vvV7Zp5ytOsF65CuVXLPNRF9aNw0d7lM9KcneTQXzO+2pIINkoG7yYuDTUy/tuUKM5NDljRCdA6uHaulPgJrbgG7qJfKc7ouPbnjLlgcaENCnXtKqmB4TJ/3gkNL75Jhsp08YlJCdRKBP44gcs7Pg5rLbqJ2SNJQHdkzdJqIqjgq5+ewPVt+dtfi6+lO0+T6QPHcsxVIWM+lWe/vZh+N8qxdUogkSAQN9M3Rxnb/kaUENGa26IrvZMdzohV/43xZn3pJ4vzzMkQ+J1QJAJoNxmsjJLhGSRG73TUk9ViiuZEcGQFF78b3IwXeu46sWHvF/euONpMSdGIp3kLrj95w2TrsD9ulxuiGBxr2jL2nmQ5m4MC8KzRa+Xj+010gRnt7n+jeTlA4T6pGqVuaoLJorGrbX4/edhuGWDxLftRIDfwXq1PQU2c2Uiu+Ww1rn53Ttu3eKJ6DeG2F6Ymt8/R5KOIGLHhKmyHVjsy2agyYEQdGVNpJx0qcVkYxYlknC3E2UytSjSLO4vWsVY1bU=
+          secure: Ryu87EzCW+k/quo2yC05cejU29zo9Xwlv9f2zxwMhCDRwMGt4GCSJ4zR7GXvYT0B5H6S+Y+gCxTmSSA53V1aRvCX0A42i6P9jef2yWR34aYe0+lmYwwW1wNKo/SLD1x5cXw59m5pcVGPvAVY9aQ88DwR9gn6aMr76A6LJet/ykY=
         on:
           tags: true
           branch: master
