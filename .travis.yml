@@ -42,6 +42,7 @@ jobs:
     - python: "pypy2.7-5.10.0"
     - python: "pypy3.5-5.10.0"
     - stage: lint
+      name: "pylint"
       python:
         - 3.6
       before_script: skip
