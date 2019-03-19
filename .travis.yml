@@ -65,17 +65,16 @@ jobs:
       script:
         - python setup.py bdist_wheel
       after_script: skip
-# TODO: fill in for automatic pypi releases
-#    - stage: deploy
-#      deploy:
-#        python:
-#          - 3.6
-#        provider: pypi
-#        user: # TODO: FILL IN
-#        password:
-#          secure: # TODO: fill in
-#        on:
-#          tags: true
-#          branch: master
-#          repo: severb/graypy
-#        distributions: "sdist bdist_wheel"
+    - stage: deploy
+      deploy:
+        python:
+          - 3.6
+        provider: pypi
+        user: nklapste
+        password:
+          secure: ApbGgk15roR9k5tc8iwb9NLbTTXc3Gz34eAJOZ83NhH2EPwTPIU4KH8ZKsXznrUSYbYRWGJbkrClKCXsu2ZOOc9WkHfwwzZ/EnkW0G97Kd2QRz8oN6yDHcIrZw43Tz28HUGeov/ncFWJA7zxaNoYAVlNF6vvV7Zp5ytOsF65CuVXLPNRF9aNw0d7lM9KcneTQXzO+2pIINkoG7yYuDTUy/tuUKM5NDljRCdA6uHaulPgJrbgG7qJfKc7ouPbnjLlgcaENCnXtKqmB4TJ/3gkNL75Jhsp08YlJCdRKBP44gcs7Pg5rLbqJ2SNJQHdkzdJqIqjgq5+ewPVt+dtfi6+lO0+T6QPHcsxVIWM+lWe/vZh+N8qxdUogkSAQN9M3Rxnb/kaUENGa26IrvZMdzohV/43xZn3pJ4vzzMkQ+J1QJAJoNxmsjJLhGSRG73TUk9ViiuZEcGQFF78b3IwXeu46sWHvF/euONpMSdGIp3kLrj95w2TrsD9ulxuiGBxr2jL2nmQ5m4MC8KzRa+Xj+010gRnt7n+jeTlA4T6pGqVuaoLJorGrbX4/edhuGWDxLftRIDfwXq1PQU2c2Uiu+Ww1rn53Ttu3eKJ6DeG2F6Ymt8/R5KOIGLHhKmyHVjsy2agyYEQdGVNpJx0qcVkYxYlknC3E2UytSjSLO4vWsVY1bU=
+        on:
+          tags: true
+          branch: master
+          repo: severb/graypy
+        distributions: "sdist bdist_wheel"
