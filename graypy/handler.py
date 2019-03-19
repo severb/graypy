@@ -483,8 +483,8 @@ class GELFHTTPHandler(BaseGELFHandler):
             (see http://docs.graylog.org/en/latest/pages/sending_data.html#gelf-via-http)
         :type path: str
 
-        :param timeout: Amount of seconds that HTTP client should wait before
-            it discards the request if the server doesn't respond.
+        :param timeout: Number of seconds that the HTTP client should wait
+            before it discards the request if the server doesn't respond.
         :type timeout: int
         """
 
