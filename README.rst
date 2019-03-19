@@ -26,13 +26,13 @@ Installing
 Using pip
 ---------
 
-Install the basic graypy python logging handlers
+Install the basic graypy python logging handlers:
 
 .. code-block:: bash
 
     pip install graypy
 
-Install with requirements for ``GELFRabbitHandler``
+Install with requirements for ``GELFRabbitHandler``:
 
 .. code-block:: bash
 
@@ -41,13 +41,13 @@ Install with requirements for ``GELFRabbitHandler``
 Using easy_install
 ------------------
 
-Install the basic graypy python logging handlers
+Install the basic graypy python logging handlers:
 
 .. code-block:: bash
 
    easy_install graypy
 
-Install with requirements for ``GELFRabbitHandler``
+Install with requirements for ``GELFRabbitHandler``:
 
 .. code-block:: bash
 
@@ -57,7 +57,8 @@ Usage
 =====
 
 Messages are sent to Graylog2 using a custom handler for the builtin logging
-library in GELF format
+library in GELF format. For example UDP Log forwarding to a locally hosted
+Graylog server can be easily done with the ``GELFUDPHandler``:
 
 .. code-block:: python
 
@@ -93,7 +94,7 @@ exchange names may be customized to your liking).
 
     my_logger.debug('Hello Graylog2.')
 
-Tracebacks are added as full messages
+Tracebacks are added as full messages:
 
 .. code-block:: python
 
@@ -148,6 +149,7 @@ Custom fields
 =============
 
 A number of custom fields are automatically added if available:
+
     * function
     * pid
     * process_name
@@ -166,7 +168,7 @@ In general, LoggerAdapter makes it easy to add static information to your log
 messages and Filters give you more flexibility, for example to add additional
 information based on the message that is being logged.
 
-Example using LoggerAdapter_
+Example using LoggerAdapter_:
 
 .. code-block:: python
 
@@ -184,7 +186,7 @@ Example using LoggerAdapter_
 
     my_adapter.debug('Hello Graylog2 from John.')
 
-Example using Filter_
+Example using Filter_:
 
 .. code-block:: python
 
