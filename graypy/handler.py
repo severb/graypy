@@ -173,14 +173,14 @@ class BaseGELFHandler(logging.Handler, ABC):
 
     @staticmethod
     def _set_custom_facility(gelf_dict, facility_value, record):
-        """Set the ``gelf_dict``'s ``facility`` field to the specified value
+        """Set the ``gelf_dict``'s ``_facility`` field to the specified value
         also add the the extra ``_logger`` field containing the LogRecord.name
 
         :param gelf_dict: dictionary representation of a GELF log.
         :type gelf_dict: dict
 
         :param facility_value: Value to set as the ``gelf_dict``'s
-            ``facility`` field.
+            ``_facility`` field.
         :type facility_value: str
 
         :param record: :class:`logging.LogRecord` to extract it's record
