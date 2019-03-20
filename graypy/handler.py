@@ -291,9 +291,8 @@ class BaseGELFHandler(logging.Handler, ABC):
 
         for key, value in record.__dict__.items():
             if key not in skip_list:
-                additional_field_name = "_{}".format(key)
-                BaseGELFHandler.validate_gelf_additional_field_name(additional_field_name)
-                gelf_dict[additional_field_name] = value
+                BaseGELFHandler.validate_gelf_additional_field_name(key)
+                gelf_dict["_{}".format(key)] = value
 
     @staticmethod
     def validate_gelf_additional_field_name(additional_field_name):

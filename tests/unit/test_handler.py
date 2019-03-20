@@ -240,3 +240,34 @@ def test_glef_chunking():
         assert expected_index == chunk[10:11]
         assert expected_chunks_count == chunk[11:12]
         assert expected_chunk == chunk[12:]
+
+
+@pytest.mark.parametrize(
+    "field_name",
+    [
+        "foo",
+        "bar",
+        "_bar",
+        "foo.bar",
+        "foo-bar",
+        "foo1"
+    ]
+)
+def test_validate_additional_field_name_valid(field_name):
+    BaseGELFHandler.validate_gelf_additional_field_name(field_name)
+    pass
+
+
+@pytest.mark.parametrize(
+    "field_name",
+    [
+        " ",
+        " foo",
+        "foo#",
+        "@",
+        "_id"
+    ]
+)
+def test_validate_additional_field_name_invalid(field_name):
+    with pytest.raises(ValueError):
+        BaseGELFHandler.validate_gelf_additional_field_name(field_name)
