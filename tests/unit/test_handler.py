@@ -15,13 +15,14 @@ import logging
 import socket
 import struct
 import sys
+import warnings
 import zlib
 
 import mock
 import pytest
 
 from graypy.handler import BaseGELFHandler, GELFHTTPHandler, GELFTLSHandler, \
-    ChunkedGELF
+    ChunkedGELF, GELFHandler
 
 from tests.helper import handler, logger, formatted_logger
 from tests.unit.helper import MOCK_LOG_RECORD, MOCK_LOG_RECORD_NAME
@@ -240,3 +241,14 @@ def test_glef_chunking():
         assert expected_index == chunk[10:11]
         assert expected_chunks_count == chunk[11:12]
         assert expected_chunk == chunk[12:]
+
+
+def test_GELFHandler_deprecation_warning():
+    """Ensure that instancing a GELFHandler will trigger a
+    :class:`DeprecationWarning` message"""
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        GELFHandler("localhost")
+        assert len(w) == 1
+        assert issubclass(w[-1].category, DeprecationWarning)
+        assert "deprecated" in str(w[-1].message)

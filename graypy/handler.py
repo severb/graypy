@@ -386,6 +386,9 @@ class GELFHandler(GELFUDPHandler):
     """
 
     def __init__(self, host, port=12202, **kwargs):
+        import warnings
+        warnings.warn("GELFHandler is deprecated; use GELFUDPHandler.",
+                      DeprecationWarning)
         GELFUDPHandler.__init__(self, host, port, **kwargs)
 
 
