@@ -32,7 +32,7 @@ TEST_TLS_PORT = 12204
     GELFTcpHandler("127.0.0.1", TEST_TCP_PORT),
     GELFTcpHandler("127.0.0.1", TEST_TCP_PORT, extra_fields=True),
     GELFTcpHandler("127.0.0.1", TEST_TCP_PORT, extra_fields=True, debugging_fields=True),
-    GELFTcpHandler("localhost", TEST_TLS_PORT, tls=True),
+    GELFTcpHandler("localhost", TEST_TLS_PORT, tls=True, tls_cafile=TEST_CERT),
     GELFTcpHandler("localhost", TEST_TLS_PORT, tls=True,  tls_server_name="localhost", tls_cafile=TEST_CERT),
     GELFTcpHandler("127.0.0.1", TEST_TLS_PORT, tls=True, tls_server_name="localhost", tls_cafile=TEST_CERT),
     GELFHTTPHandler('127.0.0.1', TEST_HTTP_PORT),
