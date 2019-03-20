@@ -22,7 +22,7 @@ import mock
 import pytest
 
 from graypy.handler import BaseGELFHandler, GELFHTTPHandler, GELFTLSHandler, \
-    ChunkedGELF, GELFHandler
+    ChunkedGELF, GELFHandler, GELFTcpHandler
 
 from tests.helper import handler, logger, formatted_logger
 from tests.unit.helper import MOCK_LOG_RECORD, MOCK_LOG_RECORD_NAME
@@ -249,6 +249,17 @@ def test_GELFHandler_deprecation_warning():
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         GELFHandler("localhost")
+        assert len(w) == 1
+        assert issubclass(w[-1].category, DeprecationWarning)
+        assert "deprecated" in str(w[-1].message)
+
+
+def test_GELFTcpHandler_deprecation_warning():
+    """Ensure that instancing a GELFTcpHandler will trigger a
+    :class:`DeprecationWarning` message"""
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        GELFTcpHandler("localhost")
         assert len(w) == 1
         assert issubclass(w[-1].category, DeprecationWarning)
         assert "deprecated" in str(w[-1].message)
