@@ -9,6 +9,7 @@ import json
 import logging
 import math
 import random
+import re
 import socket
 import ssl
 import struct
@@ -289,8 +290,24 @@ class BaseGELFHandler(logging.Handler, ABC):
             'processName', 'relativeCreated', 'thread', 'threadName')
 
         for key, value in record.__dict__.items():
-            if key not in skip_list and not key.startswith('_'):
-                gelf_dict['_%s' % key] = value
+            if key not in skip_list:
+                additional_field_name = "_{}".format(key)
+                BaseGELFHandler.validate_gelf_additional_field_name(additional_field_name)
+                gelf_dict[additional_field_name] = value
+
+    @staticmethod
+    def validate_gelf_additional_field_name(additional_field_name):
+        """Validate a GELF additional field name
+
+        :param additional_field_name: GELF additional field name to validate
+        :type additional_field_name: str
+
+        :raises ValueError: if the given GELF additional field name is invalid
+        """
+        if re.match(r"^[\w.\-]*$", additional_field_name):
+            if additional_field_name != "_id":
+                return
+        raise ValueError("Invalid GELF additional field name")
 
     @staticmethod
     def _pack_gelf_dict(gelf_dict):
