@@ -10,7 +10,7 @@ import logging
 import pytest
 
 from graypy import GELFUDPHandler, GELFHandler, GELFTCPHandler, \
-    GELFTLSHandler, GELFTcpHandler, GELFHTTPHandler
+    GELFTLSHandler, GELFHTTPHandler
 
 TEST_CERT = "tests/config/localhost.cert.pem"
 KEY_PASS = "secret"
@@ -29,12 +29,6 @@ TEST_TLS_PORT = 12204
     GELFTLSHandler("localhost", TEST_TLS_PORT, validate=True, ca_certs=TEST_CERT),
     GELFTLSHandler("127.0.0.1", TEST_TLS_PORT),
     GELFTLSHandler("127.0.0.1", TEST_TLS_PORT, validate=True, ca_certs=TEST_CERT),
-    GELFTcpHandler("127.0.0.1", TEST_TCP_PORT),
-    GELFTcpHandler("127.0.0.1", TEST_TCP_PORT, extra_fields=True),
-    GELFTcpHandler("127.0.0.1", TEST_TCP_PORT, extra_fields=True, debugging_fields=True),
-    GELFTcpHandler("localhost", TEST_TLS_PORT, tls=True, tls_cafile=TEST_CERT),
-    GELFTcpHandler("localhost", TEST_TLS_PORT, tls=True,  tls_server_name="localhost", tls_cafile=TEST_CERT),
-    GELFTcpHandler("127.0.0.1", TEST_TLS_PORT, tls=True, tls_server_name="localhost", tls_cafile=TEST_CERT),
     GELFHTTPHandler('127.0.0.1', TEST_HTTP_PORT),
     GELFHTTPHandler('127.0.0.1', TEST_HTTP_PORT, compress=False),
     GELFUDPHandler("127.0.0.1", TEST_UDP_PORT),
