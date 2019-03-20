@@ -136,7 +136,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         """
         # construct the base GELF format
         gelf_dict = {
-            'version': "1.0",
+            'version': "1.1",
             'host': BaseGELFHandler._resolve_host(self.fqdn, self.localname),
             'short_message': self.formatter.format(record) if self.formatter else record.getMessage(),
             'timestamp': record.created,
