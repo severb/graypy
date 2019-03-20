@@ -9,8 +9,8 @@ These functions are used for both the integration and unit testing.
 import logging
 import pytest
 
-from graypy import GELFUDPHandler, GELFTCPHandler, GELFTLSHandler, \
-    GELFHTTPHandler
+from graypy import GELFUDPHandler, GELFHandler, GELFTCPHandler, \
+    GELFTLSHandler, GELFHTTPHandler
 
 TEST_CERT = "tests/config/localhost.cert.pem"
 KEY_PASS = "secret"
@@ -37,6 +37,12 @@ TEST_TLS_PORT = 12204
     GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True, compress=False),
     GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True, debugging_fields=True),
     GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True, debugging_fields=True, compress=False),
+    GELFHandler("127.0.0.1", TEST_UDP_PORT),
+    GELFHandler("127.0.0.1", TEST_UDP_PORT, compress=False),
+    GELFHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True),
+    GELFHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True, compress=False),
+    GELFHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True, debugging_fields=True),
+    GELFHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True, debugging_fields=True, compress=False),
 ])
 def handler(request):
     return request.param

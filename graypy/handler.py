@@ -378,6 +378,17 @@ class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
                 DatagramHandler.send(self, chunk)
 
 
+class GELFHandler(GELFUDPHandler):
+    """Graylog Extended Log Format TCP handler
+
+    .. deprecated:: 1.0.0
+        Use :class:`.handler.GELFUDPHandler` instead.
+    """
+
+    def __init__(self, host, port=12202, **kwargs):
+        GELFUDPHandler.__init__(self, host, port, **kwargs)
+
+
 class GELFTCPHandler(BaseGELFHandler, SocketHandler):
     """Graylog Extended Log Format TCP handler"""
 
