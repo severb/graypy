@@ -10,7 +10,7 @@ import logging
 import pytest
 
 from graypy import GELFUDPHandler, GELFHandler, GELFTCPHandler, \
-    GELFTLSHandler, GELFHTTPHandler
+    GELFTLSHandler, GELFTcpHandler, GELFHTTPHandler
 
 TEST_CERT = "tests/config/localhost.cert.pem"
 KEY_PASS = "secret"
