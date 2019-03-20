@@ -183,7 +183,7 @@ def test_set_custom_facility():
     facility = "test facility"
     BaseGELFHandler._set_custom_facility(gelf_dict, facility, MOCK_LOG_RECORD)
     assert MOCK_LOG_RECORD_NAME == gelf_dict["_logger"]
-    assert "test facility" == gelf_dict["facility"]
+    assert "test facility" == gelf_dict["_facility"]
 
 
 def test_formatted_logger(formatted_logger, mock_send):
