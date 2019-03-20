@@ -379,7 +379,7 @@ class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
 
 
 class GELFHandler(GELFUDPHandler):
-    """Graylog Extended Log Format TCP handler
+    """Graylog Extended Log Format UDP handler
 
     .. deprecated:: 1.0.0
         Use :class:`.handler.GELFUDPHandler` instead.
