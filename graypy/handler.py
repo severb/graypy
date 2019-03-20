@@ -248,7 +248,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         """
         gelf_dict.update({
             'file': record.pathname,
-            'line': record.lineno,
+            '_line': record.lineno,
             '_function': record.funcName,
             '_pid': record.process,
             '_thread_name': record.threadName,
