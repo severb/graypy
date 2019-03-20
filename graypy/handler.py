@@ -247,7 +247,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         :type record: logging.LogRecord
         """
         gelf_dict.update({
-            'file': record.pathname,
+            '_file': record.pathname,
             '_line': record.lineno,
             '_function': record.funcName,
             '_pid': record.process,
