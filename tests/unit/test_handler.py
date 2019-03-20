@@ -16,12 +16,13 @@ import socket
 import struct
 import sys
 import zlib
+from logging.handlers import SocketHandler
 
 import mock
 import pytest
 
 from graypy.handler import BaseGELFHandler, GELFHTTPHandler, GELFTLSHandler, \
-    ChunkedGELF
+    GELFTcpHandler, ChunkedGELF
 
 from tests.helper import handler, logger, formatted_logger
 from tests.unit.helper import MOCK_LOG_RECORD, MOCK_LOG_RECORD_NAME
@@ -240,3 +241,13 @@ def test_glef_chunking():
         assert expected_index == chunk[10:11]
         assert expected_chunks_count == chunk[11:12]
         assert expected_chunk == chunk[12:]
+
+
+def test_GELFTcpHandler_deprecation_warning():
+    """Ensure that instancing a GELFTcpHandler will trigger a
+    :class:`DeprecationWarning` message"""
+    with pytest.deprecated_call():
+        gelf_tcp_handler = GELFTcpHandler("localhost")
+        assert gelf_tcp_handler
+        assert isinstance(gelf_tcp_handler, BaseGELFHandler)
+        assert isinstance(gelf_tcp_handler, SocketHandler)
