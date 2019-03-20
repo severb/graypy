@@ -485,42 +485,6 @@ class GELFTLSHandler(GELFTCPHandler):
 class GELFTcpHandler(BaseGELFHandler, SocketHandler):
     """Graylog Extended Log Format TCP handler
 
-    :param host: The host of the graylog server.
-    :param port: The port of the graylog server (default 12201).
-    :param chunk_size: Message chunk size. Messages larger than this
-        size will be sent to graylog in multiple chunks. Defaults to
-        `WAN_CHUNK=1420`.
-    :param debugging_fields: Send debug fields if true (the default).
-    :param extra_fields: Send extra fields on the log record to graylog
-        if true (the default).
-    :param fqdn: Use fully qualified domain name of localhost as source
-        host (socket.getfqdn()).
-    :param localname: Use specified hostname as source host.
-    :param facility: Replace facility with specified value. If specified,
-        record.name will be passed as `logger` parameter.
-    :param level_names: Allows the use of string error level names instead
-        of numerical values. Defaults to False
-    :param tls: Use transport layer security on connection to graylog
-        if true (not the default)
-    :param tls_server_name: If using TLS, specify the name of the host
-        to which the connection is being made. If not specified, hostname
-        checking will not be performed.
-    :param tls_cafile: If using TLS, optionally specify a file with a set
-        of certificate authority certificates to use in certificate
-        validation.
-    :param tls_capath: If using TLS, optionally specify a path to files
-        with a set of certificate authority certificates to use in
-        certificate validation.
-    :param tls_cadata: If using TLS, optionally specify an object with
-        a set of certificate authority certificates to use in certificate
-        validation.
-    :param tls_client_cert: If using TLS, optionally specify a certificate
-        to authenticate the client to the graylog server.
-    :param tls_client_key: If using TLS, optionally specify a key file
-        corresponding to the client certificate.
-    :param tls_client_password: If using TLS, optionally specify a
-        password corresponding to the client key file.
-
     .. deprecated:: 1.0.0
         Use :class:`.handler.GELFTCPHandler` or
         :class:`.handler.GELFTLSHandler` instead.
@@ -532,6 +496,44 @@ class GELFTcpHandler(BaseGELFHandler, SocketHandler):
                  tls=False, tls_server_name=None, tls_cafile=None,
                  tls_capath=None, tls_cadata=None, tls_client_cert=None,
                  tls_client_key=None, tls_client_password=None):
+        """Initialize the GELFTCPHandler
+
+        :param host: The host of the graylog server.
+        :param port: The port of the graylog server (default 12201).
+        :param chunk_size: Message chunk size. Messages larger than this
+            size will be sent to graylog in multiple chunks. Defaults to
+            `WAN_CHUNK=1420`.
+        :param debugging_fields: Send debug fields if true (the default).
+        :param extra_fields: Send extra fields on the log record to graylog
+            if true (the default).
+        :param fqdn: Use fully qualified domain name of localhost as source
+            host (socket.getfqdn()).
+        :param localname: Use specified hostname as source host.
+        :param facility: Replace facility with specified value. If specified,
+            record.name will be passed as `logger` parameter.
+        :param level_names: Allows the use of string error level names instead
+            of numerical values. Defaults to False
+        :param tls: Use transport layer security on connection to graylog
+            if true (not the default)
+        :param tls_server_name: If using TLS, specify the name of the host
+            to which the connection is being made. If not specified, hostname
+            checking will not be performed.
+        :param tls_cafile: If using TLS, optionally specify a file with a set
+            of certificate authority certificates to use in certificate
+            validation.
+        :param tls_capath: If using TLS, optionally specify a path to files
+            with a set of certificate authority certificates to use in
+            certificate validation.
+        :param tls_cadata: If using TLS, optionally specify an object with
+            a set of certificate authority certificates to use in certificate
+            validation.
+        :param tls_client_cert: If using TLS, optionally specify a certificate
+            to authenticate the client to the graylog server.
+        :param tls_client_key: If using TLS, optionally specify a key file
+            corresponding to the client certificate.
+        :param tls_client_password: If using TLS, optionally specify a
+            password corresponding to the client key file.
+        """
 
         warnings.warn("GELFTcpHandler is deprecated; use GELFTCPHandler or "
                       "GELFTLSHandler.", DeprecationWarning)
