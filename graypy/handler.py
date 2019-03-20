@@ -79,7 +79,7 @@ class BaseGELFHandler(logging.Handler, ABC):
             ``host`` GELF field.
         :type localname: str or None
 
-        :param facility: If specified, replace the ``facility`` GELF field
+        :param facility: If specified, replace the ``_facility`` GELF field
             with the specified value. Additionally, the LogRecord.name will
             used populate the ``_logger`` GELF field.
         :type facility: str
@@ -141,7 +141,7 @@ class BaseGELFHandler(logging.Handler, ABC):
             'short_message': self.formatter.format(record) if self.formatter else record.getMessage(),
             'timestamp': record.created,
             'level': SYSLOG_LEVELS.get(record.levelno, record.levelno),
-            'facility': self.facility or record.name,
+            '_facility': self.facility or record.name,
         }
 
         # add in specified optional extras
@@ -188,7 +188,7 @@ class BaseGELFHandler(logging.Handler, ABC):
             field.
         :type record: logging.LogRecord
         """
-        gelf_dict.update({"facility": facility_value, '_logger': record.name})
+        gelf_dict.update({"_facility": facility_value, '_logger': record.name})
 
     @staticmethod
     def _add_full_message(gelf_dict, record):
