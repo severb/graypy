@@ -534,7 +534,6 @@ class GELFTcpHandler(BaseGELFHandler, SocketHandler):
         :param tls_client_password: If using TLS, optionally specify a
             password corresponding to the client key file.
         """
-
         warnings.warn("GELFTcpHandler is deprecated; use GELFTCPHandler or "
                       "GELFTLSHandler.", DeprecationWarning)
         BaseGELFHandler.__init__(self, chunk_size, debugging_fields,
