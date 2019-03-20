@@ -12,7 +12,7 @@ Modules:
 """
 
 from graypy.handler import GELFUDPHandler, GELFHandler, GELFTCPHandler, \
-    GELFTLSHandler, GELFTcpHandler, GELFHTTPHandler, WAN_CHUNK, LAN_CHUNK
+    GELFTLSHandler, GELFHTTPHandler, WAN_CHUNK, LAN_CHUNK
 
 try:
     from graypy.rabbitmq import GELFRabbitHandler, ExcludeFilter
