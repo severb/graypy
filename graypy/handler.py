@@ -84,8 +84,8 @@ class BaseGELFHandler(logging.Handler, ABC):
             used populate the ``_logger`` GELF field.
         :type facility: str
 
-        :param level_names: If :obj:`True` use string error level names
-            instead of numerical values (:obj:`False` by default).
+        :param level_names: If :obj:`True` add a ``_level_name`` GELF field
+            noting the logs error level as a string name.
         :type level_names: bool
 
         :param compress: If :obj:`True` compress the GELF message before
@@ -158,9 +158,8 @@ class BaseGELFHandler(logging.Handler, ABC):
 
     @staticmethod
     def _add_level_names(gelf_dict, record):
-        """Add the ``level_name`` field to the ``gelf_dict`` which notes
-        the logging level via the string error level names instead of
-        numerical values
+        """Add the ``_level_name`` field to the ``gelf_dict`` noting the logs
+        error level as a string name
 
         :param gelf_dict: dictionary representation of a GELF log.
         :type gelf_dict: dict
@@ -169,7 +168,7 @@ class BaseGELFHandler(logging.Handler, ABC):
             level from to insert into the given ``gelf_dict``.
         :type record: logging.LogRecord
         """
-        gelf_dict['level_name'] = logging.getLevelName(record.levelno)
+        gelf_dict['_level_name'] = logging.getLevelName(record.levelno)
 
     @staticmethod
     def _set_custom_facility(gelf_dict, facility_value, record):

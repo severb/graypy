@@ -166,7 +166,7 @@ def test_status_field_issue(logger, mock_send):
 def test_add_level_name():
     gelf_dict = dict()
     BaseGELFHandler._add_level_names(gelf_dict, MOCK_LOG_RECORD)
-    assert "INFO" == gelf_dict["level_name"]
+    assert "INFO" == gelf_dict["_level_name"]
 
 
 def test_resolve_host():
