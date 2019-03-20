@@ -203,7 +203,7 @@ def test_invalid_fqdn_localhost():
     """Test constructing :class:`graypy.handler.BaseGELFHandler` with
     specifying conflicting arguments ``fqdn`` and ``localname``"""
     with pytest.raises(ValueError):
-        BaseGELFHandler("127.0.0.1", 12202, fqdn=True, localname="localhost")
+        BaseGELFHandler(fqdn=True, localname="localhost")
 
 
 def test_invalid_ca_certs():
