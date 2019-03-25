@@ -354,10 +354,10 @@ class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
     def __init__(self, host, port=12202, **kwargs):
         """Initialize the GELFUDPHandler
 
-        :param host: The host of the Graylog server.
+        :param host: GELF UDP input host.
         :type host: str
 
-        :param port: The port of the Graylog server.
+        :param port: GELF UDP input port.
         :type port: int
         """
         BaseGELFHandler.__init__(self, **kwargs)
@@ -377,10 +377,10 @@ class GELFTCPHandler(BaseGELFHandler, SocketHandler):
     def __init__(self, host, port=12201, **kwargs):
         """Initialize the GELFTCPHandler
 
-        :param host: The host of the Graylog server.
+        :param host: GELF TCP input host.
         :type host: str
 
-        :param port: The port of the Graylog server.
+        :param port: GELF TCP input port.
         :type port: int
 
         .. attention::
@@ -414,10 +414,10 @@ class GELFTLSHandler(GELFTCPHandler):
                  certfile=None, keyfile=None, **kwargs):
         """Initialize the GELFTLSHandler
 
-        :param host: The host of the Graylog server.
+        :param host: GELF TLS input host.
         :type host: str
 
-        :param port: The port of the Graylog server.
+        :param port: GELF TLS input port.
         :type port: int
 
         :param validate: If :obj:`True`, validate server certificate.
