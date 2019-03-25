@@ -449,8 +449,7 @@ class GELFTLSHandler(GELFTCPHandler):
         self.keyfile = keyfile if keyfile else certfile
 
     def makeSocket(self, timeout=1):
-        """Override SocketHandler.makeSocket, to allow creating wrapped
-        TLS sockets"""
+        """Create a TLS wrapped socket"""
         plain_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         if hasattr(plain_socket, 'settimeout'):
