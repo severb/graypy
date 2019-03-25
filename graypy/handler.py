@@ -385,7 +385,7 @@ class GELFTCPHandler(BaseGELFHandler, SocketHandler):
 
         .. attention::
             GELF TCP does not support compression due to the use of the null
-            byte (\0) as frame delimiter.
+            byte (``\\0``) as frame delimiter.
 
             Thus, :class:`.handler.GELFTCPHandler` does not support setting
             ``compress`` to :obj:`True` and is locked to :obj:`False`.
