@@ -205,7 +205,7 @@ class BaseGELFHandler(logging.Handler, ABC):
             full_message = '\n'.join(
                 traceback.format_exception(*record.exc_info))
         # use pre-formatted exception information in cases where the primary
-        # exception information was removed, eg. for LogRecord serialization
+        # exception information was removed, e.g. for LogRecord serialization
         if record.exc_text:
             full_message = record.exc_text
         if full_message:
