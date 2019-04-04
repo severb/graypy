@@ -82,8 +82,8 @@ class BaseGELFHandler(logging.Handler, ABC):
             be used to populate the ``_logger`` GELF field.
         :type facility: str
 
-        :param level_names: If :obj:`True` use string error level names
-            instead of numerical values.
+        :param level_names: If :obj:`True` use python logging error level name
+            strings instead of syslog numerical values.
         :type level_names: bool
 
         :param compress: If :obj:`True` compress the GELF message before
