@@ -87,7 +87,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         :type level_names: bool
 
         :param compress: If :obj:`True` compress the GELF message before
-            sending it to the server.
+            sending it to the Graylog server.
         :type compress: bool
         """
         logging.Handler.__init__(self)
@@ -420,8 +420,9 @@ class GELFTLSHandler(GELFTCPHandler):
         :param port: GELF TLS input port.
         :type port: int
 
-        :param validate: If :obj:`True`, validate server certificate.
-            In that case specifying ``ca_certs`` is required.
+        :param validate: If :obj:`True`, validate the Graylog server's
+            certificate. In this case specifying ``ca_certs`` is also
+            required.
         :type validate: bool
 
         :param ca_certs: Path to CA bundle file.
@@ -482,7 +483,7 @@ class GELFHTTPHandler(BaseGELFHandler):
         :type port: int
 
         :param compress: If :obj:`True` compress the GELF message before
-            sending it to the server.
+            sending it to the Graylog server.
         :type compress: bool
 
         :param path: Path of the HTTP input.
@@ -490,7 +491,7 @@ class GELFHTTPHandler(BaseGELFHandler):
         :type path: str
 
         :param timeout: Number of seconds the HTTP client should wait before
-            it discards the request if the server doesn't respond.
+            it discards the request if the Graylog server doesn't respond.
         :type timeout: int
         """
 
