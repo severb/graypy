@@ -3,7 +3,7 @@
 
 """graypy
 
-Python logging handler that sends messages in
+Python logging handlers that send messages in the
 Graylog Extended Log Format (GELF).
 
 Modules:

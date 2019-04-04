@@ -49,7 +49,7 @@ class PyTest(test):
 setup(
     name='graypy',
     version=VERSION,
-    description="Python logging handler that sends messages in Graylog Extended Log Format (GLEF).",
+    description="Python logging handlers that send messages in the Graylog Extended Log Format (GLEF).",
     long_description=open('README.rst').read(),
     long_description_content_type="text/x-rst",
     keywords='logging gelf graylog2 graylog udp amqp',

@@ -134,7 +134,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'graypy', 'graypy Documentation', author, 'graypy',
-     'Python logging handler that sends messages in Graylog Extended Log Format (GLEF).',
+     'Python logging handlers that send messages in the Graylog Extended Log Format (GLEF).',
      'Miscellaneous'),
 ]
 

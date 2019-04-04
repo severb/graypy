@@ -17,8 +17,8 @@ graypy
 Description
 ===========
 
-Python logging handlers that send messages in the Graylog Extended
-Log Format (GELF_).
+Python logging handlers that send messages in the
+Graylog Extended Log Format (GELF_).
 
 Installing
 ==========
