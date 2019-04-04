@@ -4,8 +4,7 @@ stages:
   - lint
   - test
   - build
-# TODO: needs additional setup
-#  - deploy
+  - deploy
 
 before_install:
   - pip install codecov
