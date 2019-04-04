@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Logging Handler integrating RabbitMQ and Graylog Extended Log Format (GELF)
-handler"""
+"""Logging Handler integrating RabbitMQ and
+Graylog Extended Log Format (GELF)"""
 
 import json
 from logging import Filter
