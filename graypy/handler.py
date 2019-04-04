@@ -335,7 +335,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         into their string representation (for later JSON serialization).
 
         :class:`datetime.datetime` based objects will be converted into a
-        ISO formatted string timestamp.
+        ISO formatted timestamp string.
 
         :param obj: object to convert into a string representation.
         :type obj: object
