@@ -78,8 +78,8 @@ class BaseGELFHandler(logging.Handler, ABC):
         :type localname: str or None
 
         :param facility: If specified, replace the ``facility`` GELF field
-            with the specified value. Additionally, the LogRecord.name will
-            be used to populate the ``_logger`` GELF field.
+            with the specified value. Also add a additional ``_logger``
+            GELF field containing the ``LogRecord.name``.
         :type facility: str
 
         :param level_names: If :obj:`True` use python logging error level name
@@ -170,7 +170,9 @@ class BaseGELFHandler(logging.Handler, ABC):
     @staticmethod
     def _set_custom_facility(gelf_dict, facility_value, record):
         """Set the ``gelf_dict``'s ``facility`` field to the specified value
-        also add the the extra ``_logger`` field containing the LogRecord.name
+
+        Also add a additional ``_logger`` field containing the
+        ``LogRecord.name``.
 
         :param gelf_dict: dictionary representing a GELF log.
         :type gelf_dict: dict
