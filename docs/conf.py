@@ -9,7 +9,7 @@
 
 # -- Project information -----------------------------------------------------
 
-copyright = '2019, Sever Băneşiu, Nathan Klapstein'
+copyright = '2019, Sever Băneşiu'
 author = 'Sever Băneşiu, Nathan Klapstein'
 project = "graypy"
 
