@@ -73,7 +73,7 @@ jobs:
       python:
         - 3.6
       install:
-        - pip install .["docs", "amqp"]
+        - pip install .[docs,amqp]
       before_script: skip
       script:
         - sphinx-build docs/ build/
