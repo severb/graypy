@@ -76,7 +76,6 @@ setup(
             "sphinx>=1.7.5,<2.0.0",
             "sphinx_rtd_theme>=0.3.1,<1.0.0",
             "sphinx-autodoc-typehints>=1.3.0,<2.0.0",
-            "sphinx-argparse>=0.2.2,<1.0.0",
         ],
     },
     classifiers=[
