@@ -39,7 +39,6 @@ extensions = [
     'sphinx.ext.viewcode',
     "sphinx.ext.intersphinx",
     "sphinx_autodoc_typehints",
-    "sphinxarg.ext",
 ]
 
 source_suffix = '.rst'
