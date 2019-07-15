@@ -173,7 +173,7 @@ def test_resolve_host():
     """Test all posible resolutions of :meth:`BaseGELFHandler._resolve_host`"""
     assert socket.gethostname() == BaseGELFHandler._resolve_host(False, None)
     assert socket.getfqdn() == BaseGELFHandler._resolve_host(True, None)
-    assert socket.gethostname() == BaseGELFHandler._resolve_host(True, "localhost")
+    assert socket.getfqdn() == BaseGELFHandler._resolve_host(True, "localhost")
     assert "localhost" == BaseGELFHandler._resolve_host(False, "localhost")
     assert "" == BaseGELFHandler._resolve_host(False, "")
 
