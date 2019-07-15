@@ -42,12 +42,23 @@ jobs:
     - python: "pypy2.7-5.10.0"
     - python: "pypy3.5-5.10.0"
     - stage: lint
+      name: "pylint"
       python:
         - 3.6
       before_script: skip
-      after_script: skip
       script:
         - python setup.py lint || exit $(($? & 35))
+      after_script: skip
+    - name: "twine check"
+      python:
+        - 3.6
+      before_install:
+        - pip install docutils twine
+      before_script:
+        - python setup.py sdist
+      script:
+        - twine check dist/*
+      after_script: skip
     - stage: build
       name: "sdist"
       python:
@@ -65,17 +76,16 @@ jobs:
       script:
         - python setup.py bdist_wheel
       after_script: skip
-# TODO: fill in for automatic pypi releases
-#    - stage: deploy
-#      deploy:
-#        python:
-#          - 3.6
-#        provider: pypi
-#        user: # TODO: FILL IN
-#        password:
-#          secure: # TODO: fill in
-#        on:
-#          tags: true
-#          branch: master
-#          repo: severb/graypy
-#        distributions: "sdist bdist_wheel"
+    - stage: deploy
+      deploy:
+        python:
+          - 3.6
+        provider: pypi
+        user: nklapste
+        password:
+          secure: Ryu87EzCW+k/quo2yC05cejU29zo9Xwlv9f2zxwMhCDRwMGt4GCSJ4zR7GXvYT0B5H6S+Y+gCxTmSSA53V1aRvCX0A42i6P9jef2yWR34aYe0+lmYwwW1wNKo/SLD1x5cXw59m5pcVGPvAVY9aQ88DwR9gn6aMr76A6LJet/ykY=
+        on:
+          tags: true
+          branch: master
+          repo: severb/graypy
+        distributions: "sdist bdist_wheel"
