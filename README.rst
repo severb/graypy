@@ -28,13 +28,13 @@ Using pip
 
 Install the basic graypy python logging handlers:
 
-.. code-block:: bash
+.. code-block:: console
 
     pip install graypy
 
 Install with requirements for ``GELFRabbitHandler``:
 
-.. code-block:: bash
+.. code-block:: console
 
     pip install graypy[amqp]
 
@@ -43,15 +43,15 @@ Using easy_install
 
 Install the basic graypy python logging handlers:
 
-.. code-block:: bash
+.. code-block:: console
 
-   easy_install graypy
+    easy_install graypy
 
 Install with requirements for ``GELFRabbitHandler``:
 
-.. code-block:: bash
+.. code-block:: console
 
-  easy_install graypy[amqp]
+    easy_install graypy[amqp]
 
 Usage
 =====
