@@ -72,9 +72,8 @@ class BaseGELFHandler(logging.Handler, ABC):
             localhost to populate the ``host`` GELF field.
         :type fqdn: bool
 
-        :param localname: If ``fqdn`` is :obj:`False` and ``localname`` is
-            specified, use the specified hostname to populate the
-            ``host`` GELF field.
+        :param localname: If specified and ``fqdn`` is :obj:`False`, use the
+            specified hostname to populate the ``host`` GELF field.
         :type localname: str or None
 
         :param facility: If specified, replace the ``facility`` GELF field
