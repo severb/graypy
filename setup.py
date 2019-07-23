@@ -73,9 +73,9 @@ setup(
             'amqplib==1.0.2'
         ],
         "docs": [
-            "sphinx>=1.7.5,<2.0.0",
-            "sphinx_rtd_theme>=0.3.1,<1.0.0",
-            "sphinx-autodoc-typehints>=1.3.0,<2.0.0",
+            "sphinx>=2.1.2,<3.0.0",
+            "sphinx_rtd_theme>=0.4.3,<1.0.0",
+            "sphinx-autodoc-typehints>=1.6.0,<2.0.0",
         ],
     },
     classifiers=[
