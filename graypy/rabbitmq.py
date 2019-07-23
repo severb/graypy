@@ -38,7 +38,7 @@ class GELFRabbitHandler(BaseGELFHandler, SocketHandler):
         :type url: str
 
         :param exchange: RabbitMQ exchange. A queue binding must be defined
-            on the server to prevent log messages from being dropped.
+            on the server to prevent GELF logs from being dropped.
         :type exchange: str
 
         :param exchange_type: RabbitMQ exchange type.
