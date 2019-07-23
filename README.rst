@@ -10,6 +10,10 @@ graypy
     :target: https://travis-ci.org/severb/graypy
     :alt: Build Status
 
+.. image:: https://readthedocs.org/projects/graypy/badge/?version=stable
+    :target: https://graypy.readthedocs.io/en/stable/?badge=stable
+    :alt: Documentation Status
+
 .. image:: https://codecov.io/gh/severb/graypy/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/severb/graypy
     :alt: Coverage Status
