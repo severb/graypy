@@ -197,7 +197,7 @@ Example using Filter_:
         def __init__(self):
             # In an actual use case would dynamically get this
             # (e.g. from memcache)
-            self.username = "John"
+            self.username = 'John'
 
         def filter(self, record):
             record.username = self.username
