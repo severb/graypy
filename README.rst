@@ -125,8 +125,8 @@ new handler in your ``settings.py``:
 .. code-block:: python
 
     LOGGING = {
-        ...
-
+        'version': 1,
+        # other dictConfig keys here...
         'handlers': {
             'graypy': {
                 'level': 'WARNING',
@@ -135,7 +135,6 @@ new handler in your ``settings.py``:
                 'port': 12201,
             },
         },
-
         'loggers': {
             'django.request': {
                 'handlers': ['graypy'],
