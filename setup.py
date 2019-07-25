@@ -49,7 +49,7 @@ class PyTest(test):
 setup(
     name='graypy',
     version=VERSION,
-    description="Python logging handler that sends messages in Graylog Extended Log Format (GLEF).",
+    description="Python logging handlers that send messages in the Graylog Extended Log Format (GELF).",
     long_description=open('README.rst').read(),
     long_description_content_type="text/x-rst",
     keywords='logging gelf graylog2 graylog udp amqp',
@@ -68,7 +68,16 @@ setup(
         "requests>=2.20.1,<3.0.0",
         "amqplib>=1.0.2,<2.0.0"
     ],
-    extras_require={'amqp': ['amqplib==1.0.2']},
+    extras_require={
+        'amqp': [
+            'amqplib==1.0.2'
+        ],
+        "docs": [
+            "sphinx>=2.1.2,<3.0.0",
+            "sphinx_rtd_theme>=0.4.3,<1.0.0",
+            "sphinx-autodoc-typehints>=1.6.0,<2.0.0",
+        ],
+    },
     classifiers=[
         'License :: OSI Approved :: BSD License',
         'Intended Audience :: Developers',

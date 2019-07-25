@@ -17,8 +17,7 @@ from tests.integration.helper import get_unique_message, get_graylog_response
 @pytest.mark.skipif(not LOCAL_GRAYLOG_UP,
                     reason="local Graylog instance not up")
 def test_chunked_logging():
-    """Test sending a common usage log that requires chunking to be fully
-    sent"""
+    """Test sending a log that requires chunking to be fully sent"""
     logger = logging.getLogger("test_chunked_logger")
     handler = GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, chunk_size=10)
     logger.addHandler(handler)

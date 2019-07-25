@@ -22,19 +22,19 @@ def test_invalid_name(name):
 def test_valid_name(name):
     """Test constructing :class:`graypy.rabbitmq.ExcludeFilter` with a
     valid ``name`` argument"""
-    filter = ExcludeFilter(name)
-    assert filter
-    assert name == filter.name
-    assert len(name) == filter.nlen
+    exclude_filter = ExcludeFilter(name)
+    assert exclude_filter
+    assert name == exclude_filter.name
+    assert len(name) == exclude_filter.nlen
 
 
 def test_non_filtering_record():
-    filter = ExcludeFilter("NOT" + MOCK_LOG_RECORD_NAME)
-    assert filter.filter(MOCK_LOG_RECORD)
-    assert MOCK_LOG_RECORD.name != filter.name
+    exclude_filter = ExcludeFilter("NOT" + MOCK_LOG_RECORD_NAME)
+    assert exclude_filter.filter(MOCK_LOG_RECORD)
+    assert MOCK_LOG_RECORD.name != exclude_filter.name
 
 
 def test_filtering_record():
-    filter = ExcludeFilter(MOCK_LOG_RECORD_NAME)
-    assert not filter.filter(MOCK_LOG_RECORD)
-    assert MOCK_LOG_RECORD.name == filter.name
+    exclude_filter = ExcludeFilter(MOCK_LOG_RECORD_NAME)
+    assert not exclude_filter.filter(MOCK_LOG_RECORD)
+    assert MOCK_LOG_RECORD.name == exclude_filter.name
