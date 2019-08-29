@@ -366,10 +366,10 @@ class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
 
     def send(self, s):
         if len(s) < self.chunk_size:
-            DatagramHandler.send(self, s)
+            super().send(s)
         else:
             for chunk in ChunkedGELF(s, self.chunk_size):
-                DatagramHandler.send(self, chunk)
+                super().send(chunk)
 
 
 class GELFTCPHandler(BaseGELFHandler, SocketHandler):
