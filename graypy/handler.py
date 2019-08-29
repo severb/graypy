@@ -51,14 +51,10 @@ class BaseGELFHandler(logging.Handler, ABC):
     :obj:`logging.LogRecord` into a GELF log. Provides the boilerplate for
     all GELF handlers defined within graypy."""
 
-    def __init__(self, chunk_size=WAN_CHUNK, debugging_fields=True,
-                 extra_fields=True, fqdn=False, localname=None, facility=None,
+    def __init__(self, debugging_fields=True, extra_fields=True,
+                 fqdn=False, localname=None, facility=None,
                  level_names=False, compress=True):
         """Initialize the BaseGELFHandler.
-
-        :param chunk_size: Message chunk size. Messages larger than this
-            size will be sent to Graylog in multiple chunks.
-        :type chunk_size: int
 
         :param debugging_fields: If :obj:`True` add debug fields from the
             log record into the GELF logs to be sent to Graylog.
@@ -92,7 +88,6 @@ class BaseGELFHandler(logging.Handler, ABC):
         logging.Handler.__init__(self)
         self.debugging_fields = debugging_fields
         self.extra_fields = extra_fields
-        self.chunk_size = chunk_size
 
         if fqdn and localname:
             raise ValueError(
@@ -352,7 +347,7 @@ class BaseGELFHandler(logging.Handler, ABC):
 class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
     """GELF UDP handler"""
 
-    def __init__(self, host, port=12202, **kwargs):
+    def __init__(self, host, port=12202, chunk_size=WAN_CHUNK, **kwargs):
         """Initialize the GELFUDPHandler
 
         :param host: GELF UDP input host.
@@ -360,7 +355,13 @@ class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
 
         :param port: GELF UDP input port.
         :type port: int
+
+        :param chunk_size: Message chunk size. Messages larger than this
+            size will be sent to Graylog in multiple chunks.
+        :type chunk_size: int
         """
+        self.chunk_size = chunk_size
+
         BaseGELFHandler.__init__(self, **kwargs)
         DatagramHandler.__init__(self, host, port)
 
