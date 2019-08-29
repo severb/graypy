@@ -541,6 +541,62 @@ class ChunkedGELF(object):
         self.pieces = \
             struct.pack('B', int(math.ceil(len(message) * 1.0 / size)))
         self.id = struct.pack('Q', random.randint(0, 0xFFFFFFFFFFFFFFFF))
+        if len(range(0, len(message), size)) > 128:
+            self.on_chunk_overflow(message)
+
+    def on_chunk_overflow(self, raw_message):
+        """Called whenever a ChunkedGELF instance will consist of over 128
+        chunks
+
+        :param message: the message at fault
+        :type message: bytes
+
+        .. seealso::
+
+            Details on GELF UDP chunking can be found at:
+
+                https://docs.graylog.org/en/3.0/pages/gelf.html#chunking
+        """
+        try:
+            message = zlib.decompress(raw_message)
+            compressed = True
+        except Exception:
+            message = raw_message
+            compressed = False
+
+        glef_message = json.loads(message.decode("UTF-8"))
+
+        # reconstruct the glef log as a trunicated and simplified version
+        # bump its level up to ERROR
+        # only keep the GLEF fields version, host, short_message, timestamp, level, facility
+        # short_message will have a warning added to the front GELF_128_CHUNK_OVERFLOW=
+        # short_message will be truncated
+        short_message = glef_message['short_message']
+        while True:
+            gelf_dict = {
+                'version': glef_message['version'],
+                'host': glef_message['host'],
+                'short_message': short_message,
+                'timestamp': glef_message['timestamp'],
+                'level': SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR),
+                'facility': glef_message['facility'],
+                '_chunk_overflow': True,
+            }
+            # TODO: trim more of short_message
+
+            # TODO: need more elegant way as to deal with a customized BaseGELFHandler
+            packed_message = BaseGELFHandler._pack_gelf_dict(gelf_dict)
+            if compressed:
+                packed_message = zlib.compress(packed_message)
+            if len(range(0, len(packed_message), self.size)) <= 128:
+                break
+            else:
+                short_message = short_message[:-1]
+            if not short_message:
+                # TODO: we can't make this log any smaller sorry boiz
+                # TODO: investigate the impact of this
+                raise RuntimeWarning("failed to handle GELF chunk overflow")
+        self.message = packed_message
 
     def message_chunks(self):
         return (self.message[i:i + self.size] for i

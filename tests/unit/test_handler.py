@@ -241,3 +241,22 @@ def test_gelf_chunking():
         assert expected_index == chunk[10:11]
         assert expected_chunks_count == chunk[11:12]
         assert expected_chunk == chunk[12:]
+
+
+def test_chunk_overflow():
+    record = BaseGELFHandler().makePickle(logging.LogRecord("test_chunk_overflow", logging.INFO, None, None, "1"*2000, None, None))
+    message = record
+    chunks = list(ChunkedGELF(message, 2).__iter__())
+
+    # TODO: reassemble chunks into glef message
+    assert len(chunks) <= 128
+    glef_json = json.loads(zlib.decompress(b"".join(chunks)[3:-2]))
+    print(glef_json)
+    assert glef_json["_chunk_overflow"]
+
+
+def test_chunk_overflow_fail():
+    record = BaseGELFHandler().makePickle(logging.LogRecord("test_chunk_overflow_fail", logging.INFO, None, None, "1"*128, None, None))
+    message = record
+    with pytest.raises(RuntimeWarning):
+        list(ChunkedGELF(message, 1).__iter__())
