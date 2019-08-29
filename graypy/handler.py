@@ -132,7 +132,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         # construct the base GELF format
         gelf_dict = {
             'version': "1.0",
-            'host': BaseGELFHandler._resolve_host(self.fqdn, self.localname),
+            'host': self._resolve_host(self.fqdn, self.localname),
             'short_message': self.formatter.format(record) if self.formatter else record.getMessage(),
             'timestamp': record.created,
             'level': SYSLOG_LEVELS.get(record.levelno, record.levelno),
@@ -290,8 +290,8 @@ class BaseGELFHandler(logging.Handler, ABC):
             if key not in skip_list and not key.startswith('_'):
                 gelf_dict['_%s' % key] = value
 
-    @staticmethod
-    def _pack_gelf_dict(gelf_dict):
+    @classmethod
+    def _pack_gelf_dict(cls, gelf_dict):
         """Convert a given ``gelf_dict`` into JSON-encoded UTF-8 bytes, thus,
         creating an uncompressed GELF log ready for consumption by Graylog.
 
@@ -304,16 +304,16 @@ class BaseGELFHandler(logging.Handler, ABC):
         :return: bytes representing a uncompressed GELF log.
         :rtype: bytes
         """
-        gelf_dict = BaseGELFHandler._sanitize_to_unicode(gelf_dict)
+        gelf_dict = cls._sanitize_to_unicode(gelf_dict)
         packed = json.dumps(
             gelf_dict,
             separators=',:',
-            default=BaseGELFHandler._object_to_json
+            default=cls._object_to_json
         )
         return packed.encode('utf-8')
 
-    @staticmethod
-    def _sanitize_to_unicode(obj):
+    @classmethod
+    def _sanitize_to_unicode(cls, obj):
         """Convert all strings records of the object to unicode
 
         :param obj: object to sanitize to unicode.
@@ -323,9 +323,9 @@ class BaseGELFHandler(logging.Handler, ABC):
         :rtype: str
         """
         if isinstance(obj, dict):
-            return dict((BaseGELFHandler._sanitize_to_unicode(k), BaseGELFHandler._sanitize_to_unicode(v)) for k, v in obj.items())
+            return dict((cls._sanitize_to_unicode(k), cls._sanitize_to_unicode(v)) for k, v in obj.items())
         if isinstance(obj, (list, tuple)):
-            return obj.__class__([BaseGELFHandler._sanitize_to_unicode(i) for i in obj])
+            return obj.__class__([cls._sanitize_to_unicode(i) for i in obj])
         if isinstance(obj, data):
             obj = obj.decode('utf-8', errors='replace')
         return obj
