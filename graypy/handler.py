@@ -405,7 +405,7 @@ class GELFTCPHandler(BaseGELFHandler, SocketHandler):
         :return: Null terminated bytes representing a GELF log.
         :rtype: bytes
         """
-        return BaseGELFHandler.makePickle(self, record) + b'\x00'
+        return super().makePickle(record) + b'\x00'
 
 
 class GELFTLSHandler(GELFTCPHandler):
