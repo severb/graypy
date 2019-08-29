@@ -366,10 +366,10 @@ class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
 
     def send(self, s):
         if len(s) < self.chunk_size:
-            super().send(s)
+            super(GELFUDPHandler, self).send(s)
         else:
             for chunk in ChunkedGELF(s, self.chunk_size):
-                super().send(chunk)
+                super(GELFUDPHandler, self).send(chunk)
 
 
 class GELFTCPHandler(BaseGELFHandler, SocketHandler):
@@ -405,7 +405,7 @@ class GELFTCPHandler(BaseGELFHandler, SocketHandler):
         :return: Null terminated bytes representing a GELF log.
         :rtype: bytes
         """
-        return super().makePickle(record) + b'\x00'
+        return super(GELFTCPHandler, self).makePickle(record) + b'\x00'
 
 
 class GELFTLSHandler(GELFTCPHandler):
