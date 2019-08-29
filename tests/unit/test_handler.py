@@ -22,7 +22,7 @@ import mock
 import pytest
 
 from graypy.handler import BaseGELFHandler, GELFHTTPHandler, GELFTLSHandler, \
-    ChunkedGELF
+    ChunkedGELF, SYSLOG_LEVELS
 
 from tests.helper import handler, logger, formatted_logger
 from tests.unit.helper import MOCK_LOG_RECORD, MOCK_LOG_RECORD_NAME
@@ -243,20 +243,28 @@ def test_gelf_chunking():
         assert expected_chunk == chunk[12:]
 
 
-def test_chunk_overflow():
-    record = BaseGELFHandler().makePickle(logging.LogRecord("test_chunk_overflow", logging.INFO, None, None, "1"*2000, None, None))
+def test_chunk_overflow_uncompressed():
+    record = BaseGELFHandler(compress=False).makePickle(logging.LogRecord("test_chunk_overflow_uncompressed", logging.INFO, None, None, "1"*1000, None, None))
     message = record
-    chunks = list(ChunkedGELF(message, 2).__iter__())
+    with pytest.warns(RuntimeWarning):
+        chunks = list(ChunkedGELF(message, 2).__iter__())
 
     # TODO: reassemble chunks into glef message
     assert len(chunks) <= 128
-    glef_json = json.loads(zlib.decompress(b"".join(chunks)[3:-2]))
-    print(glef_json)
-    assert glef_json["_chunk_overflow"]
+    payload_chunks = []
+    for chunk in chunks:
+        payload_chunks.append(chunk[-2:])
+    payload = b"".join(payload_chunks)
+    print(payload)
+    glef_json = json.loads(payload)
+    assert glef_json["_chunk_overflow"] is True
+    assert glef_json["short_message"] != "1"*1000
+    assert glef_json["short_message"] in "1"*1000
+    assert glef_json["level"] == SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR)
 
 
 def test_chunk_overflow_fail():
     record = BaseGELFHandler().makePickle(logging.LogRecord("test_chunk_overflow_fail", logging.INFO, None, None, "1"*128, None, None))
     message = record
-    with pytest.raises(RuntimeWarning):
+    with pytest.warns(RuntimeWarning):
         list(ChunkedGELF(message, 1).__iter__())
