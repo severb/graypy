@@ -537,14 +537,13 @@ class ChunkedGELF(object):
         :param size: The size of the chunks.
         :type size: int
         """
-        print(message)
         self.message = message
         self.size = size
-        if int(math.ceil(len(message) * 1.0 / self.size)) > 128:
-            warnings.warn("GELF chunk overflow for message: {}".format(message), RuntimeWarning)
-            self.message = self.on_chunk_overflow(message)
+        if int(math.ceil(len(self.message) * 1.0 / self.size)) > 128:
+            warnings.warn("GELF chunk overflow for message: {}".format(self.message), RuntimeWarning)
+            self.message = self.on_chunk_overflow(self.message)
         self.pieces = \
-            struct.pack('B', int(math.ceil(len(self.message) * 1.0 / size)))
+            struct.pack('B', int(math.ceil(len(self.message) * 1.0 / self.size)))
         self.id = struct.pack('Q', random.randint(0, 0xFFFFFFFFFFFFFFFF))
 
     def on_chunk_overflow(self, raw_message):

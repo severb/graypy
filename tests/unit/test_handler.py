@@ -248,18 +248,32 @@ def test_chunk_overflow_uncompressed():
     message = record
     with pytest.warns(RuntimeWarning):
         chunks = list(ChunkedGELF(message, 2).__iter__())
-
-    # TODO: reassemble chunks into glef message
     assert len(chunks) <= 128
     payload_chunks = []
     for chunk in chunks:
         payload_chunks.append(chunk[-2:])
     payload = b"".join(payload_chunks)
-    print(payload)
     glef_json = json.loads(payload)
     assert glef_json["_chunk_overflow"] is True
     assert glef_json["short_message"] != "1"*1000
     assert glef_json["short_message"] in "1"*1000
+    assert glef_json["level"] == SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR)
+
+
+def test_chunk_overflow_compressed():
+    record = BaseGELFHandler(compress=True).makePickle(logging.LogRecord("test_chunk_overflow_uncompressed", logging.INFO, None, None, "123412345"*5000, None, None))
+    message = record
+    with pytest.warns(RuntimeWarning):
+        chunks = list(ChunkedGELF(message, 2).__iter__())
+    assert len(chunks) <= 128
+    payload_chunks = []
+    for chunk in chunks:
+        payload_chunks.append(chunk[-2:])
+    payload = zlib.decompress(b"".join(payload_chunks))
+    glef_json = json.loads(payload)
+    assert glef_json["_chunk_overflow"] is True
+    assert glef_json["short_message"] != "123412345"*5000
+    assert glef_json["short_message"] in "123412345"*5000
     assert glef_json["level"] == SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR)
 
 
