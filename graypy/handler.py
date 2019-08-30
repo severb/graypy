@@ -350,10 +350,124 @@ class BaseGELFHandler(logging.Handler, ABC):
         return repr(obj)
 
 
+class GLEFChunkOverflowWarning(Warning):
+    pass
+
+
+class GELFChunker(object):
+    def __init__(self, chunk_size=WAN_CHUNK):
+        self.chunk_size = chunk_size
+
+    def get_message_chunk_number(self, message):
+        return int(math.ceil(len(message) * 1.0 / self.chunk_size))
+
+    def get_message_chunks(self, message):
+        return (message[i:i + self.chunk_size]
+                for i in range(0, len(message), self.chunk_size))
+
+    @staticmethod
+    def encode(message_id, chunk_seq, total_chunks, chunk):
+        """
+
+        :param message_id:
+        :type message_id: int
+
+        :param chunk_seq:
+        :type chunk_seq: int
+
+        :param total_chunks:
+        :type total_chunks: int
+
+        :param chunk:
+        :type chunk: bytes
+        :return:
+        """
+        return b''.join([
+            b'\x1e\x0f',
+            struct.pack('Q', message_id),
+            struct.pack('B', chunk_seq),
+            struct.pack('B', total_chunks),
+            chunk
+        ])
+
+    def gen_gelf_chunks(self, message):
+        total_chunks = self.get_message_chunk_number(message)
+        message_id = random.randint(0, 0xFFFFFFFFFFFFFFFF)
+        for sequence, chunk in enumerate(self.get_message_chunks(message)):
+            yield self.encode(message_id, sequence, total_chunks, chunk)
+
+    def iter_gelf_chunks(self, message):
+        if self.get_message_chunk_number(message) > 128:
+            warnings.warn("GELF chunk overflow for message: {}".format(message), GLEFChunkOverflowWarning)
+            return
+        for chunk in self.gen_gelf_chunks(message):
+            yield chunk
+
+
+class GELFTruncatingChunder(GELFChunker):
+    def __init__(self, chunk_size=WAN_CHUNK, gelf_packer=BaseGELFHandler._pack_gelf_dict):
+        GELFChunker.__init__(self, chunk_size)
+        self.gelf_packer = gelf_packer
+
+    def gen_chunk_overflow_gelf_log(self, raw_message):
+        """Attempt to notify and recover as much of a chunk overflowing GELF log
+
+        reconstruct the glef log as a trunicated and simplified version
+        only keep the GLEF fields version, host, short_message, timestamp, level, facility
+        short_message will have a warning added to the front GELF_128_CHUNK_OVERFLOW=
+        short_message will be truncated
+        bump its level up to ERROR
+
+        :param raw_message:
+        :type raw_message: bytes
+
+        :return:
+        """
+        try:
+            message = zlib.decompress(raw_message)
+            compressed = True
+        except zlib.error:
+            message = raw_message
+            compressed = False
+
+        glef_message = json.loads(message.decode("UTF-8"))
+
+        short_message = b"GELF_CHUNK_OVERFLOW:" + glef_message['short_message']
+        while True:
+            gelf_dict = {
+                'version': glef_message['version'],
+                'host': glef_message['host'],
+                'short_message': short_message,
+                'timestamp': glef_message['timestamp'],
+                'level': SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR),
+                'facility': glef_message['facility'],
+                '_chunk_overflow': True,
+            }
+            packed_message = self.gelf_packer(gelf_dict)
+            if compressed:
+                packed_message = zlib.compress(packed_message)
+            if self.get_message_chunk_number(packed_message) <= 128:
+                return packed_message
+            else:
+                short_message = short_message[:-1]
+            if not short_message:
+                warnings.warn(
+                    "Failed to handle GELF chunk overflow for message: {}".format(
+                        raw_message), GLEFChunkOverflowWarning)
+                return raw_message
+
+    def iter_gelf_chunks(self, message):
+        if self.get_message_chunk_number(message) > 128:
+            warnings.warn("GELF chunk overflow for message: {}".format(message), GLEFChunkOverflowWarning)
+            return
+        for chunk in self.gen_gelf_chunks(message):
+            yield chunk
+
+
 class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
     """GELF UDP handler"""
 
-    def __init__(self, host, port=12202, **kwargs):
+    def __init__(self, host, port=12202, gelf_chunker=GELFChunker(), **kwargs):
         """Initialize the GELFUDPHandler
 
         :param host: GELF UDP input host.
@@ -361,15 +475,19 @@ class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
 
         :param port: GELF UDP input port.
         :type port: int
+
+        :param gelf_chunker:
+        :type gelf_chunker: GELFChunker
         """
         BaseGELFHandler.__init__(self, **kwargs)
         DatagramHandler.__init__(self, host, port)
+        self.gelf_chunker = gelf_chunker
 
     def send(self, s):
         if len(s) < self.chunk_size:
             DatagramHandler.send(self, s)
         else:
-            for chunk in ChunkedGELF(s, self.chunk_size):
+            for chunk in self.gelf_chunker.iter_gelf_chunks(s):
                 DatagramHandler.send(self, chunk)
 
 
@@ -523,94 +641,3 @@ class GELFHTTPHandler(BaseGELFHandler):
             timeout=self.timeout
         )
         connection.request('POST', self.path, pickle, self.headers)
-
-
-class ChunkedGELF(object):
-    """Class that chunks a message into a GELF compatible chunks"""
-
-    def __init__(self, message, size):
-        """Initialize the ChunkedGELF message class
-
-        :param message: The message to chunk.
-        :type message: bytes
-
-        :param size: The size of the chunks.
-        :type size: int
-        """
-        self.message = message
-        self.size = size
-        if int(math.ceil(len(self.message) * 1.0 / self.size)) > 128:
-            warnings.warn("GELF chunk overflow for message: {}".format(self.message), RuntimeWarning)
-            self.message = self.on_chunk_overflow(self.message)
-        self.pieces = \
-            struct.pack('B', int(math.ceil(len(self.message) * 1.0 / self.size)))
-        self.id = struct.pack('Q', random.randint(0, 0xFFFFFFFFFFFFFFFF))
-
-    def on_chunk_overflow(self, raw_message):
-        """Called whenever a ChunkedGELF instance will consist of over 128
-        chunks
-
-        :param message: the message at fault
-        :type message: bytes
-
-        .. seealso::
-
-            Details on GELF UDP chunking can be found at:
-
-                https://docs.graylog.org/en/3.0/pages/gelf.html#chunking
-        """
-        try:
-            message = zlib.decompress(raw_message)
-            compressed = True
-        except zlib.error:
-            message = raw_message
-            compressed = False
-
-        glef_message = json.loads(message.decode("UTF-8"))
-
-        # reconstruct the glef log as a trunicated and simplified version
-        # bump its level up to ERROR
-        # only keep the GLEF fields version, host, short_message, timestamp, level, facility
-        # short_message will have a warning added to the front GELF_128_CHUNK_OVERFLOW=
-        # short_message will be truncated
-        short_message = glef_message['short_message']
-        while True:
-            gelf_dict = {
-                'version': glef_message['version'],
-                'host': glef_message['host'],
-                'short_message': short_message,
-                'timestamp': glef_message['timestamp'],
-                'level': SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR),
-                'facility': glef_message['facility'],
-                '_chunk_overflow': True,
-            }
-            packed_message = BaseGELFHandler._pack_gelf_dict(gelf_dict)
-            if compressed:
-                packed_message = zlib.compress(packed_message)
-            if int(math.ceil(len(packed_message) * 1.0 / self.size)) <= 128:
-                break
-            else:
-                short_message = short_message[:-1]
-            if not short_message:
-                # TODO: we can't make this log any smaller sorry boiz
-                # TODO: investigate the impact of this
-                warnings.warn("failed to handle GELF chunk overflow", RuntimeWarning)
-                break
-        return packed_message
-
-    def message_chunks(self):
-        return (self.message[i:i + self.size] for i
-                in range(0, len(self.message), self.size))
-
-    def encode(self, sequence, chunk):
-        return b''.join([
-            b'\x1e\x0f',
-            self.id,
-            struct.pack('B', sequence),
-            self.pieces,
-            chunk
-        ])
-
-    def __iter__(self):
-        for sequence, chunk in enumerate(self.message_chunks()):
-            yield self.encode(sequence, chunk)
