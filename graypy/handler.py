@@ -474,8 +474,6 @@ class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
         :param gelf_chunker:
         :type gelf_chunker: GELFChunker
         """
-        self.chunk_size = chunk_size
-
         BaseGELFHandler.__init__(self, **kwargs)
         DatagramHandler.__init__(self, host, port)
         self.gelf_chunker = gelf_chunker
