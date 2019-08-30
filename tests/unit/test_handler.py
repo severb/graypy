@@ -22,7 +22,8 @@ import mock
 import pytest
 
 from graypy.handler import BaseGELFHandler, GELFHTTPHandler, GELFTLSHandler, \
-    SYSLOG_LEVELS, GELFUDPHandler, GELFChunker, GLEFChunkOverflowWarning
+    SYSLOG_LEVELS, GELFUDPHandler, GELFChunker, GELFTruncatingChunker, \
+    GELFChunkOverflowWarning
 
 from tests.helper import handler, logger, formatted_logger
 from tests.unit.helper import MOCK_LOG_RECORD, MOCK_LOG_RECORD_NAME
@@ -244,16 +245,14 @@ def test_gelf_chunking():
 
 
 def test_chunk_overflow_uncompressed():
-    record = BaseGELFHandler(compress=False).makePickle(logging.LogRecord("test_chunk_overflow_uncompressed", logging.INFO, None, None, "1"*1000, None, None))
-    message = record
-    with pytest.warns(GLEFChunkOverflowWarning):
-        chunks = list(GELFChunker(2).iter_gelf_chunks(message))
+    message = BaseGELFHandler(compress=False).makePickle(logging.LogRecord("test_chunk_overflow_uncompressed", logging.INFO, None, None, "1"*1000, None, None))
+    with pytest.warns(GELFChunkOverflowWarning):
+        chunks = list(GELFTruncatingChunker(2).iter_gelf_chunks(message))
     assert len(chunks) <= 128
     payload_chunks = []
     for chunk in chunks:
         payload_chunks.append(chunk[-2:])
     payload = b"".join(payload_chunks)
-    print(payload)
     glef_json = json.loads(payload)
     assert glef_json["_chunk_overflow"] is True
     assert glef_json["short_message"] != "1"*1000
@@ -262,10 +261,9 @@ def test_chunk_overflow_uncompressed():
 
 
 def test_chunk_overflow_compressed():
-    record = BaseGELFHandler(compress=True).makePickle(logging.LogRecord("test_chunk_overflow_uncompressed", logging.INFO, None, None, "123412345"*5000, None, None))
-    message = record
-    with pytest.warns(GLEFChunkOverflowWarning):
-        chunks = list(GELFChunker(2).iter_gelf_chunks(message))
+    message = BaseGELFHandler(compress=True).makePickle(logging.LogRecord("test_chunk_overflow_uncompressed", logging.INFO, None, None, "123412345"*5000, None, None))
+    with pytest.warns(GELFChunkOverflowWarning):
+        chunks = list(GELFTruncatingChunker(2).iter_gelf_chunks(message))
     assert len(chunks) <= 128
     payload_chunks = []
     for chunk in chunks:
@@ -279,7 +277,6 @@ def test_chunk_overflow_compressed():
 
 
 def test_chunk_overflow_fail():
-    record = BaseGELFHandler().makePickle(logging.LogRecord("test_chunk_overflow_fail", logging.INFO, None, None, "1"*128, None, None))
-    message = record
-    with pytest.warns(GLEFChunkOverflowWarning):
+    message = BaseGELFHandler().makePickle(logging.LogRecord("test_chunk_overflow_fail", logging.INFO, None, None, "1"*128, None, None))
+    with pytest.warns(GELFChunkOverflowWarning):
         list(GELFChunker(1).iter_gelf_chunks(message))

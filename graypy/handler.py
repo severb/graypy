@@ -345,7 +345,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         return repr(obj)
 
 
-class GLEFChunkOverflowWarning(Warning):
+class GELFChunkOverflowWarning(Warning):
     pass
 
 
@@ -393,13 +393,13 @@ class GELFChunker(object):
 
     def iter_gelf_chunks(self, message):
         if self.get_message_chunk_number(message) > 128:
-            warnings.warn("GELF chunk overflow for message: {}".format(message), GLEFChunkOverflowWarning)
+            warnings.warn("GELF chunk overflow for message: {}".format(message), GELFChunkOverflowWarning)
             return
         for chunk in self.gen_gelf_chunks(message):
             yield chunk
 
 
-class GELFTruncatingChunder(GELFChunker):
+class GELFTruncatingChunker(GELFChunker):
     def __init__(self, chunk_size=WAN_CHUNK, gelf_packer=BaseGELFHandler._pack_gelf_dict):
         GELFChunker.__init__(self, chunk_size)
         self.gelf_packer = gelf_packer
@@ -447,14 +447,14 @@ class GELFTruncatingChunder(GELFChunker):
                 short_message = short_message[:-1]
             if not short_message:
                 warnings.warn(
-                    "Failed to handle GELF chunk overflow for message: {}".format(
-                        raw_message), GLEFChunkOverflowWarning)
+                    "Failed to truncate GELF chunk overflow for message: {}".format(
+                        raw_message), GELFChunkOverflowWarning)
                 return raw_message
 
     def iter_gelf_chunks(self, message):
         if self.get_message_chunk_number(message) > 128:
-            warnings.warn("GELF chunk overflow for message: {}".format(message), GLEFChunkOverflowWarning)
-            return
+            warnings.warn("GELF chunk overflow for message: {}".format(message), GELFChunkOverflowWarning)
+            message = self.gen_chunk_overflow_gelf_log(message)
         for chunk in self.gen_gelf_chunks(message):
             yield chunk
 
