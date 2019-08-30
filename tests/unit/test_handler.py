@@ -226,7 +226,7 @@ def test_gelf_chunking():
     :class:`graypy.handler.ChunkedGELF`"""
     message = b'12345'
     header = b'\x1e\x0f'
-    chunks = list(GELFUDPHandler(message, 2).__iter__())
+    chunks = list(GELFChunker(2).iter_gelf_chunks(message))
     expected = [
         (struct.pack('b', 0), struct.pack('b', 3), b'12'),
         (struct.pack('b', 1), struct.pack('b', 3), b'34'),
