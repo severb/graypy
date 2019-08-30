@@ -223,7 +223,7 @@ def test_invalid_client_certs():
 
 def test_gelf_chunking():
     """Testing the GELF chunking ability of
-    :class:`graypy.handler.ChunkedGELF`"""
+    :class:`graypy.handler.GELFChunker`"""
     message = b'12345'
     header = b'\x1e\x0f'
     chunks = list(GELFChunker(2).iter_gelf_chunks(message))
