@@ -274,7 +274,6 @@ class BaseGELFHandler(logging.Handler, ABC):
             from to insert into the given ``gelf_dict``.
         :type record: logging.LogRecord
         """
-
         # skip_list is used to filter additional fields in a log message.
         skip_list = (
             'args', 'asctime', 'created', 'exc_info', 'exc_text', 'filename',
@@ -351,6 +350,11 @@ class GELFChunkOverflowWarning(Warning):
 
 class GELFChunker(object):
     def __init__(self, chunk_size=WAN_CHUNK):
+        """
+
+        :param chunk_size:
+        :type chunk_size: int
+        """
         self.chunk_size = chunk_size
 
     def get_message_chunk_number(self, message):
@@ -550,7 +554,6 @@ class GELFTLSHandler(GELFTCPHandler):
             stored with the certificate, this parameter can be ignored.
         :type keyfile: str
         """
-
         if validate and ca_certs is None:
             raise ValueError('CA bundle file path must be specified')
 
@@ -609,7 +612,6 @@ class GELFHTTPHandler(BaseGELFHandler):
             it discards the request if the Graylog server doesn't respond.
         :type timeout: int
         """
-
         BaseGELFHandler.__init__(self, compress=compress, **kwargs)
 
         self.host = host
