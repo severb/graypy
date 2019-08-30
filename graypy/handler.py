@@ -52,14 +52,10 @@ class BaseGELFHandler(logging.Handler, ABC):
     :obj:`logging.LogRecord` into a GELF log. Provides the boilerplate for
     all GELF handlers defined within graypy."""
 
-    def __init__(self, chunk_size=WAN_CHUNK, debugging_fields=True,
-                 extra_fields=True, fqdn=False, localname=None, facility=None,
+    def __init__(self, debugging_fields=True, extra_fields=True,
+                 fqdn=False, localname=None, facility=None,
                  level_names=False, compress=True):
         """Initialize the BaseGELFHandler.
-
-        :param chunk_size: Message chunk size. Messages larger than this
-            size will be sent to Graylog in multiple chunks.
-        :type chunk_size: int
 
         :param debugging_fields: If :obj:`True` add debug fields from the
             log record into the GELF logs to be sent to Graylog.
@@ -93,7 +89,6 @@ class BaseGELFHandler(logging.Handler, ABC):
         logging.Handler.__init__(self)
         self.debugging_fields = debugging_fields
         self.extra_fields = extra_fields
-        self.chunk_size = chunk_size
 
         if fqdn and localname:
             raise ValueError(
@@ -133,7 +128,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         # construct the base GELF format
         gelf_dict = {
             'version': "1.0",
-            'host': BaseGELFHandler._resolve_host(self.fqdn, self.localname),
+            'host': self._resolve_host(self.fqdn, self.localname),
             'short_message': self.formatter.format(record) if self.formatter else record.getMessage(),
             'timestamp': record.created,
             'level': SYSLOG_LEVELS.get(record.levelno, record.levelno),
@@ -291,8 +286,8 @@ class BaseGELFHandler(logging.Handler, ABC):
             if key not in skip_list and not key.startswith('_'):
                 gelf_dict['_%s' % key] = value
 
-    @staticmethod
-    def _pack_gelf_dict(gelf_dict):
+    @classmethod
+    def _pack_gelf_dict(cls, gelf_dict):
         """Convert a given ``gelf_dict`` into JSON-encoded UTF-8 bytes, thus,
         creating an uncompressed GELF log ready for consumption by Graylog.
 
@@ -305,16 +300,16 @@ class BaseGELFHandler(logging.Handler, ABC):
         :return: bytes representing a uncompressed GELF log.
         :rtype: bytes
         """
-        gelf_dict = BaseGELFHandler._sanitize_to_unicode(gelf_dict)
+        gelf_dict = cls._sanitize_to_unicode(gelf_dict)
         packed = json.dumps(
             gelf_dict,
             separators=',:',
-            default=BaseGELFHandler._object_to_json
+            default=cls._object_to_json
         )
         return packed.encode('utf-8')
 
-    @staticmethod
-    def _sanitize_to_unicode(obj):
+    @classmethod
+    def _sanitize_to_unicode(cls, obj):
         """Convert all strings records of the object to unicode
 
         :param obj: object to sanitize to unicode.
@@ -324,9 +319,9 @@ class BaseGELFHandler(logging.Handler, ABC):
         :rtype: str
         """
         if isinstance(obj, dict):
-            return dict((BaseGELFHandler._sanitize_to_unicode(k), BaseGELFHandler._sanitize_to_unicode(v)) for k, v in obj.items())
+            return dict((cls._sanitize_to_unicode(k), cls._sanitize_to_unicode(v)) for k, v in obj.items())
         if isinstance(obj, (list, tuple)):
-            return obj.__class__([BaseGELFHandler._sanitize_to_unicode(i) for i in obj])
+            return obj.__class__([cls._sanitize_to_unicode(i) for i in obj])
         if isinstance(obj, data):
             obj = obj.decode('utf-8', errors='replace')
         return obj
@@ -479,16 +474,18 @@ class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
         :param gelf_chunker:
         :type gelf_chunker: GELFChunker
         """
+        self.chunk_size = chunk_size
+
         BaseGELFHandler.__init__(self, **kwargs)
         DatagramHandler.__init__(self, host, port)
         self.gelf_chunker = gelf_chunker
 
     def send(self, s):
         if len(s) < self.chunk_size:
-            DatagramHandler.send(self, s)
+            super(GELFUDPHandler, self).send(s)
         else:
             for chunk in self.gelf_chunker.iter_gelf_chunks(s):
-                DatagramHandler.send(self, chunk)
+                super(GELFUDPHandler, self).send(chunk)
 
 
 class GELFTCPHandler(BaseGELFHandler, SocketHandler):
@@ -524,7 +521,7 @@ class GELFTCPHandler(BaseGELFHandler, SocketHandler):
         :return: Null terminated bytes representing a GELF log.
         :rtype: bytes
         """
-        return BaseGELFHandler.makePickle(self, record) + b'\x00'
+        return super(GELFTCPHandler, self).makePickle(record) + b'\x00'
 
 
 class GELFTLSHandler(GELFTCPHandler):
