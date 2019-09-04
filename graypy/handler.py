@@ -431,7 +431,8 @@ class GELFTruncatingChunker(GELFChunker):
 
         glef_message = json.loads(message.decode("UTF-8"))
 
-        short_message = b"GELF_CHUNK_OVERFLOW:" + glef_message['short_message']
+        short_message = glef_message['short_message']
+
         while True:
             gelf_dict = {
                 'version': glef_message['version'],
