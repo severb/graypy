@@ -347,14 +347,22 @@ class BaseGELFHandler(logging.Handler, ABC):
 
 
 class GELFChunkOverflowWarning(Warning):
-    pass
+    """Warning that a chunked GELF UDP message consist more than 128 chunks"""
 
 
 class BaseGELFChunker(object):
-    def __init__(self, chunk_size=WAN_CHUNK):
-        """
+    """Base UDP GELF message chunker
 
-        :param chunk_size:
+    .. warning::
+        This will silently drop GELF messages that consist more
+        than 128 chunks.
+    """
+
+    def __init__(self, chunk_size=WAN_CHUNK):
+        """Initialize the BaseGELFChunker.
+
+        :param chunk_size: Message chunk size. Messages larger than this
+            size should be sent to Graylog in multiple chunks.
         :type chunk_size: int
         """
         self.chunk_size = chunk_size
@@ -381,7 +389,9 @@ class BaseGELFChunker(object):
 
         :param chunk:
         :type chunk: bytes
-        :return:
+
+        :return: Encoded bytes of a GELF UDP chunk.
+        :rtype: bytes
         """
         return b''.join([
             b'\x1e\x0f',
@@ -406,6 +416,8 @@ class BaseGELFChunker(object):
 
 
 class GELFWarningChunker(BaseGELFChunker):
+    """GELF UDP message chunker that warns and drops overflowing messages"""
+
     def iter_gelf_chunks(self, message):
         if self.get_message_chunk_number(message) > GELF_MAX_CHUNK_NUMBER:
             warnings.warn("GELF chunk overflow for message: {}".format(message), GELFChunkOverflowWarning)
@@ -415,6 +427,8 @@ class GELFWarningChunker(BaseGELFChunker):
 
 
 class GELFTruncatingChunker(BaseGELFChunker):
+    """GELF UDP message chunker that truncates overflowing messages"""
+
     def __init__(self, chunk_size=WAN_CHUNK, gelf_packer=BaseGELFHandler._pack_gelf_dict):
         BaseGELFChunker.__init__(self, chunk_size)
         self.gelf_packer = gelf_packer
@@ -422,8 +436,8 @@ class GELFTruncatingChunker(BaseGELFChunker):
     def gen_chunk_overflow_gelf_log(self, raw_message):
         """Attempt to notify and recover as much of a chunk overflowing GELF log
 
-        reconstruct the glef log as a trunicated and simplified version
-        only keep the GLEF fields version, host, short_message, timestamp, level, facility
+        reconstruct the GELF log as a truncated and simplified version
+        only keep the GELF fields version, host, short_message, timestamp, level, facility
         short_message will have a warning added to the front GELF_128_CHUNK_OVERFLOW=
         short_message will be truncated
         bump its level up to ERROR
@@ -431,7 +445,8 @@ class GELFTruncatingChunker(BaseGELFChunker):
         :param raw_message:
         :type raw_message: bytes
 
-        :return:
+        :return: Truncated and simplified version of raw_message.
+        :rtype: bytes
         """
         try:
             message = zlib.decompress(raw_message)
@@ -440,18 +455,17 @@ class GELFTruncatingChunker(BaseGELFChunker):
             message = raw_message
             compressed = False
 
-        glef_message = json.loads(message.decode("UTF-8"))
-
-        short_message = glef_message['short_message']
+        gelf_message = json.loads(message.decode("UTF-8"))
+        short_message = gelf_message['short_message']
 
         while True:
             gelf_dict = {
-                'version': glef_message['version'],
-                'host': glef_message['host'],
+                'version': gelf_message['version'],
+                'host': gelf_message['host'],
                 'short_message': short_message,
-                'timestamp': glef_message['timestamp'],
+                'timestamp': gelf_message['timestamp'],
                 'level': SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR),
-                'facility': glef_message['facility'],
+                'facility': gelf_message['facility'],
                 '_chunk_overflow': True,
             }
             packed_message = self.gelf_packer(gelf_dict)
@@ -487,7 +501,8 @@ class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
         :param port: GELF UDP input port.
         :type port: int
 
-        :param gelf_chunker:
+        :param gelf_chunker: :class:`.handler.BaseGELFChunker` instance to
+            handle chunking larger GELF messages.
         :type gelf_chunker: GELFWarningChunker
         """
         BaseGELFHandler.__init__(self, **kwargs)
