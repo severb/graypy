@@ -350,7 +350,7 @@ class GELFChunkOverflowWarning(Warning):
     pass
 
 
-class GELFChunker(object):
+class BaseGELFChunker(object):
     def __init__(self, chunk_size=WAN_CHUNK):
         """
 
@@ -399,15 +399,24 @@ class GELFChunker(object):
 
     def iter_gelf_chunks(self, message):
         if self.get_message_chunk_number(message) > GELF_MAX_CHUNK_NUMBER:
+            # silently drop messages that exceed the max gelf chunk size
+            return
+        for chunk in self.gen_gelf_chunks(message):
+            yield chunk
+
+
+class GELFWarningChunker(BaseGELFChunker):
+    def iter_gelf_chunks(self, message):
+        if self.get_message_chunk_number(message) > GELF_MAX_CHUNK_NUMBER:
             warnings.warn("GELF chunk overflow for message: {}".format(message), GELFChunkOverflowWarning)
             return
         for chunk in self.gen_gelf_chunks(message):
             yield chunk
 
 
-class GELFTruncatingChunker(GELFChunker):
+class GELFTruncatingChunker(BaseGELFChunker):
     def __init__(self, chunk_size=WAN_CHUNK, gelf_packer=BaseGELFHandler._pack_gelf_dict):
-        GELFChunker.__init__(self, chunk_size)
+        BaseGELFChunker.__init__(self, chunk_size)
         self.gelf_packer = gelf_packer
 
     def gen_chunk_overflow_gelf_log(self, raw_message):
@@ -469,7 +478,7 @@ class GELFTruncatingChunker(GELFChunker):
 class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
     """GELF UDP handler"""
 
-    def __init__(self, host, port=12202, gelf_chunker=GELFChunker(), **kwargs):
+    def __init__(self, host, port=12202, gelf_chunker=GELFWarningChunker(), **kwargs):
         """Initialize the GELFUDPHandler
 
         :param host: GELF UDP input host.
@@ -479,7 +488,7 @@ class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
         :type port: int
 
         :param gelf_chunker:
-        :type gelf_chunker: GELFChunker
+        :type gelf_chunker: GELFWarningChunker
         """
         BaseGELFHandler.__init__(self, **kwargs)
         DatagramHandler.__init__(self, host, port)

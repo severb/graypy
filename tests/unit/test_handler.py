@@ -22,7 +22,7 @@ import mock
 import pytest
 
 from graypy.handler import BaseGELFHandler, GELFHTTPHandler, GELFTLSHandler, \
-    SYSLOG_LEVELS, GELFUDPHandler, GELFChunker, GELFTruncatingChunker, \
+    SYSLOG_LEVELS, GELFUDPHandler, GELFWarningChunker, GELFTruncatingChunker, \
     GELFChunkOverflowWarning
 
 from tests.helper import handler, logger, formatted_logger
@@ -224,10 +224,10 @@ def test_invalid_client_certs():
 
 def test_gelf_chunking():
     """Testing the GELF chunking ability of
-    :class:`graypy.handler.GELFChunker`"""
+    :class:`graypy.handler.GELFWarningChunker`"""
     message = b'12345'
     header = b'\x1e\x0f'
-    chunks = list(GELFChunker(2).iter_gelf_chunks(message))
+    chunks = list(GELFWarningChunker(2).iter_gelf_chunks(message))
     expected = [
         (struct.pack('b', 0), struct.pack('b', 3), b'12'),
         (struct.pack('b', 1), struct.pack('b', 3), b'34'),
@@ -277,4 +277,4 @@ def test_chunk_overflow_compressed():
 def test_chunk_overflow_fail():
     message = BaseGELFHandler().makePickle(logging.LogRecord("test_chunk_overflow_fail", logging.INFO, None, None, "1"*128, None, None))
     with pytest.warns(GELFChunkOverflowWarning):
-        list(GELFChunker(1).iter_gelf_chunks(message))
+        list(GELFWarningChunker(1).iter_gelf_chunks(message))
