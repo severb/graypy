@@ -256,7 +256,6 @@ def test_chunk_overflow_uncompressed():
     glef_json = json.loads(payload)
     assert glef_json["_chunk_overflow"] is True
     assert glef_json["short_message"] != "1"*1000
-    assert b'GELF_CHUNK_OVERFLOW:' in glef_json["short_message"]
     assert glef_json["level"] == SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR)
 
 
@@ -272,7 +271,6 @@ def test_chunk_overflow_compressed():
     glef_json = json.loads(payload)
     assert glef_json["_chunk_overflow"] is True
     assert glef_json["short_message"] != "123412345"*5000
-    assert b'GELF_CHUNK_OVERFLOW:' in glef_json["short_message"]
     assert glef_json["level"] == SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR)
 
 
