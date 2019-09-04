@@ -483,7 +483,7 @@ class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
         self.gelf_chunker = gelf_chunker
 
     def send(self, s):
-        if len(s) < self.chunk_size:
+        if len(s) < self.gelf_chunker.chunk_size:
             super(GELFUDPHandler, self).send(s)
         else:
             for chunk in self.gelf_chunker.iter_gelf_chunks(s):
