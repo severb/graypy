@@ -46,6 +46,8 @@ SYSLOG_LEVELS = {
     logging.DEBUG: 7,
 }
 
+GELF_MAX_CHUNK_NUMBER = 128
+
 
 class BaseGELFHandler(logging.Handler, ABC):
     """Abstract class defining the basic functionality of converting a
@@ -396,7 +398,7 @@ class GELFChunker(object):
             yield self.encode(message_id, sequence, total_chunks, chunk)
 
     def iter_gelf_chunks(self, message):
-        if self.get_message_chunk_number(message) > 128:
+        if self.get_message_chunk_number(message) > GELF_MAX_CHUNK_NUMBER:
             warnings.warn("GELF chunk overflow for message: {}".format(message), GELFChunkOverflowWarning)
             return
         for chunk in self.gen_gelf_chunks(message):
@@ -446,7 +448,7 @@ class GELFTruncatingChunker(GELFChunker):
             packed_message = self.gelf_packer(gelf_dict)
             if compressed:
                 packed_message = zlib.compress(packed_message)
-            if self.get_message_chunk_number(packed_message) <= 128:
+            if self.get_message_chunk_number(packed_message) <= GELF_MAX_CHUNK_NUMBER:
                 return packed_message
             else:
                 short_message = short_message[:-1]
@@ -457,7 +459,7 @@ class GELFTruncatingChunker(GELFChunker):
                 return raw_message
 
     def iter_gelf_chunks(self, message):
-        if self.get_message_chunk_number(message) > 128:
+        if self.get_message_chunk_number(message) > GELF_MAX_CHUNK_NUMBER:
             warnings.warn("GELF chunk overflow for message: {}".format(message), GELFChunkOverflowWarning)
             message = self.gen_chunk_overflow_gelf_log(message)
         for chunk in self.gen_gelf_chunks(message):
