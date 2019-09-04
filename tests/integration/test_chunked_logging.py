@@ -19,7 +19,7 @@ from tests.integration.helper import get_unique_message, get_graylog_response
 def test_chunked_logging():
     """Test sending a log that requires chunking to be fully sent"""
     logger = logging.getLogger("test_chunked_logger")
-    handler = GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, chunk_size=GELFChunker(10))
+    handler = GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, gelf_chunker=GELFChunker(10))
     logger.addHandler(handler)
     message = get_unique_message()
     logger.error(message)
