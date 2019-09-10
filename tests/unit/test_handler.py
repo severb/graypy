@@ -244,15 +244,16 @@ def test_gelf_chunking():
         assert expected_chunk == chunk[12:]
 
 
+def rebuild_gelf_bytes_from_udp_chunks(chunks):
+    return b"".join([chunk[-2:] for chunk in chunks])
+
+
 def test_chunk_overflow_uncompressed():
     message = BaseGELFHandler(compress=False).makePickle(logging.LogRecord("test_chunk_overflow_uncompressed", logging.INFO, None, None, "1"*1000, None, None))
     with pytest.warns(GELFChunkOverflowWarning):
         chunks = list(GELFTruncatingChunker(2).iter_gelf_chunks(message))
     assert len(chunks) <= 128
-    payload_chunks = []
-    for chunk in chunks:
-        payload_chunks.append(chunk[-2:])
-    payload = b"".join(payload_chunks)
+    payload = rebuild_gelf_bytes_from_udp_chunks(chunks).decode("UTF-8")
     glef_json = json.loads(payload)
     assert glef_json["_chunk_overflow"] is True
     assert glef_json["short_message"] != "1"*1000
@@ -264,10 +265,7 @@ def test_chunk_overflow_compressed():
     with pytest.warns(GELFChunkOverflowWarning):
         chunks = list(GELFTruncatingChunker(2).iter_gelf_chunks(message))
     assert len(chunks) <= 128
-    payload_chunks = []
-    for chunk in chunks:
-        payload_chunks.append(chunk[-2:])
-    payload = zlib.decompress(b"".join(payload_chunks))
+    payload = zlib.decompress(rebuild_gelf_bytes_from_udp_chunks(chunks)).decode("UTF-8")
     glef_json = json.loads(payload)
     assert glef_json["_chunk_overflow"] is True
     assert glef_json["short_message"] != "123412345"*5000
