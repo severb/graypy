@@ -307,7 +307,7 @@ class BaseGELFHandler(logging.Handler, ABC):
             separators=',:',
             default=cls._object_to_json
         )
-        return packed.encode('utf-8')
+        return packed._encode('utf-8')
 
     @classmethod
     def _sanitize_to_unicode(cls, obj):
@@ -371,7 +371,7 @@ class BaseGELFChunker(object):
         return int(math.ceil(len(message) * 1.0 / self.chunk_size))
 
     @staticmethod
-    def encode(message_id, chunk_seq, total_chunks, chunk):
+    def _encode(message_id, chunk_seq, total_chunks, chunk):
         return b''.join([
             b'\x1e\x0f',
             struct.pack('Q', message_id),
@@ -385,7 +385,7 @@ class BaseGELFChunker(object):
         message_id = random.randint(0, 0xFFFFFFFFFFFFFFFF)
         for sequence, chunk in enumerate((message[i:i + self.chunk_size]
                           for i in range(0, len(message), self.chunk_size))):
-            yield self.encode(message_id, sequence, total_chunks, chunk)
+            yield self._encode(message_id, sequence, total_chunks, chunk)
 
     def chunk_message(self, message):
         """Chunk a GELF message
