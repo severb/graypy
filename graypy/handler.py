@@ -307,7 +307,7 @@ class BaseGELFHandler(logging.Handler, ABC):
             separators=',:',
             default=cls._object_to_json
         )
-        return packed._encode('utf-8')
+        return packed.encode('utf-8')
 
     @classmethod
     def _sanitize_to_unicode(cls, obj):
