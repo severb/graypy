@@ -124,7 +124,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         :param record: :class:`logging.LogRecord` to create a GELF log from.
         :type record: logging.LogRecord
 
-        :return: dictionary representing a GELF log.
+        :return: Dictionary representing a GELF log.
         :rtype: dict
         """
         # construct the base GELF format
@@ -155,7 +155,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         the logging level via the string error level names instead of
         numerical values
 
-        :param gelf_dict: dictionary representing a GELF log.
+        :param gelf_dict: Dictionary representing a GELF log.
         :type gelf_dict: dict
 
         :param record: :class:`logging.LogRecord` to extract a logging
@@ -171,7 +171,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         Also add a additional ``_logger`` field containing the
         ``LogRecord.name``.
 
-        :param gelf_dict: dictionary representing a GELF log.
+        :param gelf_dict: Dictionary representing a GELF log.
         :type gelf_dict: dict
 
         :param facility_value: Value to set as the ``gelf_dict``'s
@@ -190,7 +190,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         """Add the ``full_message`` field to the ``gelf_dict`` if any
         traceback information exists within the logging record
 
-        :param gelf_dict: dictionary representing a GELF log.
+        :param gelf_dict: Dictionary representing a GELF log.
         :type gelf_dict: dict
 
         :param record: :class:`logging.LogRecord` to extract a full
@@ -234,7 +234,7 @@ class BaseGELFHandler(logging.Handler, ABC):
     def _add_debugging_fields(gelf_dict, record):
         """Add debugging fields to the given ``gelf_dict``
 
-        :param gelf_dict: dictionary representing a GELF log.
+        :param gelf_dict: Dictionary representing a GELF log.
         :type gelf_dict: dict
 
         :param record: :class:`logging.LogRecord` to extract debugging
@@ -269,7 +269,7 @@ class BaseGELFHandler(logging.Handler, ABC):
 
                 http://docs.python.org/library/logging.html#logrecord-attributes
 
-        :param gelf_dict: dictionary representing a GELF log.
+        :param gelf_dict: Dictionary representing a GELF log.
         :type gelf_dict: dict
 
         :param record: :class:`logging.LogRecord` to extract extra fields
@@ -295,10 +295,10 @@ class BaseGELFHandler(logging.Handler, ABC):
         Since we cannot be 100% sure of what is contained in the ``gelf_dict``
         we have to do some sanitation.
 
-        :param gelf_dict: dictionary representing a GELF log.
+        :param gelf_dict: Dictionary representing a GELF log.
         :type gelf_dict: dict
 
-        :return: bytes representing a uncompressed GELF log.
+        :return: Bytes representing a uncompressed GELF log.
         :rtype: bytes
         """
         gelf_dict = cls._sanitize_to_unicode(gelf_dict)
@@ -313,7 +313,7 @@ class BaseGELFHandler(logging.Handler, ABC):
     def _sanitize_to_unicode(cls, obj):
         """Convert all strings records of the object to unicode
 
-        :param obj: object to sanitize to unicode.
+        :param obj: Object to sanitize to unicode.
         :type obj: object
 
         :return: Unicode string representing the given object.
@@ -335,7 +335,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         :class:`datetime.datetime` based objects will be converted into a
         ISO formatted timestamp string.
 
-        :param obj: object to convert into a string representation.
+        :param obj: Object to convert into a string representation.
         :type obj: object
 
         :return: String representing the given object.
@@ -388,6 +388,14 @@ class BaseGELFChunker(object):
             yield self.encode(message_id, sequence, total_chunks, chunk)
 
     def chunk_message(self, message):
+        """Chunk a GELF message
+
+        :param message: GELF message to chunk.
+        :type; bytes
+
+        :return: Iterator of the chunks of a GELF message.
+        :rtype: Iterator[bytes], None
+        """
         if self.get_message_chunk_number(message) > GELF_MAX_CHUNK_NUMBER:
             # silently drop messages that exceed the max gelf chunk size
             return
@@ -412,7 +420,7 @@ class GELFTruncatingChunker(BaseGELFChunker):
     def __init__(self, chunk_size=WAN_CHUNK, gelf_packer=BaseGELFHandler._pack_gelf_dict):
         """Initialize the GELFTruncatingChunker.
 
-        :param gelf_packer: A function handle for pracking a GELF dictionary
+        :param gelf_packer: Function handle for pracking a GELF dictionary
             into bytes. Should be of the form ``gelf_packer(gelf_dict)``.
         :type gelf_packer: Callable[dict]
         """
