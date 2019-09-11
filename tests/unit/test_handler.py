@@ -204,7 +204,7 @@ def test_invalid_fqdn_localhost():
     """Test constructing :class:`graypy.handler.BaseGELFHandler` with
     specifying conflicting arguments ``fqdn`` and ``localname``"""
     with pytest.raises(ValueError):
-        BaseGELFHandler("127.0.0.1", 12202, fqdn=True, localname="localhost")
+        BaseGELFHandler(fqdn=True, localname="localhost")
 
 
 def test_invalid_ca_certs():
@@ -227,7 +227,7 @@ def test_gelf_chunking():
     :class:`graypy.handler.GELFWarningChunker`"""
     message = b'12345'
     header = b'\x1e\x0f'
-    chunks = list(GELFWarningChunker(2).iter_gelf_chunks(message))
+    chunks = list(GELFWarningChunker(2).chunk_message(message))
     expected = [
         (struct.pack('b', 0), struct.pack('b', 3), b'12'),
         (struct.pack('b', 1), struct.pack('b', 3), b'34'),
@@ -251,7 +251,7 @@ def rebuild_gelf_bytes_from_udp_chunks(chunks):
 def test_chunk_overflow_uncompressed():
     message = BaseGELFHandler(compress=False).makePickle(logging.LogRecord("test_chunk_overflow_uncompressed", logging.INFO, None, None, "1"*1000, None, None))
     with pytest.warns(GELFChunkOverflowWarning):
-        chunks = list(GELFTruncatingChunker(2).iter_gelf_chunks(message))
+        chunks = list(GELFTruncatingChunker(2).chunk_message(message))
     assert len(chunks) <= 128
     payload = rebuild_gelf_bytes_from_udp_chunks(chunks).decode("UTF-8")
     glef_json = json.loads(payload)
@@ -263,7 +263,7 @@ def test_chunk_overflow_uncompressed():
 def test_chunk_overflow_compressed():
     message = BaseGELFHandler(compress=True).makePickle(logging.LogRecord("test_chunk_overflow_uncompressed", logging.INFO, None, None, "123412345"*5000, None, None))
     with pytest.warns(GELFChunkOverflowWarning):
-        chunks = list(GELFTruncatingChunker(2).iter_gelf_chunks(message))
+        chunks = list(GELFTruncatingChunker(2).chunk_message(message))
     assert len(chunks) <= 128
     payload = zlib.decompress(rebuild_gelf_bytes_from_udp_chunks(chunks)).decode("UTF-8")
     glef_json = json.loads(payload)
@@ -275,4 +275,4 @@ def test_chunk_overflow_compressed():
 def test_chunk_overflow_fail():
     message = BaseGELFHandler().makePickle(logging.LogRecord("test_chunk_overflow_fail", logging.INFO, None, None, "1"*128, None, None))
     with pytest.warns(GELFChunkOverflowWarning):
-        list(GELFWarningChunker(1).iter_gelf_chunks(message))
+        list(GELFWarningChunker(1).chunk_message(message))
