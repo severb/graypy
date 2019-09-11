@@ -18,15 +18,23 @@ DEFAULT_FIELDS = [
     "func", "file", "line", "module", "logger_name",
 ]
 
-BASE_API_URL = 'http://127.0.0.1:9000/api/search/universal/relative?query=message:"{0}"&range=5&fields='
+BASE_API_URL = 'http://127.0.0.1:9000/api/search/universal/relative?query=message:"{0}"&range=300&fields='
 
 
 def get_graylog_response(message, fields=None):
     """Search for a given log message (with possible additional fields)
     within a local Graylog instance"""
     fields = fields if fields else []
-    api_resp = _get_api_response(message, fields)
-    return _parse_api_response(api_resp)
+    tries = 0
+
+    while True:
+        try:
+            return _parse_api_response(_get_api_response(message, fields))
+        except AssertionError:
+            sleep(2)
+            if tries == 5:
+                raise
+            tries += 1
 
 
 def _build_api_string(message, fields):
@@ -34,7 +42,6 @@ def _build_api_string(message, fields):
 
 
 def _get_api_response(message, fields):
-    sleep(2)
     url = _build_api_string(message, fields)
     api_response = requests.get(
         url,
