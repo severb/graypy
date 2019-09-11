@@ -370,29 +370,8 @@ class BaseGELFChunker(object):
     def get_message_chunk_number(self, message):
         return int(math.ceil(len(message) * 1.0 / self.chunk_size))
 
-    def get_message_chunks(self, message):
-        return (message[i:i + self.chunk_size]
-                for i in range(0, len(message), self.chunk_size))
-
     @staticmethod
     def encode(message_id, chunk_seq, total_chunks, chunk):
-        """
-
-        :param message_id:
-        :type message_id: int
-
-        :param chunk_seq:
-        :type chunk_seq: int
-
-        :param total_chunks:
-        :type total_chunks: int
-
-        :param chunk:
-        :type chunk: bytes
-
-        :return: Encoded bytes of a GELF UDP chunk.
-        :rtype: bytes
-        """
         return b''.join([
             b'\x1e\x0f',
             struct.pack('Q', message_id),
@@ -401,28 +380,29 @@ class BaseGELFChunker(object):
             chunk
         ])
 
-    def gen_gelf_chunks(self, message):
+    def _gen_gelf_chunks(self, message):
         total_chunks = self.get_message_chunk_number(message)
         message_id = random.randint(0, 0xFFFFFFFFFFFFFFFF)
-        for sequence, chunk in enumerate(self.get_message_chunks(message)):
+        for sequence, chunk in enumerate((message[i:i + self.chunk_size]
+                          for i in range(0, len(message), self.chunk_size))):
             yield self.encode(message_id, sequence, total_chunks, chunk)
 
-    def iter_gelf_chunks(self, message):
+    def chunk_message(self, message):
         if self.get_message_chunk_number(message) > GELF_MAX_CHUNK_NUMBER:
             # silently drop messages that exceed the max gelf chunk size
             return
-        for chunk in self.gen_gelf_chunks(message):
+        for chunk in self._gen_gelf_chunks(message):
             yield chunk
 
 
 class GELFWarningChunker(BaseGELFChunker):
     """GELF UDP message chunker that warns and drops overflowing messages"""
 
-    def iter_gelf_chunks(self, message):
+    def chunk_message(self, message):
         if self.get_message_chunk_number(message) > GELF_MAX_CHUNK_NUMBER:
             warnings.warn("GELF chunk overflow for message: {}".format(message), GELFChunkOverflowWarning)
             return
-        for chunk in self.gen_gelf_chunks(message):
+        for chunk in self._gen_gelf_chunks(message):
             yield chunk
 
 
@@ -430,19 +410,19 @@ class GELFTruncatingChunker(BaseGELFChunker):
     """GELF UDP message chunker that truncates overflowing messages"""
 
     def __init__(self, chunk_size=WAN_CHUNK, gelf_packer=BaseGELFHandler._pack_gelf_dict):
+        """Initialize the GELFTruncatingChunker.
+
+        :param gelf_packer: A function handle for pracking a GELF dictionary
+            into bytes. Should be of the form ``gelf_packer(gelf_dict)``.
+        :type gelf_packer: Callable[dict]
+        """
         BaseGELFChunker.__init__(self, chunk_size)
         self.gelf_packer = gelf_packer
 
     def gen_chunk_overflow_gelf_log(self, raw_message):
-        """Attempt to notify and recover as much of a chunk overflowing GELF log
+        """Attempt to truncate a chunk overflowing GELF message
 
-        reconstruct the GELF log as a truncated and simplified version
-        only keep the GELF fields version, host, short_message, timestamp, level, facility
-        short_message will have a warning added to the front GELF_128_CHUNK_OVERFLOW=
-        short_message will be truncated
-        bump its level up to ERROR
-
-        :param raw_message:
+        :param raw_message: Original bytes of a chunk overflowing GELF message.
         :type raw_message: bytes
 
         :return: Truncated and simplified version of raw_message.
@@ -481,11 +461,11 @@ class GELFTruncatingChunker(BaseGELFChunker):
                         raw_message), GELFChunkOverflowWarning)
                 return raw_message
 
-    def iter_gelf_chunks(self, message):
+    def chunk_message(self, message):
         if self.get_message_chunk_number(message) > GELF_MAX_CHUNK_NUMBER:
             warnings.warn("GELF chunk overflow for message: {}".format(message), GELFChunkOverflowWarning)
             message = self.gen_chunk_overflow_gelf_log(message)
-        for chunk in self.gen_gelf_chunks(message):
+        for chunk in self._gen_gelf_chunks(message):
             yield chunk
 
 
@@ -513,7 +493,7 @@ class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
         if len(s) < self.gelf_chunker.chunk_size:
             super(GELFUDPHandler, self).send(s)
         else:
-            for chunk in self.gelf_chunker.iter_gelf_chunks(s):
+            for chunk in self.gelf_chunker.chunk_message(s):
                 super(GELFUDPHandler, self).send(chunk)
 
 
