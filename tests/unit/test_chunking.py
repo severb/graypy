@@ -90,7 +90,7 @@ def test_chunk_overflow_truncate_uncompressed():
         logging.LogRecord("test_chunk_overflow_truncate_uncompressed",
                           logging.INFO, None, None, "1"*1000, None, None))
     with pytest.warns(GELFChunkOverflowWarning):
-        chunks = list(GELFTruncatingChunker(chunk_size=2).chunk_message(message))
+        chunks = list(GELFTruncatingChunker(chunk_size=2, compress=False).chunk_message(message))
     assert len(chunks) <= 128
     payload = rebuild_gelf_bytes_from_udp_chunks(chunks).decode("UTF-8")
     glef_json = json.loads(payload)
@@ -104,7 +104,7 @@ def test_chunk_overflow_truncate_compressed():
         logging.LogRecord("test_chunk_overflow_truncate_compressed",
                           logging.INFO, None, None, "123412345"*5000, None, None))
     with pytest.warns(GELFChunkOverflowWarning):
-        chunks = list(GELFTruncatingChunker(chunk_size=2).chunk_message(message))
+        chunks = list(GELFTruncatingChunker(chunk_size=2, compress=True).chunk_message(message))
     assert len(chunks) <= 128
     payload = zlib.decompress(rebuild_gelf_bytes_from_udp_chunks(chunks)).decode("UTF-8")
     glef_json = json.loads(payload)
