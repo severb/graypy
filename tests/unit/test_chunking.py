@@ -23,8 +23,7 @@ from graypy.handler import GELFTruncatingChunker, GELFWarningChunker, \
     ]
 )
 def test_gelf_chunking(gelf_chunker):
-    """Testing the GELF chunking ability of
-    :class:`graypy.handler.GELFWarningChunker`"""
+    """Test various GELF chunkers"""
     message = b'12345'
     header = b'\x1e\x0f'
     chunks = list(gelf_chunker(chunk_size=2).chunk_message(message))
