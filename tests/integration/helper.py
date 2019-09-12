@@ -29,8 +29,11 @@ def get_graylog_response(message, fields=None):
 
     while True:
         try:
-            return _parse_api_response(_get_api_response(message, fields))
-        except AssertionError:
+            return _parse_api_response(
+                api_response=_get_api_response(message, fields),
+                wanted_message=message
+            )
+        except ValueError:
             sleep(2)
             if tries == 5:
                 raise
@@ -51,9 +54,10 @@ def _get_api_response(message, fields):
     return api_response
 
 
-def _parse_api_response(api_response):
+def _parse_api_response(api_response, wanted_message):
     assert api_response.status_code == 200
     print(api_response.json())
-    messages = api_response.json()["messages"]
-    assert 1 == len(messages)
-    return messages[0]["message"]
+    for message in api_response.json()["messages"]:
+        if message["message"] == wanted_message:
+            return message
+    raise ValueError("wanted_message: '{}' not within api_response: {}".format(wanted_message, api_response))
