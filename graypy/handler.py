@@ -428,6 +428,21 @@ class GELFTruncatingChunker(BaseGELFChunker):
         self.gelf_packer = gelf_packer
 
     def get_initial_truncate_offset(self, gelf_message, compressed):
+        """Compute the amount of chunks the simplified GELF message
+        without a ``short_message`` field will use
+
+        :param gelf_message: GELF dictionary representation of the original
+            overflowing GELF message.
+        :type gelf_message: dict
+
+        :param compressed: Boolean noting whether the given gelf_message
+            was originally compressed.
+        :type compressed: bool
+
+        :return: Amount of chunks the simplified GELF message without the
+            original ``short_message`` field will use.
+        :rtype: int
+        """
         gelf_dict_pre = {
             'version': gelf_message['version'],
             'host': gelf_message['host'],
