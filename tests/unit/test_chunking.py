@@ -44,7 +44,13 @@ def test_gelf_chunking(gelf_chunker):
 
 
 def rebuild_gelf_bytes_from_udp_chunks(chunks):
-    return b"".join([chunk[-2:] for chunk in chunks])
+    gelf_bytes = b""
+    for chunk in chunks:
+        stripped_chunk = b"".join(chunk.split(b'\x1e\x0f')[1:])
+        message_id, chunk_seq, total_chunks = struct.unpack_from('QBB', stripped_chunk)
+        chunk = stripped_chunk[struct.calcsize('QBB'):]
+        gelf_bytes += chunk
+    return gelf_bytes
 
 
 @pytest.mark.parametrize(
