@@ -14,16 +14,13 @@ import datetime
 import json
 import logging
 import socket
-import struct
 import sys
 import zlib
 
 import mock
 import pytest
 
-from graypy.handler import BaseGELFHandler, GELFHTTPHandler, GELFTLSHandler, \
-    SYSLOG_LEVELS, GELFUDPHandler, GELFWarningChunker, GELFTruncatingChunker, \
-    GELFChunkOverflowWarning
+from graypy.handler import BaseGELFHandler, GELFHTTPHandler, GELFTLSHandler
 
 from tests.helper import handler, logger, formatted_logger
 from tests.unit.helper import MOCK_LOG_RECORD, MOCK_LOG_RECORD_NAME
@@ -220,59 +217,3 @@ def test_invalid_client_certs():
     with pytest.raises(ValueError):
         # missing client cert
         GELFTLSHandler("127.0.0.1", keyfile="/dev/null")
-
-
-def test_gelf_chunking():
-    """Testing the GELF chunking ability of
-    :class:`graypy.handler.GELFWarningChunker`"""
-    message = b'12345'
-    header = b'\x1e\x0f'
-    chunks = list(GELFWarningChunker(2).chunk_message(message))
-    expected = [
-        (struct.pack('b', 0), struct.pack('b', 3), b'12'),
-        (struct.pack('b', 1), struct.pack('b', 3), b'34'),
-        (struct.pack('b', 2), struct.pack('b', 3), b'5')
-    ]
-
-    assert len(chunks) == len(expected)
-
-    for index, chunk in enumerate(chunks):
-        expected_index, expected_chunks_count, expected_chunk = expected[index]
-        assert header == chunk[:2]
-        assert expected_index == chunk[10:11]
-        assert expected_chunks_count == chunk[11:12]
-        assert expected_chunk == chunk[12:]
-
-
-def rebuild_gelf_bytes_from_udp_chunks(chunks):
-    return b"".join([chunk[-2:] for chunk in chunks])
-
-
-def test_chunk_overflow_uncompressed():
-    message = BaseGELFHandler(compress=False).makePickle(logging.LogRecord("test_chunk_overflow_uncompressed", logging.INFO, None, None, "1"*1000, None, None))
-    with pytest.warns(GELFChunkOverflowWarning):
-        chunks = list(GELFTruncatingChunker(2).chunk_message(message))
-    assert len(chunks) <= 128
-    payload = rebuild_gelf_bytes_from_udp_chunks(chunks).decode("UTF-8")
-    glef_json = json.loads(payload)
-    assert glef_json["_chunk_overflow"] is True
-    assert glef_json["short_message"] != "1"*1000
-    assert glef_json["level"] == SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR)
-
-
-def test_chunk_overflow_compressed():
-    message = BaseGELFHandler(compress=True).makePickle(logging.LogRecord("test_chunk_overflow_uncompressed", logging.INFO, None, None, "123412345"*5000, None, None))
-    with pytest.warns(GELFChunkOverflowWarning):
-        chunks = list(GELFTruncatingChunker(2).chunk_message(message))
-    assert len(chunks) <= 128
-    payload = zlib.decompress(rebuild_gelf_bytes_from_udp_chunks(chunks)).decode("UTF-8")
-    glef_json = json.loads(payload)
-    assert glef_json["_chunk_overflow"] is True
-    assert glef_json["short_message"] != "123412345"*5000
-    assert glef_json["level"] == SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR)
-
-
-def test_chunk_overflow_fail():
-    message = BaseGELFHandler().makePickle(logging.LogRecord("test_chunk_overflow_fail", logging.INFO, None, None, "1"*128, None, None))
-    with pytest.warns(GELFChunkOverflowWarning):
-        list(GELFWarningChunker(1).chunk_message(message))
