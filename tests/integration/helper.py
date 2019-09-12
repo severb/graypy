@@ -58,6 +58,6 @@ def _parse_api_response(api_response, wanted_message):
     assert api_response.status_code == 200
     print(api_response.json())
     for message in api_response.json()["messages"]:
-        if message["message"] == wanted_message:
-            return message
+        if message["message"]["message"] == wanted_message:
+            return message["message"]
     raise ValueError("wanted_message: '{}' not within api_response: {}".format(wanted_message, api_response))
