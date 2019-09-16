@@ -432,7 +432,8 @@ class GELFTruncatingChunker(BaseGELFChunker):
         self.gelf_packer = gelf_packer
         self.compress = compress
 
-    def _init_truncated_glef_dict(self, glef_dict):
+    @staticmethod
+    def _init_truncated_glef_dict(glef_dict):
         return {
             'version': glef_dict['version'],
             'host': glef_dict['host'],
