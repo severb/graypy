@@ -432,14 +432,14 @@ class GELFTruncatingChunker(BaseGELFChunker):
         self.gelf_packer = gelf_packer
         self.compress = compress
 
-    def _init_truncated_glef_dict(self, gelf_message):
+    def _init_truncated_glef_dict(self, glef_dict):
         return {
-            'version': gelf_message['version'],
-            'host': gelf_message['host'],
+            'version': glef_dict['version'],
+            'host': glef_dict['host'],
             'short_message': "",
-            'timestamp': gelf_message['timestamp'],
+            'timestamp': glef_dict['timestamp'],
             'level': SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR),
-            'facility': gelf_message['facility'],
+            'facility': glef_dict['facility'],
             '_chunk_overflow': True,
         }
 
