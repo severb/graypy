@@ -95,7 +95,7 @@ def test_chunk_overflow_truncate_uncompressed():
     payload = rebuild_gelf_bytes_from_udp_chunks(chunks).decode("UTF-8")
     glef_json = json.loads(payload)
     assert glef_json["_chunk_overflow"] is True
-    assert glef_json["short_message"] != "1"*1000
+    assert glef_json["short_message"] in "1"*1000
     assert glef_json["level"] == SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR)
 
 
@@ -109,7 +109,7 @@ def test_chunk_overflow_truncate_compressed():
     payload = zlib.decompress(rebuild_gelf_bytes_from_udp_chunks(chunks)).decode("UTF-8")
     glef_json = json.loads(payload)
     assert glef_json["_chunk_overflow"] is True
-    assert glef_json["short_message"] != "123412345"*5000
+    assert glef_json["short_message"] in "123412345"*5000
     assert glef_json["level"] == SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR)
 
 
