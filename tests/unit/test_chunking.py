@@ -89,34 +89,34 @@ def test_gelf_chunkers_overflow(gelf_chunker):
 def test_chunk_overflow_truncate_uncompressed():
     message = BaseGELFHandler(compress=False).makePickle(
         logging.LogRecord("test_chunk_overflow_truncate_uncompressed",
-                          logging.INFO, None, None, "1"*1000, None, None))
+                          logging.INFO, None, None, "1" * 1000, None, None))
     with pytest.warns(GELFChunkOverflowWarning):
         chunks = list(GELFTruncatingChunker(chunk_size=2, compress=False).chunk_message(message))
     assert len(chunks) <= 128
     payload = rebuild_gelf_bytes_from_udp_chunks(chunks).decode("UTF-8")
     glef_json = json.loads(payload)
     assert glef_json["_chunk_overflow"] is True
-    assert glef_json["short_message"] in "1"*1000
+    assert glef_json["short_message"] in "1" * 1000
     assert glef_json["level"] == SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR)
 
 
 def test_chunk_overflow_truncate_compressed():
     message = BaseGELFHandler(compress=True).makePickle(
         logging.LogRecord("test_chunk_overflow_truncate_compressed",
-                          logging.INFO, None, None, "123412345"*5000, None, None))
+                          logging.INFO, None, None, "123412345" * 5000, None, None))
     with pytest.warns(GELFChunkOverflowWarning):
         chunks = list(GELFTruncatingChunker(chunk_size=2, compress=True).chunk_message(message))
     assert len(chunks) <= 128
     payload = zlib.decompress(rebuild_gelf_bytes_from_udp_chunks(chunks)).decode("UTF-8")
     glef_json = json.loads(payload)
     assert glef_json["_chunk_overflow"] is True
-    assert glef_json["short_message"] in "123412345"*5000
+    assert glef_json["short_message"] in "123412345" * 5000
     assert glef_json["level"] == SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR)
 
 
 def test_chunk_overflow_truncate_fail():
     message = BaseGELFHandler().makePickle(
         logging.LogRecord("test_chunk_overflow_truncate_fail", logging.INFO,
-                          None, None, "1"*128, None, None))
+                          None, None, "1" * 1000, None, None))
     with pytest.warns(GELFTruncationFailureWarning):
         list(GELFTruncatingChunker(1).chunk_message(message))
