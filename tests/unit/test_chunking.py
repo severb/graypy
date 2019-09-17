@@ -82,7 +82,7 @@ def test_gelf_chunkers_overflow(gelf_chunker):
     message = BaseGELFHandler().makePickle(
         logging.LogRecord("test_gelf_chunkers_overflow", logging.INFO,
                           None, None, "1" * 1000, None, None))
-    chunks = list(gelf_chunker(chunk_size=2).chunk_message(message))
+    chunks = list(gelf_chunker(chunk_size=1).chunk_message(message))
     assert len(chunks) <= 128
 
 
@@ -118,6 +118,5 @@ def test_chunk_overflow_truncate_fail():
     message = BaseGELFHandler().makePickle(
         logging.LogRecord("test_chunk_overflow_truncate_fail", logging.INFO,
                           None, None, "1"*128, None, None))
-    with pytest.warns(GELFTruncationFailureWarning,
-                      match="Failed truncating GELF chunk overflowing message: .*"):
+    with pytest.warns(GELFTruncationFailureWarning):
         list(GELFTruncatingChunker(1).chunk_message(message))
