@@ -118,5 +118,5 @@ def test_chunk_overflow_truncate_fail():
         logging.LogRecord("test_chunk_overflow_truncate_fail", logging.INFO,
                           None, None, "1"*128, None, None))
     with pytest.warns(GELFChunkOverflowWarning,
-                      match="Failed to truncate GELF chunk overflowing message: .*$"):
+                      match="Failed to truncate GELF chunk overflowing message: .*"):
         list(GELFTruncatingChunker(1).chunk_message(message))
