@@ -120,3 +120,10 @@ def test_chunk_overflow_truncate_fail():
                           None, None, "1" * 1000, None, None))
     with pytest.warns(GELFTruncationFailureWarning):
         list(GELFTruncatingChunker(1).chunk_message(message))
+
+
+def test_chunk_overflow_truncate_fail_large_inherited_field():
+    message = BaseGELFHandler(facility="this is a really long facility" * 5000)\
+        .makePickle(logging.LogRecord("test_chunk_overflow_truncate_fail", logging.INFO, None, None, "reasonable message", None, None))
+    with pytest.warns(GELFTruncationFailureWarning):
+        list(GELFTruncatingChunker(2).chunk_message(message))
