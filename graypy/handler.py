@@ -414,6 +414,10 @@ class GELFWarningChunker(BaseGELFChunker):
             yield chunk
 
 
+class GELFTruncationFailureWarning(Warning):
+    """Warning that the truncation of a chunked GELF UDP message failed"""
+
+
 class GELFTruncatingChunker(BaseGELFChunker):
     """GELF UDP message chunker that truncates overflowing messages"""
 
@@ -481,7 +485,7 @@ class GELFTruncatingChunker(BaseGELFChunker):
             try:
                 message = self.gen_chunk_overflow_gelf_log(message)
             except (zlib.error, ValueError):
-                warnings.warn("Failed truncating GELF chunk overflowing message: {}".format(traceback.format_exc()), GELFChunkOverflowWarning)
+                warnings.warn("Failed truncating GELF chunk overflowing message: {}".format(traceback.format_exc()), GELFTruncationFailureWarning)
                 return
         for chunk in self._gen_gelf_chunks(message):
             yield chunk

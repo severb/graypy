@@ -11,7 +11,8 @@ import zlib
 import pytest
 
 from graypy.handler import GELFTruncatingChunker, GELFWarningChunker, \
-    BaseGELFChunker, BaseGELFHandler, SYSLOG_LEVELS, GELFChunkOverflowWarning
+    BaseGELFChunker, BaseGELFHandler, SYSLOG_LEVELS, GELFChunkOverflowWarning, \
+    GELFTruncationFailureWarning
 
 
 @pytest.mark.parametrize(
@@ -117,6 +118,6 @@ def test_chunk_overflow_truncate_fail():
     message = BaseGELFHandler().makePickle(
         logging.LogRecord("test_chunk_overflow_truncate_fail", logging.INFO,
                           None, None, "1"*128, None, None))
-    with pytest.warns(GELFChunkOverflowWarning,
+    with pytest.warns(GELFTruncationFailureWarning,
                       match="Failed truncating GELF chunk overflowing message: .*"):
         list(GELFTruncatingChunker(1).chunk_message(message))
