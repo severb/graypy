@@ -347,14 +347,14 @@ class BaseGELFHandler(logging.Handler, ABC):
 
 
 class GELFChunkOverflowWarning(Warning):
-    """Warning that a chunked GELF UDP message consist more than 128 chunks"""
+    """Warning that a chunked GELF UDP message requires more than 128 chunks"""
 
 
 class BaseGELFChunker(object):
     """Base UDP GELF message chunker
 
     .. warning::
-        This will silently drop GELF messages that consist more
+        This will silently drop GELF messages that require more
         than 128 chunks.
     """
 
@@ -408,14 +408,15 @@ class GELFWarningChunker(BaseGELFChunker):
 
     def chunk_message(self, message):
         if self.get_message_chunk_number(message) > GELF_MAX_CHUNK_NUMBER:
-            warnings.warn("GELF chunk overflowing message: {}".format(message), GELFChunkOverflowWarning)
+            warnings.warn("chunk overflowing GELF message: {}".format(message), GELFChunkOverflowWarning)
             return
         for chunk in self._gen_gelf_chunks(message):
             yield chunk
 
 
-class GELFTruncationFailureWarning(Warning):
-    """Warning that the truncation of a chunked GELF UDP message failed"""
+class GELFTruncationFailureWarning(GELFChunkOverflowWarning):
+    """Warning that the truncation of a chunked GELF UDP message failed
+    to prevent chunk overflowing"""
 
 
 class GELFTruncatingChunker(BaseGELFChunker):
@@ -477,15 +478,15 @@ class GELFTruncatingChunker(BaseGELFChunker):
             else:
                 truncated_short_message = truncated_short_message[:-self.chunk_size]
         else:
-            raise ValueError("Failed to prevent chunk overflowing with truncation for message: {}".format(raw_message))
+            raise GELFTruncationFailureWarning("truncation failed preventing chunk overflowing for GELF message: {}".format(raw_message))
 
     def chunk_message(self, message):
         if self.get_message_chunk_number(message) > GELF_MAX_CHUNK_NUMBER:
-            warnings.warn("Truncating GELF chunk overflowing message: {}".format(message), GELFChunkOverflowWarning)
+            warnings.warn("truncating GELF chunk overflowing message: {}".format(message), GELFChunkOverflowWarning)
             try:
                 message = self.gen_chunk_overflow_gelf_log(message)
-            except (zlib.error, ValueError):
-                warnings.warn("Failed truncating GELF chunk overflowing message: {}".format(traceback.format_exc()), GELFTruncationFailureWarning)
+            except GELFTruncationFailureWarning as w:
+                warnings.warn(w)
                 return
         for chunk in self._gen_gelf_chunks(message):
             yield chunk
