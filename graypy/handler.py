@@ -432,35 +432,6 @@ class GELFTruncatingChunker(BaseGELFChunker):
         self.gelf_packer = gelf_packer
         self.compress = compress
 
-    @staticmethod
-    def _init_truncated_glef_dict(glef_dict):
-        return {
-            'version': glef_dict['version'],
-            'host': glef_dict['host'],
-            'short_message': "",
-            'timestamp': glef_dict['timestamp'],
-            'level': SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR),
-            'facility': glef_dict['facility'],
-            '_chunk_overflow': True,
-        }
-
-    def get_initial_truncate_offset(self, gelf_message):
-        """Compute the amount of chunks the simplified GELF message
-        without a ``short_message`` field will use
-
-        :param gelf_message: GELF dictionary representation of the original
-            overflowing GELF message.
-        :type gelf_message: dict
-
-        :return: Amount of chunks the simplified GELF message without the
-            original ``short_message`` field will use.
-        :rtype: int
-        """
-        packed_message_pre = self.gelf_packer(self._init_truncated_glef_dict(gelf_message))
-        if self.compress:
-            packed_message_pre = zlib.compress(packed_message_pre)
-        return self.get_message_chunk_number(packed_message_pre)
-
     def gen_chunk_overflow_gelf_log(self, raw_message):
         """Attempt to truncate a chunk overflowing GELF message
 
@@ -475,13 +446,26 @@ class GELFTruncatingChunker(BaseGELFChunker):
         else:
             message = raw_message
 
-        gelf_message = json.loads(message.decode("UTF-8"))
-        gelf_chunks_free = GELF_MAX_CHUNK_NUMBER - self.get_initial_truncate_offset(gelf_message)
-        truncated_short_message = gelf_message['short_message'][:self.chunk_size * gelf_chunks_free]
-        truncated_gelf_dict = self._init_truncated_glef_dict(gelf_message)
+        gelf_dict = json.loads(message.decode("UTF-8"))
+        # Simplified GELF message dictionary to base the truncated
+        # GELF message from
+        simplified_gelf_dict = {
+            'version': gelf_dict['version'],
+            'host': gelf_dict['host'],
+            'short_message': "",
+            'timestamp': gelf_dict['timestamp'],
+            'level': SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR),
+            'facility': gelf_dict['facility'],
+            '_chunk_overflow': True,
+        }
+
+        # compute a estimate of the number of message chunks left this is
+        # used to estimate the amount of truncation to apply
+        gelf_chunks_free = GELF_MAX_CHUNK_NUMBER - self.get_message_chunk_number(zlib.compress(self.gelf_packer(simplified_gelf_dict)) if self.compress else self.gelf_packer(simplified_gelf_dict))
+        truncated_short_message = gelf_dict['short_message'][:self.chunk_size * gelf_chunks_free]
         for clip in range(gelf_chunks_free, 0, -1):
-            truncated_gelf_dict['short_message'] = truncated_short_message
-            packed_message = self.gelf_packer(truncated_gelf_dict)
+            simplified_gelf_dict['short_message'] = truncated_short_message
+            packed_message = self.gelf_packer(simplified_gelf_dict)
             if self.compress:
                 packed_message = zlib.compress(packed_message)
             if self.get_message_chunk_number(packed_message) <= GELF_MAX_CHUNK_NUMBER:
