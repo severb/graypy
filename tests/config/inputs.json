@@ -48,8 +48,8 @@
                 "throttling_allowed": true,
                 "tls": false,
                 "requeue_invalid_messages": false,
-                "broker_username": "guest",
-                "broker_password": "guest"
+                "broker_username": "rabbitmq",
+                "broker_password": "rabbitmq"
             },
             "type": "org.graylog2.inputs.gelf.amqp.GELFAMQPInput",
             "global": true

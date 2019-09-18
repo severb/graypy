@@ -17,8 +17,8 @@ docker-compose -f docker-compose.yml up -d
 # wait for the graylog server docker container to start
 sleep 40
 
-docker-compose exec rabbitmq rabbitmqctl add_user guest guest
-docker-compose exec rabbitmq rabbitmqctl set_permissions -p / guest ".*" ".*" ".*"
+docker-compose exec rabbitmq rabbitmqctl add_user rabbitmq rabbitmq
+docker-compose exec rabbitmq rabbitmqctl set_permissions -p / rabbitmq ".*" ".*" ".*"
 docker-compose exec rabbitmq rabbitmqadmin declare exchange name=logging.gelf type=direct durable=true auto-delete=false internal=false
 docker-compose exec rabbitmq rrabbitmqctl stop_app
 docker-compose exec rabbitmq rrabbitmqctl start_app

@@ -29,6 +29,16 @@ services:
       - "12202:12202/udp"
       - "12203:12203"
       - "12204:12204/tcp"
-      - "5672:5672"
   rabbitmq:
-    image: "rabbitmq:3.6.10-management"
+    image: rabbitmq:management
+    restart: always
+    hostname: rabbitmq
+    ports:
+      - 15672:15672
+      - 5672:5672
+    environment:
+      RABBITMQ_NODENAME: rabbitmq@rabbitmq
+      RABBITMQ_DEFAULT_USER: rabbitmq
+      RABBITMQ_DEFAULT_PASS: rabbitmq
+    volumes:
+      - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
