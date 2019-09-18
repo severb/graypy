@@ -29,3 +29,6 @@ services:
       - "12202:12202/udp"
       - "12203:12203"
       - "12204:12204/tcp"
+      - "5672:5672"
+  rabbitmq:
+    image: "rabbitmq:3.6.10-management"

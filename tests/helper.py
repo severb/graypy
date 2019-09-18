@@ -11,7 +11,7 @@ import pytest
 
 from graypy import GELFUDPHandler, GELFTCPHandler, GELFTLSHandler, \
     GELFHTTPHandler
-
+from graypy.rabbitmq import GELFRabbitHandler
 TEST_CERT = "tests/config/localhost.cert.pem"
 KEY_PASS = "secret"
 
@@ -36,7 +36,7 @@ TEST_TLS_PORT = 12204
     GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True),
     GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True, compress=False),
     GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True, debugging_fields=True),
-    GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True, debugging_fields=True, compress=False),
+    GELFRabbitHandler("amqp://guest:guest@localhost:5672/")
 ])
 def handler(request):
     return request.param
