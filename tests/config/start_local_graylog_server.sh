@@ -19,7 +19,7 @@ sleep 40
 
 docker-compose exec rabbitmq rabbitmqctl add_user rabbitmq rabbitmq
 docker-compose exec rabbitmq rabbitmqctl set_permissions -p / rabbitmq ".*" ".*" ".*"
-docker-compose exec rabbitmq rabbitmqadmin declare exchange name=logging.gelf type=direct
+docker-compose exec rabbitmq rabbitmqadmin declare exchange name=logging.gelf type=direct -username rabbitmq -password rabbitmq
 docker-compose exec rabbitmq rabbitmqctl stop_app
 docker-compose exec rabbitmq rabbitmqctl start_app
 
