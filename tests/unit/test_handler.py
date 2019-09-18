@@ -39,7 +39,7 @@ class TestClass(object):
 def mock_send(handler):
     # TODO: garbage solution makes ton of skips
     if isinstance(handler, GELFRabbitHandler):
-        pytest.skip("formatting not mocked for GELFRabbitHandler")
+        pytest.skip("send not mocked for GELFRabbitHandler")
     try:
         with mock.patch.object(handler, "send") as mock_send:
             yield mock_send

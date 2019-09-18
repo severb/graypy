@@ -36,7 +36,7 @@ TEST_TLS_PORT = 12204
     GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True),
     GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True, compress=False),
     GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True, debugging_fields=True),
-    GELFRabbitHandler("amqp://rabbitmq:rabbitmq@localhost:5672/", type="direct")
+    GELFRabbitHandler("amqp://rabbitmq:rabbitmq@localhost:5672/", exchange_type="direct")
 ])
 def handler(request):
     return request.param
