@@ -468,7 +468,7 @@ class GELFTruncatingChunker(BaseGELFChunker):
         # used to estimate the amount of truncation to apply
         gelf_chunks_free = GELF_MAX_CHUNK_NUMBER - self.get_message_chunk_number(zlib.compress(self.gelf_packer(simplified_gelf_dict)) if self.compress else self.gelf_packer(simplified_gelf_dict))
         truncated_short_message = gelf_dict['short_message'][:self.chunk_size * gelf_chunks_free]
-        for clip in range(gelf_chunks_free, 0, -1):
+        for clip in range(gelf_chunks_free, -1, -1):
             simplified_gelf_dict['short_message'] = truncated_short_message
             packed_message = self.gelf_packer(simplified_gelf_dict)
             if self.compress:
