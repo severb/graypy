@@ -2,7 +2,6 @@ version: '2'
 services:
   rabbitmq:
     image: rabbitmq:management
-    hostname: rabbitmq
     ports:
       - "15672:15672"
       - "5672:5672"
@@ -28,7 +27,6 @@ services:
     links:
       - mongo
       - elasticsearch
-      - rabbitmq
     depends_on:
       - mongo
       - elasticsearch
