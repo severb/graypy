@@ -14,14 +14,14 @@ bash create_ssl_certs.sh -h localhost -i 127.0.0.1
 docker-compose -f docker-compose.yml down
 docker-compose -f docker-compose.yml up -d
 
+# wait for the graylog server docker container to start
+sleep 40
+
 docker-compose exec rabbitmq rabbitmqadmin -u guest -p guest declare exchange name=logging.gelf type=fanout
 docker-compose exec rabbitmq rabbitmqadmin -u guest -p guest declare queue name=logs.gelf
 docker-compose exec rabbitmq rabbitmqadmin -u guest -p guest declare binding source=logging.gelf destination=logs.gelf
 docker-compose exec rabbitmq rabbitmqctl stop_app
 docker-compose exec rabbitmq rabbitmqctl start_app
-
-# wait for the graylog server docker container to start
-sleep 40
 
 # wait for the graylog server docker container to start
 
