@@ -17,8 +17,14 @@ docker-compose -f docker-compose.yml up -d
 # wait for the graylog server docker container to start
 sleep 40
 
+docker-compose exec rabbitmq rabbitmqctl stop_app
+docker-compose exec rabbitmq rabbitmqctl start_app
+# wait for the graylog server docker container to start
+sleep 40
+
 # test that the graylog server docker container is started
 curl -u admin:admin 'http://127.0.0.1:9000/api/search/universal/relative?query=test&range=5&fields=message' || true
 
 # test that rabbitmq docker container is started
  curl --user rabbitmq:rabbitmq 'http://127.0.0.1:15672/api/vhosts'
+ curl --user rabbitmq:rabbitmq 'http://localhost:15672/api/vhosts'

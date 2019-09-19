@@ -53,7 +53,7 @@
                 "broker_password": "rabbitmq",
                 "broker_port": 5672,
                 "broker_vhost": "vhostGraypy",
-                "broker_hostname": "rabbitmq"
+                "broker_hostname": "localhost"
             },
             "type": "org.graylog2.inputs.gelf.amqp.GELFAMQPInput",
             "global": true
