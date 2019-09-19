@@ -42,3 +42,4 @@ services:
       RABBITMQ_DEFAULT_PASS: rabbitmq
     volumes:
       - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
+      - ./rabbitmq_definitions.json:/etc/rabbitmq/rabbitmq_definitions.json

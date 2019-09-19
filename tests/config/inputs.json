@@ -47,9 +47,13 @@
                 "exchange": "logging.gelf",
                 "throttling_allowed": true,
                 "tls": false,
-                "requeue_invalid_messages": false,
+                "routing_key": "GraypyTestMessage",
+                "requeue_invalid_messages": true,
                 "broker_username": "rabbitmq",
-                "broker_password": "rabbitmq"
+                "broker_password": "rabbitmq",
+                "broker_port": 5672,
+                "broker_vhost": "vhostGraypy",
+                "broker_hostname": "rabbitmq"
             },
             "type": "org.graylog2.inputs.gelf.amqp.GELFAMQPInput",
             "global": true
