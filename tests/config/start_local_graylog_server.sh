@@ -27,5 +27,3 @@ curl -u admin:admin 'http://127.0.0.1:9000/api/search/universal/relative?query=t
 
 # test that rabbitmq docker container is started
  curl --user rabbitmq:rabbitmq 'http://127.0.0.1:15672/api/vhosts'
- curl --user rabbitmq:rabbitmq 'http://localhost:15672/api/vhosts'
- curl --user rabbitmq:rabbitmq 'http://rabbitmq:15672/api/vhosts'
