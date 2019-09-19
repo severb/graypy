@@ -1,5 +1,13 @@
 version: '2'
 services:
+  rabbitmq:
+    image: rabbitmq:management
+    hostname: rabbitmq
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
   mongo:
     image: "mongo:3"
   elasticsearch:
@@ -20,6 +28,7 @@ services:
     links:
       - mongo
       - elasticsearch
+      - rabbitmq
     depends_on:
       - mongo
       - elasticsearch
@@ -29,11 +38,3 @@ services:
       - "12202:12202/udp"
       - "12203:12203"
       - "12204:12204/tcp"
-  rabbitmq:
-    image: rabbitmq:management
-    hostname: rabbitmq
-    ports:
-      - "15672:15672"
-      - "5672:5672"
-    volumes:
-      - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
