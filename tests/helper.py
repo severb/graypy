@@ -35,6 +35,12 @@ TEST_TLS_PORT = 12204
         exchange="logging.gelf",
         exchange_type="fanout",
         routing_key="GraypyTestMessage"
+    ),GELFRabbitHandler(
+        "amqp://rabbitmq:rabbitmq@127.0.0.1:5672/",
+        virtual_host="vhostGraypy",
+        exchange="logging.gelf",
+        exchange_type="fanout",
+        routing_key="GraypyTestMessage"
     ),
     GELFTCPHandler("127.0.0.1", TEST_TCP_PORT),
     GELFTCPHandler("127.0.0.1", TEST_TCP_PORT, extra_fields=True),

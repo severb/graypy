@@ -32,7 +32,6 @@ services:
   rabbitmq:
     image: rabbitmq:management
     restart: always
-    hostname: rabbitmq
     ports:
       - 15672:15672
       - 5672:5672
