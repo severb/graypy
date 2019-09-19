@@ -31,14 +31,11 @@ services:
       - "12204:12204/tcp"
   rabbitmq:
     image: rabbitmq:management
-    restart: always
     hostname: rabbitmq
+    labels:
+      NAME: "rabbitmq"
     ports:
-      - 15672:15672
-      - 5672:5672
-    environment:
-      RABBITMQ_DEFAULT_USER: rabbitmq
-      RABBITMQ_DEFAULT_PASS: rabbitmq
+      - "15672:15672"
+      - "5672:5672"
     volumes:
       - ./enabled_plugins:/etc/rabbitmq/enabled_plugins
-      - ./rabbitmq_definitions.json:/etc/rabbitmq/rabbitmq_definitions.json

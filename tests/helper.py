@@ -23,24 +23,16 @@ TEST_TLS_PORT = 12204
 
 @pytest.fixture(params=[
     GELFRabbitHandler(
-        "amqp://rabbitmq:rabbitmq@rabbitmq:5672/",
-        virtual_host="vhostGraypy",
-        exchange="logging.gelf",
+        "amqp://guest:guest@rabbitmq:5672/",
         exchange_type="fanout",
-        routing_key="GraypyTestMessage"
     ),
     GELFRabbitHandler(
-        "amqp://rabbitmq:rabbitmq@localhost:5672/",
-        virtual_host="vhostGraypy",
-        exchange="logging.gelf",
+        "amqp://guest:guest@localhost:5672/",
         exchange_type="fanout",
-        routing_key="GraypyTestMessage"
     ),GELFRabbitHandler(
-        "amqp://rabbitmq:rabbitmq@127.0.0.1:5672/",
-        virtual_host="vhostGraypy",
+        "amqp://guest:guest@127.0.0.1:5672/",
         exchange="logging.gelf",
         exchange_type="fanout",
-        routing_key="GraypyTestMessage"
     ),
     GELFTCPHandler("127.0.0.1", TEST_TCP_PORT),
     GELFTCPHandler("127.0.0.1", TEST_TCP_PORT, extra_fields=True),

@@ -43,35 +43,35 @@
         {
             "title": "AMQP",
             "configuration": {
+                "queue": "logs.gelf",
                 "exchange_bind": true,
                 "exchange": "logging.gelf",
                 "throttling_allowed": true,
                 "tls": false,
-                "routing_key": "GraypyTestMessage",
                 "requeue_invalid_messages": true,
-                "broker_username": "rabbitmq",
-                "broker_password": "rabbitmq",
+                "broker_username": "guest",
+                "broker_password": "guest",
                 "broker_port": 5672,
-                "broker_vhost": "vhostGraypy",
+                "broker_vhost": "/",
                 "broker_hostname": "localhost"
             },
             "type": "org.graylog2.inputs.gelf.amqp.GELFAMQPInput",
             "global": true
         },
         {
-              "title": "AMQP",
+              "title": "AMQP2",
               "configuration": {
+                  "queue": "logs.gelf",
                   "exchange_bind": true,
                   "exchange": "logging.gelf",
                   "throttling_allowed": true,
                   "tls": false,
-                  "routing_key": "GraypyTestMessage",
                   "requeue_invalid_messages": true,
-                  "broker_username": "rabbitmq",
-                  "broker_password": "rabbitmq",
+                  "broker_username": "guest",
+                  "broker_password": "guest",
                   "broker_port": 5672,
-                  "broker_vhost": "vhostGraypy",
-                  "broker_hostname": "rabbitmq"
+                  "broker_vhost": "/",
+                  "broker_hostname": "guest"
               },
               "type": "org.graylog2.inputs.gelf.amqp.GELFAMQPInput",
               "global": true
