@@ -32,11 +32,12 @@ services:
   rabbitmq:
     image: rabbitmq:management
     restart: always
+    hostname: rabbitmq
     ports:
       - 15672:15672
       - 5672:5672
     environment:
-      RABBITMQ_NODENAME: rabbitmq@127.0.0.1
+      RABBITMQ_NODENAME: rabbitmq@rabbitmq
       RABBITMQ_DEFAULT_USER: rabbitmq
       RABBITMQ_DEFAULT_PASS: rabbitmq
     volumes:
