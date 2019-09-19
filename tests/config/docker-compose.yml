@@ -31,9 +31,6 @@ services:
       - "12204:12204/tcp"
   rabbitmq:
     image: rabbitmq:management
-    hostname: rabbitmq
-    labels:
-      NAME: "rabbitmq"
     ports:
       - "15672:15672"
       - "5672:5672"
