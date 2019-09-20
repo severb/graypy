@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""pytests for the formatting and construction of Graylog GLEF logs by graypy
+"""pytests for the formatting and construction of GELF logs by the graypy
+logging handlers
 
 .. note::
 
@@ -173,7 +174,7 @@ def test_resolve_host():
     """Test all posible resolutions of :meth:`BaseGELFHandler._resolve_host`"""
     assert socket.gethostname() == BaseGELFHandler._resolve_host(False, None)
     assert socket.getfqdn() == BaseGELFHandler._resolve_host(True, None)
-    assert socket.gethostname() == BaseGELFHandler._resolve_host(True, "localhost")
+    assert socket.getfqdn() == BaseGELFHandler._resolve_host(True, "localhost")
     assert "localhost" == BaseGELFHandler._resolve_host(False, "localhost")
     assert "" == BaseGELFHandler._resolve_host(False, "")
 
@@ -220,7 +221,7 @@ def test_invalid_client_certs():
         GELFTLSHandler("127.0.0.1", keyfile="/dev/null")
 
 
-def test_glef_chunking():
+def test_gelf_chunking():
     """Testing the GELF chunking ability of
     :class:`graypy.handler.ChunkedGELF`"""
     message = b'12345'

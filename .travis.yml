@@ -4,8 +4,7 @@ stages:
   - lint
   - test
   - build
-# TODO: needs additional setup
-#  - deploy
+  - deploy
 
 before_install:
   - pip install codecov
@@ -14,19 +13,13 @@ install:
   - pip install .
 
 before_script:
-  - cd tests/config
-  - bash create_ssl_certs.sh -h localhost -i 127.0.0.1
-  - cd ../..
-  - docker-compose -f tests/config/docker-compose.yml down
-  - docker-compose -f tests/config/docker-compose.yml up -d
-  - sleep 40
-  - "curl -u admin:admin 'http://127.0.0.1:9000/api/search/universal/relative?query=test&range=5&fields=message' || true"
+  - bash tests/config/start_local_graylog_server.sh
 
 script:
   - python setup.py test
 
 after_script:
-  - docker-compose -f tests/config/docker-compose.yml down
+  - bash tests/config/stop_local_graylog_server.sh
 
 after_success:
   - codecov
@@ -42,12 +35,23 @@ jobs:
     - python: "pypy2.7-5.10.0"
     - python: "pypy3.5-5.10.0"
     - stage: lint
+      name: "pylint"
       python:
         - 3.6
       before_script: skip
-      after_script: skip
       script:
         - python setup.py lint || exit $(($? & 35))
+      after_script: skip
+    - name: "twine check"
+      python:
+        - 3.6
+      before_install:
+        - pip install docutils twine
+      before_script:
+        - python setup.py sdist
+      script:
+        - twine check dist/*
+      after_script: skip
     - stage: build
       name: "sdist"
       python:
@@ -65,17 +69,25 @@ jobs:
       script:
         - python setup.py bdist_wheel
       after_script: skip
-# TODO: fill in for automatic pypi releases
-#    - stage: deploy
-#      deploy:
-#        python:
-#          - 3.6
-#        provider: pypi
-#        user: # TODO: FILL IN
-#        password:
-#          secure: # TODO: fill in
-#        on:
-#          tags: true
-#          branch: master
-#          repo: severb/graypy
-#        distributions: "sdist bdist_wheel"
+    - name: "sphinx docs"
+      python:
+        - 3.6
+      install:
+        - pip install .[docs,amqp]
+      before_script: skip
+      script:
+        - sphinx-build docs/ build/
+      after_script: skip
+    - stage: deploy
+      deploy:
+        python:
+          - 3.6
+        provider: pypi
+        user: nklapste
+        password:
+          secure: Ryu87EzCW+k/quo2yC05cejU29zo9Xwlv9f2zxwMhCDRwMGt4GCSJ4zR7GXvYT0B5H6S+Y+gCxTmSSA53V1aRvCX0A42i6P9jef2yWR34aYe0+lmYwwW1wNKo/SLD1x5cXw59m5pcVGPvAVY9aQ88DwR9gn6aMr76A6LJet/ykY=
+        on:
+          tags: true
+          branch: master
+          repo: severb/graypy
+        distributions: "sdist bdist_wheel"

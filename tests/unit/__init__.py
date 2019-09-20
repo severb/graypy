@@ -5,6 +5,6 @@
 
 .. note::
 
-    These tests mock sending to Graylog and thus, do not require a localhost
-    instance of Graylog to successfully run.
+    These tests mock sending to Graylog, thus, do not require a local instance
+    of Graylog to successfully run.
 """

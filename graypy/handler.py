@@ -48,36 +48,29 @@ SYSLOG_LEVELS = {
 
 
 class BaseGELFHandler(logging.Handler, ABC):
-    """Abstract class noting the basic components of a GLEFHandler"""
+    """Abstract class defining the basic functionality of converting a
+    :obj:`logging.LogRecord` into a GELF log. Provides the boilerplate for
+    all GELF handlers defined within graypy."""
 
-    def __init__(self, chunk_size=WAN_CHUNK, debugging_fields=True,
-                 extra_fields=True, fqdn=False, localname=None, facility=None,
+    def __init__(self, debugging_fields=True, extra_fields=True,
+                 fqdn=False, localname=None, facility=None,
                  level_names=False, compress=True):
         """Initialize the BaseGELFHandler.
 
-        :param chunk_size: Message chunk size. Messages larger than this
-            size will be sent to Graylog in multiple chunks. Defaults to
-            ``WAN_CHUNK=1420``.
-        :type chunk_size: int
-
         :param debugging_fields: If :obj:`True` add debug fields from the
-            log record into the GELF logs to be sent to Graylog
-            (:obj:`True` by default).
+            log record into the GELF logs to be sent to Graylog.
         :type debugging_fields: bool
 
         :param extra_fields: If :obj:`True` add extra fields from the log
-            record into the GELF logs to be sent to Graylog
-            (:obj:`True` by default).
+            record into the GELF logs to be sent to Graylog.
         :type extra_fields: bool
 
         :param fqdn: If :obj:`True` use the fully qualified domain name of
-            localhost to populate the ``host`` GELF field
-            (:obj:`False` by default).
+            localhost to populate the ``host`` GELF field.
         :type fqdn: bool
 
-        :param localname: If ``fqdn`` is :obj:`False` and ``localname`` is
-            specified, used the specified hostname to populate the
-            ``host`` GELF field.
+        :param localname: If specified and ``fqdn`` is :obj:`False`, use the
+            specified hostname to populate the ``host`` GELF field.
         :type localname: str or None
 
         :param facility: If specified, replace the ``_facility`` GELF field
@@ -90,13 +83,12 @@ class BaseGELFHandler(logging.Handler, ABC):
         :type level_names: bool
 
         :param compress: If :obj:`True` compress the GELF message before
-            sending it to the server (:obj:`True` by default).
+            sending it to the Graylog server.
         :type compress: bool
         """
         logging.Handler.__init__(self)
         self.debugging_fields = debugging_fields
         self.extra_fields = extra_fields
-        self.chunk_size = chunk_size
 
         if fqdn and localname:
             raise ValueError(
@@ -109,14 +101,13 @@ class BaseGELFHandler(logging.Handler, ABC):
         self.compress = compress
 
     def makePickle(self, record):
-        """Convert a :class:`logging.LogRecord` into a bytes object
-        representing a GELF log
+        """Convert a :class:`logging.LogRecord` into bytes representing
+        a GELF log
 
-        :param record: :class:`logging.LogRecord` to convert into a
-            Graylog GELF log.
+        :param record: :class:`logging.LogRecord` to convert into a GELF log.
         :type record: logging.LogRecord
 
-        :return: A bytes object representing a GELF log.
+        :return: bytes representing a GELF log.
         :rtype: bytes
         """
         gelf_dict = self._make_gelf_dict(record)
@@ -125,20 +116,19 @@ class BaseGELFHandler(logging.Handler, ABC):
         return pickle
 
     def _make_gelf_dict(self, record):
-        """Create a dictionary representing a Graylog GELF log from a
+        """Create a dictionary representing a GELF log from a
         python :class:`logging.LogRecord`
 
-        :param record: :class:`logging.LogRecord` to create a Graylog GELF
-            log from.
+        :param record: :class:`logging.LogRecord` to create a GELF log from.
         :type record: logging.LogRecord
 
-        :return: dictionary representing a Graylog GELF log.
+        :return: dictionary representing a GELF log.
         :rtype: dict
         """
         # construct the base GELF format
         gelf_dict = {
             'version': "1.1",
-            'host': BaseGELFHandler._resolve_host(self.fqdn, self.localname),
+            'host': self._resolve_host(self.fqdn, self.localname),
             'short_message': self.formatter.format(record) if self.formatter else record.getMessage(),
             'timestamp': record.created,
             'level': SYSLOG_LEVELS.get(record.levelno, record.levelno),
@@ -162,7 +152,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         """Add the ``_level_name`` field to the ``gelf_dict`` noting the logs
         error level as a string name
 
-        :param gelf_dict: dictionary representation of a GELF log.
+        :param gelf_dict: dictionary representing a GELF log.
         :type gelf_dict: dict
 
         :param record: :class:`logging.LogRecord` to extract a logging
@@ -174,9 +164,11 @@ class BaseGELFHandler(logging.Handler, ABC):
     @staticmethod
     def _set_custom_facility(gelf_dict, facility_value, record):
         """Set the ``gelf_dict``'s ``_facility`` field to the specified value
-        also add the the extra ``_logger`` field containing the LogRecord.name
 
-        :param gelf_dict: dictionary representation of a GELF log.
+        Also add a additional ``_logger`` field containing the
+        ``LogRecord.name``.
+
+        :param gelf_dict: dictionary representing a GELF log.
         :type gelf_dict: dict
 
         :param facility_value: Value to set as the ``gelf_dict``'s
@@ -195,7 +187,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         """Add the ``full_message`` field to the ``gelf_dict`` if any
         traceback information exists within the logging record
 
-        :param gelf_dict: dictionary representation of a GELF log.
+        :param gelf_dict: dictionary representing a GELF log.
         :type gelf_dict: dict
 
         :param record: :class:`logging.LogRecord` to extract a full
@@ -209,7 +201,7 @@ class BaseGELFHandler(logging.Handler, ABC):
             full_message = '\n'.join(
                 traceback.format_exception(*record.exc_info))
         # use pre-formatted exception information in cases where the primary
-        # exception information was removed, eg. for LogRecord serialization
+        # exception information was removed, e.g. for LogRecord serialization
         if record.exc_text:
             full_message = record.exc_text
         if full_message:
@@ -226,7 +218,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         :param localname: Use specified hostname as the ``host`` GELF field.
         :type localname: str or None
 
-        :return: String value representing the ``host`` GELF field.
+        :return: String representing the ``host`` GELF field.
         :rtype: str
         """
         if fqdn:
@@ -239,7 +231,7 @@ class BaseGELFHandler(logging.Handler, ABC):
     def _add_debugging_fields(gelf_dict, record):
         """Add debugging fields to the given ``gelf_dict``
 
-        :param gelf_dict: dictionary representation of a GELF log.
+        :param gelf_dict: dictionary representing a GELF log.
         :type gelf_dict: dict
 
         :param record: :class:`logging.LogRecord` to extract debugging
@@ -265,7 +257,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         However, this does not add additional fields in to ``message_dict``
         that are either duplicated from standard :class:`logging.LogRecord`
         attributes, duplicated from the python logging module source
-        (e.g. ``exc_text``), or violate GLEF format (i.e. ``id``).
+        (e.g. ``exc_text``), or violate GELF format (i.e. ``id``).
 
         .. seealso::
 
@@ -274,7 +266,7 @@ class BaseGELFHandler(logging.Handler, ABC):
 
                 http://docs.python.org/library/logging.html#logrecord-attributes
 
-        :param gelf_dict: dictionary representation of a GELF log.
+        :param gelf_dict: dictionary representing a GELF log.
         :type gelf_dict: dict
 
         :param record: :class:`logging.LogRecord` to extract extra fields
@@ -308,43 +300,42 @@ class BaseGELFHandler(logging.Handler, ABC):
                 return
         raise ValueError("Invalid GELF additional field name")
 
-    @staticmethod
-    def _pack_gelf_dict(gelf_dict):
-        """Convert a given ``gelf_dict`` to a JSON-encoded string, thus,
+    @classmethod
+    def _pack_gelf_dict(cls, gelf_dict):
+        """Convert a given ``gelf_dict`` into JSON-encoded UTF-8 bytes, thus,
         creating an uncompressed GELF log ready for consumption by Graylog.
 
         Since we cannot be 100% sure of what is contained in the ``gelf_dict``
         we have to do some sanitation.
 
-        :param gelf_dict: dictionary representation of a GELF log.
+        :param gelf_dict: dictionary representing a GELF log.
         :type gelf_dict: dict
 
-        :return: A prepped JSON-encoded GELF log as a bytes string
-            encoded in UTF-8.
+        :return: bytes representing a uncompressed GELF log.
         :rtype: bytes
         """
-        gelf_dict = BaseGELFHandler._sanitize_to_unicode(gelf_dict)
+        gelf_dict = cls._sanitize_to_unicode(gelf_dict)
         packed = json.dumps(
             gelf_dict,
             separators=',:',
-            default=BaseGELFHandler._object_to_json
+            default=cls._object_to_json
         )
         return packed.encode('utf-8')
 
-    @staticmethod
-    def _sanitize_to_unicode(obj):
+    @classmethod
+    def _sanitize_to_unicode(cls, obj):
         """Convert all strings records of the object to unicode
 
         :param obj: object to sanitize to unicode.
         :type obj: object
 
-        :return: Unicode string representation of the given object.
+        :return: Unicode string representing the given object.
         :rtype: str
         """
         if isinstance(obj, dict):
-            return dict((BaseGELFHandler._sanitize_to_unicode(k), BaseGELFHandler._sanitize_to_unicode(v)) for k, v in obj.items())
+            return dict((cls._sanitize_to_unicode(k), cls._sanitize_to_unicode(v)) for k, v in obj.items())
         if isinstance(obj, (list, tuple)):
-            return obj.__class__([BaseGELFHandler._sanitize_to_unicode(i) for i in obj])
+            return obj.__class__([cls._sanitize_to_unicode(i) for i in obj])
         if isinstance(obj, data):
             obj = obj.decode('utf-8', errors='replace')
         return obj
@@ -352,17 +343,15 @@ class BaseGELFHandler(logging.Handler, ABC):
     @staticmethod
     def _object_to_json(obj):
         """Convert objects that cannot be natively serialized into JSON
-        into their string representation
+        into their string representation (for later JSON serialization).
 
-        For datetime based objects convert them into their ISO formatted
-        string as specified by :meth:`datetime.datetime.isoformat`.
+        :class:`datetime.datetime` based objects will be converted into a
+        ISO formatted timestamp string.
 
-        :param obj: object to convert into a JSON via getting its string
-            representation.
+        :param obj: object to convert into a string representation.
         :type obj: object
 
-        :return: String value representing the given object ready to be
-            encoded into a JSON.
+        :return: String representing the given object.
         :rtype: str
         """
         if isinstance(obj, datetime.datetime):
@@ -371,72 +360,86 @@ class BaseGELFHandler(logging.Handler, ABC):
 
 
 class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
-    """Graylog Extended Log Format UDP handler"""
+    """GELF UDP handler"""
 
-    def __init__(self, host, port=12202, **kwargs):
+    def __init__(self, host, port=12202, chunk_size=WAN_CHUNK, **kwargs):
         """Initialize the GELFUDPHandler
 
-        :param host: The host of the Graylog server.
+        :param host: GELF UDP input host.
         :type host: str
 
-        :param port: The port of the Graylog server (default ``12202``).
+        :param port: GELF UDP input port.
         :type port: int
+
+        :param chunk_size: Message chunk size. Messages larger than this
+            size will be sent to Graylog in multiple chunks.
+        :type chunk_size: int
         """
+        self.chunk_size = chunk_size
+
         BaseGELFHandler.__init__(self, **kwargs)
         DatagramHandler.__init__(self, host, port)
 
     def send(self, s):
         if len(s) < self.chunk_size:
-            DatagramHandler.send(self, s)
+            super(GELFUDPHandler, self).send(s)
         else:
             for chunk in ChunkedGELF(s, self.chunk_size):
-                DatagramHandler.send(self, chunk)
+                super(GELFUDPHandler, self).send(chunk)
 
 
 class GELFTCPHandler(BaseGELFHandler, SocketHandler):
-    """Graylog Extended Log Format TCP handler"""
+    """GELF TCP handler"""
 
     def __init__(self, host, port=12201, **kwargs):
         """Initialize the GELFTCPHandler
 
-        :param host: The host of the Graylog server.
+        :param host: GELF TCP input host.
         :type host: str
 
-        :param port: The port of the Graylog server (default ``12201``).
+        :param port: GELF TCP input port.
         :type port: int
+
+        .. attention::
+            GELF TCP does not support compression due to the use of the null
+            byte (``\\0``) as frame delimiter.
+
+            Thus, :class:`.handler.GELFTCPHandler` does not support setting
+            ``compress`` to :obj:`True` and is locked to :obj:`False`.
         """
         BaseGELFHandler.__init__(self, compress=False, **kwargs)
         SocketHandler.__init__(self, host, port)
 
     def makePickle(self, record):
-        """Add a null terminator to a GELFTCPHandler's pickles as a TCP frame
-        object needs to be null terminated
+        """Add a null terminator to generated pickles as TCP frame objects
+        need to be null terminated
 
         :param record: :class:`logging.LogRecord` to create a null
             terminated GELF log.
         :type record: logging.LogRecord
 
-        :return: A GELF log encoded as a null terminated bytes string.
+        :return: Null terminated bytes representing a GELF log.
         :rtype: bytes
         """
-        return BaseGELFHandler.makePickle(self, record) + b'\x00'
+        return super(GELFTCPHandler, self).makePickle(record) + b'\x00'
 
 
 class GELFTLSHandler(GELFTCPHandler):
-    """Graylog Extended Log Format TCP handler with TLS support"""
+    """GELF TCP handler with TLS support"""
 
     def __init__(self, host, port=12204, validate=False, ca_certs=None,
                  certfile=None, keyfile=None, **kwargs):
         """Initialize the GELFTLSHandler
 
-        :param host: The host of the Graylog server.
+        :param host: GELF TLS input host.
         :type host: str
 
-        :param port: The port of the Graylog server (default ``12204``).
+        :param port: GELF TLS input port.
         :type port: int
 
-        :param validate: If :obj:`True`, validate server certificate.
-            In that case specifying ``ca_certs`` is required.
+        :param validate: If :obj:`True`, validate the Graylog server's
+            certificate. In this case specifying ``ca_certs`` is also
+            required.
         :type validate: bool
 
         :param ca_certs: Path to CA bundle file.
@@ -464,8 +467,7 @@ class GELFTLSHandler(GELFTCPHandler):
         self.keyfile = keyfile if keyfile else certfile
 
     def makeSocket(self, timeout=1):
-        """Override SocketHandler.makeSocket, to allow creating wrapped
-        TLS sockets"""
+        """Create a TLS wrapped socket"""
         plain_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         if hasattr(plain_socket, 'settimeout'):
@@ -485,7 +487,7 @@ class GELFTLSHandler(GELFTCPHandler):
 
 # TODO: add https?
 class GELFHTTPHandler(BaseGELFHandler):
-    """Graylog Extended Log Format HTTP handler"""
+    """GELF HTTP handler"""
 
     def __init__(self, host, port=12203, compress=True, path='/gelf',
                  timeout=5, **kwargs):
@@ -498,15 +500,15 @@ class GELFHTTPHandler(BaseGELFHandler):
         :type port: int
 
         :param compress: If :obj:`True` compress the GELF message before
-            sending it to the server (:obj:`True` by default).
+            sending it to the Graylog server.
         :type compress: bool
 
         :param path: Path of the HTTP input.
             (see http://docs.graylog.org/en/latest/pages/sending_data.html#gelf-via-http)
         :type path: str
 
-        :param timeout: Amount of seconds that HTTP client should wait before
-            it discards the request if the server doesn't respond.
+        :param timeout: Number of seconds the HTTP client should wait before
+            it discards the request if the Graylog server doesn't respond.
         :type timeout: int
         """
 
@@ -523,10 +525,10 @@ class GELFHTTPHandler(BaseGELFHandler):
 
     def emit(self, record):
         """Convert a :class:`logging.LogRecord` to GELF and emit it to Graylog
-        via an HTTP POST request
+        via a HTTP POST request
 
-        :param record: :class:`logging.LogRecord` to convert into a
-            Graylog GELF log and emit to Graylog via HTTP POST.
+        :param record: :class:`logging.LogRecord` to convert into a GELF log
+            and emit to Graylog via a HTTP POST request.
         :type record: logging.LogRecord
         """
         pickle = self.makePickle(record)
@@ -539,7 +541,7 @@ class GELFHTTPHandler(BaseGELFHandler):
 
 
 class ChunkedGELF(object):
-    """Class that chunks a message into a GLEF compatible chunks"""
+    """Class that chunks a message into a GELF compatible chunks"""
 
     def __init__(self, message, size):
         """Initialize the ChunkedGELF message class
