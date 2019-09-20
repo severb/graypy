@@ -46,11 +46,12 @@ def test_gelf_chunking(gelf_chunker):
 
 def rebuild_gelf_bytes_from_udp_chunks(chunks):
     gelf_bytes = b""
+    bsize = len(chunks[0])
     for chunk in chunks:
-        stripped_chunk = b"".join(chunk.split(b'\x1e\x0f')[1:])
-        message_id, chunk_seq, total_chunks = struct.unpack_from('QBB', stripped_chunk)
-        chunk = stripped_chunk[struct.calcsize('QBB'):]
-        gelf_bytes += chunk
+        if len(chunk) < bsize:
+            gelf_bytes += chunk[-(bsize-len(chunk)):]
+        else:
+            gelf_bytes += chunk[((2+struct.calcsize("QBB"))-len(chunk)):]
     return gelf_bytes
 
 
