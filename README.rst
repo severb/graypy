@@ -92,6 +92,24 @@ the ``GELFUDPHandler``:
 
     my_logger.debug('Hello Graylog.')
 
+
+UDP GELF Chunkers
+^^^^^^^^^^^^^^^^^
+
+`GELF UDP Chunking`_ is supported by the ``GELFUDPHandler`` and is defined by
+the ``gelf_chunker`` argument within its constructor. By default the
+``GELFWarningChunker`` is used, thus, GELF messages that chunk overflow
+(i.e. consisting of more than 128 chunks) will issue a
+``GELFChunkOverflowWarning`` and **will be dropped**.
+
+Other ``gelf_chunker`` options are also available:
+
+* ``BaseGELFChunker`` silently drops GELF messages that chunk overflow
+* ``GELFTruncatingChunker`` issues a ``GELFChunkOverflowWarning`` and
+  simplifies and truncates GELF messages that chunk overflow in a attempt
+  to send some content to Graylog. If this process fails to prevent
+  another chunk overflow a ``GELFTruncationFailureWarning`` is issued.
+
 RabbitMQ Logging
 ----------------
 
@@ -253,5 +271,6 @@ Contributors
 
 .. _GELF: https://docs.graylog.org/en/latest/pages/gelf.html
 .. _logging.Handler: https://docs.python.org/3/library/logging.html#logging.Handler
+.. _GELF UDP Chunking: https://docs.graylog.org/en/latest/pages/gelf.html#chunking
 .. _LoggerAdapter: https://docs.python.org/howto/logging-cookbook.html#using-loggeradapters-to-impart-contextual-information
 .. _Filter: https://docs.python.org/howto/logging-cookbook.html#using-filters-to-impart-contextual-information
