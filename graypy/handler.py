@@ -346,10 +346,6 @@ class BaseGELFHandler(logging.Handler, ABC):
         return repr(obj)
 
 
-class GELFChunkOverflowWarning(Warning):
-    """Warning that a chunked GELF UDP message requires more than 128 chunks"""
-
-
 class BaseGELFChunker(object):
     """Base UDP GELF message chunker
 
@@ -419,6 +415,10 @@ class BaseGELFChunker(object):
             return
         for chunk in self._gen_gelf_chunks(message):
             yield chunk
+
+
+class GELFChunkOverflowWarning(Warning):
+    """Warning that a chunked GELF UDP message requires more than 128 chunks"""
 
 
 class GELFWarningChunker(BaseGELFChunker):
