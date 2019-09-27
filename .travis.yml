@@ -35,7 +35,16 @@ jobs:
     - python: "pypy2.7-5.10.0"
     - python: "pypy3.5-5.10.0"
     - stage: lint
-      name: "pylint"
+      name: "black"
+      python:
+        - 3.6
+      before_install:
+        - pip install black
+      before_script: skip
+      script:
+        - black setup.py tests graypy
+      after_script: skip
+    - name: "pylint"
       python:
         - 3.6
       before_script: skip
