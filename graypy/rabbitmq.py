@@ -68,10 +68,7 @@ class GELFRabbitHandler(BaseGELFHandler, SocketHandler):
         self.exchange = exchange
         self.exchange_type = exchange_type
         self.routing_key = routing_key
-        BaseGELFHandler.__init__(
-            self,
-            **kwargs
-        )
+        BaseGELFHandler.__init__(self, **kwargs)
         SocketHandler.__init__(self, host, port)
         self.addFilter(ExcludeFilter('amqplib'))
 

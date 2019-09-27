@@ -14,15 +14,13 @@ import datetime
 import json
 import logging
 import socket
-import struct
 import sys
 import zlib
 
 import mock
 import pytest
 
-from graypy.handler import BaseGELFHandler, GELFHTTPHandler, GELFTLSHandler, \
-    ChunkedGELF
+from graypy.handler import BaseGELFHandler, GELFHTTPHandler, GELFTLSHandler
 
 from tests.helper import handler, logger, formatted_logger
 from tests.unit.helper import MOCK_LOG_RECORD, MOCK_LOG_RECORD_NAME
@@ -203,7 +201,7 @@ def test_invalid_fqdn_localhost():
     """Test constructing :class:`graypy.handler.BaseGELFHandler` with
     specifying conflicting arguments ``fqdn`` and ``localname``"""
     with pytest.raises(ValueError):
-        BaseGELFHandler("127.0.0.1", 12202, fqdn=True, localname="localhost")
+        BaseGELFHandler(fqdn=True, localname="localhost")
 
 
 def test_invalid_ca_certs():
@@ -219,25 +217,3 @@ def test_invalid_client_certs():
     with pytest.raises(ValueError):
         # missing client cert
         GELFTLSHandler("127.0.0.1", keyfile="/dev/null")
-
-
-def test_gelf_chunking():
-    """Testing the GELF chunking ability of
-    :class:`graypy.handler.ChunkedGELF`"""
-    message = b'12345'
-    header = b'\x1e\x0f'
-    chunks = list(ChunkedGELF(message, 2).__iter__())
-    expected = [
-        (struct.pack('b', 0), struct.pack('b', 3), b'12'),
-        (struct.pack('b', 1), struct.pack('b', 3), b'34'),
-        (struct.pack('b', 2), struct.pack('b', 3), b'5')
-    ]
-
-    assert len(chunks) == len(expected)
-
-    for index, chunk in enumerate(chunks):
-        expected_index, expected_chunks_count, expected_chunk = expected[index]
-        assert header == chunk[:2]
-        assert expected_index == chunk[10:11]
-        assert expected_chunks_count == chunk[11:12]
-        assert expected_chunk == chunk[12:]

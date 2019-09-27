@@ -33,10 +33,10 @@ TEST_TLS_PORT = 12204
     GELFHTTPHandler('127.0.0.1', TEST_HTTP_PORT, compress=False),
     GELFUDPHandler("127.0.0.1", TEST_UDP_PORT),
     GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, compress=False),
-    GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True),
-    GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True, compress=False),
-    GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True, debugging_fields=True),
-    GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, extra_fields=True, debugging_fields=True, compress=False),
+    # the below handler tests are essentially smoke tests
+    # that help cover the argument permutations of BaseGELFHandler
+    GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, debugging_fields=True, extra_fields=True, localname="foobar_localname", facility="foobar_facility", level_names=True, compress=False),
+    GELFUDPHandler("127.0.0.1", TEST_UDP_PORT, debugging_fields=True, extra_fields=True, fqdn=True, facility="foobar_facility", level_names=True, compress=False),
 ])
 def handler(request):
     return request.param

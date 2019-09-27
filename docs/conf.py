@@ -146,6 +146,11 @@ intersphinx_mapping = {
 
 
 # -- auto api docs generation --
+
+# order auto doc members by position in source code
+autodoc_member_order = 'bysource'
+
+
 def run_apidoc(_):
     from sphinx.ext.apidoc import main
     import os
