@@ -31,7 +31,7 @@ else:
 if sys.version_info >= (3, 4):  # check if python3.4+
     ABC = abc.ABC
 else:
-    ABC = abc.ABCMeta(str('ABC'), (), {})
+    ABC = abc.ABCMeta(str("ABC"), (), {})
 
 try:
     import httplib
@@ -54,9 +54,16 @@ class BaseGELFHandler(logging.Handler, ABC):
     :obj:`logging.LogRecord` into a GELF log. Provides the boilerplate for
     all GELF handlers defined within graypy."""
 
-    def __init__(self, debugging_fields=True, extra_fields=True,
-                 fqdn=False, localname=None, facility=None,
-                 level_names=False, compress=True):
+    def __init__(
+        self,
+        debugging_fields=True,
+        extra_fields=True,
+        fqdn=False,
+        localname=None,
+        facility=None,
+        level_names=False,
+        compress=True,
+    ):
         """Initialize the BaseGELFHandler
 
         :param debugging_fields: If :obj:`True` add debug fields from the
@@ -93,8 +100,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         self.extra_fields = extra_fields
 
         if fqdn and localname:
-            raise ValueError(
-                "cannot specify 'fqdn' and 'localname' arguments together")
+            raise ValueError("cannot specify 'fqdn' and 'localname' arguments together")
 
         self.fqdn = fqdn
         self.localname = localname
@@ -129,12 +135,14 @@ class BaseGELFHandler(logging.Handler, ABC):
         """
         # construct the base GELF format
         gelf_dict = {
-            'version': "1.0",
-            'host': self._resolve_host(self.fqdn, self.localname),
-            'short_message': self.formatter.format(record) if self.formatter else record.getMessage(),
-            'timestamp': record.created,
-            'level': SYSLOG_LEVELS.get(record.levelno, record.levelno),
-            'facility': self.facility or record.name,
+            "version": "1.0",
+            "host": self._resolve_host(self.fqdn, self.localname),
+            "short_message": self.formatter.format(record)
+            if self.formatter
+            else record.getMessage(),
+            "timestamp": record.created,
+            "level": SYSLOG_LEVELS.get(record.levelno, record.levelno),
+            "facility": self.facility or record.name,
         }
 
         # add in specified optional extras
@@ -162,7 +170,7 @@ class BaseGELFHandler(logging.Handler, ABC):
             level from to insert into the given ``gelf_dict``.
         :type record: logging.LogRecord
         """
-        gelf_dict['level_name'] = logging.getLevelName(record.levelno)
+        gelf_dict["level_name"] = logging.getLevelName(record.levelno)
 
     @staticmethod
     def _set_custom_facility(gelf_dict, facility_value, record):
@@ -183,7 +191,7 @@ class BaseGELFHandler(logging.Handler, ABC):
             field.
         :type record: logging.LogRecord
         """
-        gelf_dict.update({"facility": facility_value, '_logger': record.name})
+        gelf_dict.update({"facility": facility_value, "_logger": record.name})
 
     @staticmethod
     def _add_full_message(gelf_dict, record):
@@ -201,8 +209,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         full_message = None
         # format exception information if present
         if record.exc_info:
-            full_message = '\n'.join(
-                traceback.format_exception(*record.exc_info))
+            full_message = "\n".join(traceback.format_exception(*record.exc_info))
         # use pre-formatted exception information in cases where the primary
         # exception information was removed, e.g. for LogRecord serialization
         if record.exc_text:
@@ -241,17 +248,19 @@ class BaseGELFHandler(logging.Handler, ABC):
             fields from to insert into the given ``gelf_dict``.
         :type record: logging.LogRecord
         """
-        gelf_dict.update({
-            'file': record.pathname,
-            'line': record.lineno,
-            '_function': record.funcName,
-            '_pid': record.process,
-            '_thread_name': record.threadName,
-        })
+        gelf_dict.update(
+            {
+                "file": record.pathname,
+                "line": record.lineno,
+                "_function": record.funcName,
+                "_pid": record.process,
+                "_thread_name": record.threadName,
+            }
+        )
         # record.processName was added in Python 2.6.2
-        pn = getattr(record, 'processName', None)
+        pn = getattr(record, "processName", None)
         if pn is not None:
-            gelf_dict['_process_name'] = pn
+            gelf_dict["_process_name"] = pn
 
     @staticmethod
     def _add_extra_fields(gelf_dict, record):
@@ -278,14 +287,33 @@ class BaseGELFHandler(logging.Handler, ABC):
         """
         # skip_list is used to filter additional fields in a log message.
         skip_list = (
-            'args', 'asctime', 'created', 'exc_info', 'exc_text', 'filename',
-            'funcName', 'id', 'levelname', 'levelno', 'lineno', 'module',
-            'msecs', 'message', 'msg', 'name', 'pathname', 'process',
-            'processName', 'relativeCreated', 'thread', 'threadName')
+            "args",
+            "asctime",
+            "created",
+            "exc_info",
+            "exc_text",
+            "filename",
+            "funcName",
+            "id",
+            "levelname",
+            "levelno",
+            "lineno",
+            "module",
+            "msecs",
+            "message",
+            "msg",
+            "name",
+            "pathname",
+            "process",
+            "processName",
+            "relativeCreated",
+            "thread",
+            "threadName",
+        )
 
         for key, value in record.__dict__.items():
-            if key not in skip_list and not key.startswith('_'):
-                gelf_dict['_%s' % key] = value
+            if key not in skip_list and not key.startswith("_"):
+                gelf_dict["_%s" % key] = value
 
     @classmethod
     def _pack_gelf_dict(cls, gelf_dict):
@@ -302,12 +330,8 @@ class BaseGELFHandler(logging.Handler, ABC):
         :rtype: bytes
         """
         gelf_dict = cls._sanitize_to_unicode(gelf_dict)
-        packed = json.dumps(
-            gelf_dict,
-            separators=',:',
-            default=cls._object_to_json
-        )
-        return packed.encode('utf-8')
+        packed = json.dumps(gelf_dict, separators=",:", default=cls._object_to_json)
+        return packed.encode("utf-8")
 
     @classmethod
     def _sanitize_to_unicode(cls, obj):
@@ -320,11 +344,14 @@ class BaseGELFHandler(logging.Handler, ABC):
         :rtype: str
         """
         if isinstance(obj, dict):
-            return dict((cls._sanitize_to_unicode(k), cls._sanitize_to_unicode(v)) for k, v in obj.items())
+            return dict(
+                (cls._sanitize_to_unicode(k), cls._sanitize_to_unicode(v))
+                for k, v in obj.items()
+            )
         if isinstance(obj, (list, tuple)):
             return obj.__class__([cls._sanitize_to_unicode(i) for i in obj])
         if isinstance(obj, data):
-            obj = obj.decode('utf-8', errors='replace')
+            obj = obj.decode("utf-8", errors="replace")
         return obj
 
     @staticmethod
@@ -377,13 +404,15 @@ class BaseGELFChunker(object):
 
     @staticmethod
     def _encode(message_id, chunk_seq, total_chunks, chunk):
-        return b''.join([
-            b'\x1e\x0f',
-            struct.pack('Q', message_id),
-            struct.pack('B', chunk_seq),
-            struct.pack('B', total_chunks),
-            chunk
-        ])
+        return b"".join(
+            [
+                b"\x1e\x0f",
+                struct.pack("Q", message_id),
+                struct.pack("B", chunk_seq),
+                struct.pack("B", total_chunks),
+                chunk,
+            ]
+        )
 
     def _gen_gelf_chunks(self, message):
         """Generate and iter chunks for a GELF message
@@ -396,8 +425,12 @@ class BaseGELFChunker(object):
         """
         total_chunks = self._message_chunk_number(message)
         message_id = random.randint(0, 0xFFFFFFFFFFFFFFFF)
-        for sequence, chunk in enumerate((message[i:i + self.chunk_size]
-                          for i in range(0, len(message), self.chunk_size))):
+        for sequence, chunk in enumerate(
+            (
+                message[i : i + self.chunk_size]
+                for i in range(0, len(message), self.chunk_size)
+            )
+        ):
             yield self._encode(message_id, sequence, total_chunks, chunk)
 
     def chunk_message(self, message):
@@ -431,7 +464,10 @@ class GELFWarningChunker(BaseGELFChunker):
         overflowing GELF messages. Then drop them.
         """
         if self._message_chunk_number(message) > GELF_MAX_CHUNK_NUMBER:
-            warnings.warn("chunk overflowing GELF message: {}".format(message), GELFChunkOverflowWarning)
+            warnings.warn(
+                "chunk overflowing GELF message: {}".format(message),
+                GELFChunkOverflowWarning,
+            )
             return
         for chunk in self._gen_gelf_chunks(message):
             yield chunk
@@ -445,7 +481,12 @@ class GELFTruncationFailureWarning(GELFChunkOverflowWarning):
 class GELFTruncatingChunker(BaseGELFChunker):
     """GELF UDP message chunker that truncates overflowing messages"""
 
-    def __init__(self, chunk_size=WAN_CHUNK, compress=True, gelf_packer=BaseGELFHandler._pack_gelf_dict):
+    def __init__(
+        self,
+        chunk_size=WAN_CHUNK,
+        compress=True,
+        gelf_packer=BaseGELFHandler._pack_gelf_dict,
+    ):
         """Initialize the GELFTruncatingChunker
 
         :param compress: Boolean noting whether the given GELF messages are
@@ -478,30 +519,40 @@ class GELFTruncatingChunker(BaseGELFChunker):
         # Simplified GELF message dictionary to base the truncated
         # GELF message from
         simplified_gelf_dict = {
-            'version': gelf_dict['version'],
-            'host': gelf_dict['host'],
-            'short_message': "",
-            'timestamp': gelf_dict['timestamp'],
-            'level': SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR),
-            'facility': gelf_dict['facility'],
-            '_chunk_overflow': True,
+            "version": gelf_dict["version"],
+            "host": gelf_dict["host"],
+            "short_message": "",
+            "timestamp": gelf_dict["timestamp"],
+            "level": SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR),
+            "facility": gelf_dict["facility"],
+            "_chunk_overflow": True,
         }
 
         # compute a estimate of the number of message chunks left this is
         # used to estimate the amount of truncation to apply
-        gelf_chunks_free = GELF_MAX_CHUNK_NUMBER - self._message_chunk_number(zlib.compress(self.gelf_packer(simplified_gelf_dict)) if self.compress else self.gelf_packer(simplified_gelf_dict))
-        truncated_short_message = gelf_dict['short_message'][:self.chunk_size * gelf_chunks_free]
+        gelf_chunks_free = GELF_MAX_CHUNK_NUMBER - self._message_chunk_number(
+            zlib.compress(self.gelf_packer(simplified_gelf_dict))
+            if self.compress
+            else self.gelf_packer(simplified_gelf_dict)
+        )
+        truncated_short_message = gelf_dict["short_message"][
+            : self.chunk_size * gelf_chunks_free
+        ]
         for clip in range(gelf_chunks_free, -1, -1):
-            simplified_gelf_dict['short_message'] = truncated_short_message
+            simplified_gelf_dict["short_message"] = truncated_short_message
             packed_message = self.gelf_packer(simplified_gelf_dict)
             if self.compress:
                 packed_message = zlib.compress(packed_message)
             if self._message_chunk_number(packed_message) <= GELF_MAX_CHUNK_NUMBER:
                 return packed_message
             else:
-                truncated_short_message = truncated_short_message[:-self.chunk_size]
+                truncated_short_message = truncated_short_message[: -self.chunk_size]
         else:
-            raise GELFTruncationFailureWarning("truncation failed preventing chunk overflowing for GELF message: {}".format(raw_message))
+            raise GELFTruncationFailureWarning(
+                "truncation failed preventing chunk overflowing for GELF message: {}".format(
+                    raw_message
+                )
+            )
 
     def chunk_message(self, message):
         """Chunk a GELF message
@@ -516,7 +567,10 @@ class GELFTruncatingChunker(BaseGELFChunker):
         and drop the overflowing GELF message.
         """
         if self._message_chunk_number(message) > GELF_MAX_CHUNK_NUMBER:
-            warnings.warn("truncating GELF chunk overflowing message: {}".format(message), GELFChunkOverflowWarning)
+            warnings.warn(
+                "truncating GELF chunk overflowing message: {}".format(message),
+                GELFChunkOverflowWarning,
+            )
             try:
                 message = self.gen_chunk_overflow_gelf_log(message)
             except GELFTruncationFailureWarning as w:
@@ -593,14 +647,22 @@ class GELFTCPHandler(BaseGELFHandler, SocketHandler):
         :return: Null terminated bytes representing a GELF log.
         :rtype: bytes
         """
-        return super(GELFTCPHandler, self).makePickle(record) + b'\x00'
+        return super(GELFTCPHandler, self).makePickle(record) + b"\x00"
 
 
 class GELFTLSHandler(GELFTCPHandler):
     """GELF TCP handler with TLS support"""
 
-    def __init__(self, host, port=12204, validate=False, ca_certs=None,
-                 certfile=None, keyfile=None, **kwargs):
+    def __init__(
+        self,
+        host,
+        port=12204,
+        validate=False,
+        ca_certs=None,
+        certfile=None,
+        keyfile=None,
+        **kwargs
+    ):
         """Initialize the GELFTLSHandler
 
         :param host: GELF TLS input host.
@@ -625,10 +687,10 @@ class GELFTLSHandler(GELFTCPHandler):
         :type keyfile: str
         """
         if validate and ca_certs is None:
-            raise ValueError('CA bundle file path must be specified')
+            raise ValueError("CA bundle file path must be specified")
 
         if keyfile is not None and certfile is None:
-            raise ValueError('certfile must be specified')
+            raise ValueError("certfile must be specified")
 
         GELFTCPHandler.__init__(self, host=host, port=port, **kwargs)
 
@@ -641,7 +703,7 @@ class GELFTLSHandler(GELFTCPHandler):
         """Create a TLS wrapped socket"""
         plain_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-        if hasattr(plain_socket, 'settimeout'):
+        if hasattr(plain_socket, "settimeout"):
             plain_socket.settimeout(timeout)
 
         wrapped_socket = ssl.wrap_socket(
@@ -649,7 +711,7 @@ class GELFTLSHandler(GELFTCPHandler):
             ca_certs=self.ca_certs,
             cert_reqs=self.reqs,
             keyfile=self.keyfile,
-            certfile=self.certfile
+            certfile=self.certfile,
         )
         wrapped_socket.connect((self.host, self.port))
 
@@ -660,8 +722,9 @@ class GELFTLSHandler(GELFTCPHandler):
 class GELFHTTPHandler(BaseGELFHandler):
     """GELF HTTP handler"""
 
-    def __init__(self, host, port=12203, compress=True, path='/gelf',
-                 timeout=5, **kwargs):
+    def __init__(
+        self, host, port=12203, compress=True, path="/gelf", timeout=5, **kwargs
+    ):
         """Initialize the GELFHTTPHandler
 
         :param host: GELF HTTP input host.
@@ -691,7 +754,7 @@ class GELFHTTPHandler(BaseGELFHandler):
         self.headers = {}
 
         if compress:
-            self.headers['Content-Encoding'] = 'gzip,deflate'
+            self.headers["Content-Encoding"] = "gzip,deflate"
 
     def emit(self, record):
         """Convert a :class:`logging.LogRecord` to GELF and emit it to Graylog
@@ -703,8 +766,6 @@ class GELFHTTPHandler(BaseGELFHandler):
         """
         pickle = self.makePickle(record)
         connection = httplib.HTTPConnection(
-            host=self.host,
-            port=self.port,
-            timeout=self.timeout
+            host=self.host, port=self.port, timeout=self.timeout
         )
-        connection.request('POST', self.path, pickle, self.headers)
+        connection.request("POST", self.path, pickle, self.headers)
