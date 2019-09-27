@@ -42,7 +42,7 @@ jobs:
         - pip install black
       before_script: skip
       script:
-        - black setup.py tests graypy
+        - black --check setup.py tests graypy
       after_script: skip
     - name: "pylint"
       python:
