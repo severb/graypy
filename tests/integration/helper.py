@@ -56,7 +56,7 @@ def _get_api_response(message, fields):
         url=_build_api_string(message, fields),
         headers={
             "Accept": "application/json",
-            'Authorization' : 'Basic %s' %  b64encode(b"admin:admin").decode("ascii")
+            'Authorization': 'Basic %s' % b64encode(b"admin:admin").decode("ascii")
         }
     )
     resp = connection.getresponse()
