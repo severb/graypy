@@ -229,33 +229,16 @@ def test_invalid_client_certs():
         # missing client cert
         GELFTLSHandler("127.0.0.1", keyfile="/dev/null")
 
-        
+
 @pytest.mark.parametrize(
-    "field_name",
-    [
-        "foo",
-        "bar",
-        "_bar",
-        "foo.bar",
-        "foo-bar",
-        "foo1"
-    ]
+    "field_name", ["foo", "bar", "_bar", "foo.bar", "foo-bar", "foo1"]
 )
 def test_validate_additional_field_name_valid(field_name):
     BaseGELFHandler.validate_gelf_additional_field_name(field_name)
     pass
 
 
-@pytest.mark.parametrize(
-    "field_name",
-    [
-        " ",
-        " foo",
-        "foo#",
-        "@",
-        "_id"
-    ]
-)
+@pytest.mark.parametrize("field_name", [" ", " foo", "foo#", "@", "_id"])
 def test_validate_additional_field_name_invalid(field_name):
     with pytest.raises(ValueError):
         BaseGELFHandler.validate_gelf_additional_field_name(field_name)

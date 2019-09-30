@@ -136,12 +136,14 @@ class BaseGELFHandler(logging.Handler, ABC):
         """
         # construct the base GELF format
         gelf_dict = {
-            'version': "1.1",
-            'host': self._resolve_host(self.fqdn, self.localname),
-            'short_message': self.formatter.format(record) if self.formatter else record.getMessage(),
-            'timestamp': record.created,
-            'level': SYSLOG_LEVELS.get(record.levelno, record.levelno),
-            '_facility': self.facility or record.name,
+            "version": "1.1",
+            "host": self._resolve_host(self.fqdn, self.localname),
+            "short_message": self.formatter.format(record)
+            if self.formatter
+            else record.getMessage(),
+            "timestamp": record.created,
+            "level": SYSLOG_LEVELS.get(record.levelno, record.levelno),
+            "_facility": self.facility or record.name,
         }
 
         # add in specified optional extras
@@ -168,7 +170,7 @@ class BaseGELFHandler(logging.Handler, ABC):
             level from to insert into the given ``gelf_dict``.
         :type record: logging.LogRecord
         """
-        gelf_dict['_level_name'] = logging.getLevelName(record.levelno)
+        gelf_dict["_level_name"] = logging.getLevelName(record.levelno)
 
     @staticmethod
     def _set_custom_facility(gelf_dict, facility_value, record):
@@ -189,7 +191,7 @@ class BaseGELFHandler(logging.Handler, ABC):
             field.
         :type record: logging.LogRecord
         """
-        gelf_dict.update({"_facility": facility_value, '_logger': record.name})
+        gelf_dict.update({"_facility": facility_value, "_logger": record.name})
 
     @staticmethod
     def _add_full_message(gelf_dict, record):
@@ -246,13 +248,15 @@ class BaseGELFHandler(logging.Handler, ABC):
             fields from to insert into the given ``gelf_dict``.
         :type record: logging.LogRecord
         """
-        gelf_dict.update({
-            '_file': record.pathname,
-            '_line': record.lineno,
-            '_function': record.funcName,
-            '_pid': record.process,
-            '_thread_name': record.threadName,
-        })
+        gelf_dict.update(
+            {
+                "_file": record.pathname,
+                "_line": record.lineno,
+                "_function": record.funcName,
+                "_pid": record.process,
+                "_thread_name": record.threadName,
+            }
+        )
 
         # record.processName was added in Python 2.6.2
         pn = getattr(record, "processName", None)
