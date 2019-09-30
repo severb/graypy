@@ -536,7 +536,7 @@ class GELFTruncatingChunker(BaseGELFChunker):
             "short_message": "",
             "timestamp": gelf_dict["timestamp"],
             "level": SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR),
-            "facility": gelf_dict["facility"],
+            "_facility": gelf_dict["_facility"],
             "_chunk_overflow": True,
         }
 
