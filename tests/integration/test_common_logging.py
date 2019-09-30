@@ -14,8 +14,7 @@ from tests.integration import LOCAL_GRAYLOG_UP
 from tests.integration.helper import get_unique_message, get_graylog_response
 
 
-@pytest.mark.skipif(not LOCAL_GRAYLOG_UP,
-                    reason="local Graylog instance not up")
+@pytest.mark.skipif(not LOCAL_GRAYLOG_UP, reason="local Graylog instance not up")
 def test_common_logging(logger):
     """Test sending a common usage log"""
     message = get_unique_message()

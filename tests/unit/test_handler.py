@@ -49,7 +49,9 @@ def get_mock_send_arg(mock_send):
 
     # TODO: this is inaccurate solution for mocking non-send handlers
     if isinstance(arg, logging.LogRecord):
-        return json.loads(BaseGELFHandler(compress=False).makePickle(arg).decode("utf-8"))
+        return json.loads(
+            BaseGELFHandler(compress=False).makePickle(arg).decode("utf-8")
+        )
     try:
         return json.loads(zlib.decompress(arg).decode("utf-8"))
     except zlib.error:  # we have a uncompress message
@@ -59,14 +61,19 @@ def get_mock_send_arg(mock_send):
             return json.loads(arg[:-1].decode("utf-8"))
 
 
-@pytest.mark.parametrize("message,expected", [
-    (u"\u20AC", u"\u20AC"),
-    (u"\u20AC".encode("utf-8"), u"\u20AC"),
-    (b"\xc3", UNICODE_REPLACEMENT),
-    (["a", b"\xc3"], ["a", UNICODE_REPLACEMENT]),
-])
+@pytest.mark.parametrize(
+    "message,expected",
+    [
+        (u"\u20AC", u"\u20AC"),
+        (u"\u20AC".encode("utf-8"), u"\u20AC"),
+        (b"\xc3", UNICODE_REPLACEMENT),
+        (["a", b"\xc3"], ["a", UNICODE_REPLACEMENT]),
+    ],
+)
 def test_pack(message, expected):
-    assert expected == json.loads(BaseGELFHandler._pack_gelf_dict(message).decode("utf-8"))
+    assert expected == json.loads(
+        BaseGELFHandler._pack_gelf_dict(message).decode("utf-8")
+    )
 
 
 def test_manual_exc_info_handler(logger, mock_send):
@@ -82,8 +89,9 @@ def test_manual_exc_info_handler(logger, mock_send):
 
     # GELFHTTPHandler mocking does not complete the stacktrace
     # thus a missing \n
-    assert arg["full_message"].endswith("SyntaxError: Syntax error") or \
-           arg["full_message"].endswith("SyntaxError: Syntax error\n")
+    assert arg["full_message"].endswith("SyntaxError: Syntax error") or arg[
+        "full_message"
+    ].endswith("SyntaxError: Syntax error\n")
 
 
 def test_normal_exception_handler(logger, mock_send):
@@ -97,8 +105,9 @@ def test_normal_exception_handler(logger, mock_send):
 
     # GELFHTTPHandler mocking does not complete the stacktrace
     # thus a missing \n
-    assert arg["full_message"].endswith("SyntaxError: Syntax error") or \
-           arg["full_message"].endswith("SyntaxError: Syntax error\n")
+    assert arg["full_message"].endswith("SyntaxError: Syntax error") or arg[
+        "full_message"
+    ].endswith("SyntaxError: Syntax error\n")
 
 
 def test_unicode(logger, mock_send):
@@ -147,7 +156,9 @@ def test_arbitrary_object(logger, mock_send):
     assert "<TestClass>" == decoded["_foo"]
 
 
-def test_message_to_pickle_serializes_datetime_objects_instead_of_blindly_repring_them(logger, mock_send):
+def test_message_to_pickle_serializes_datetime_objects_instead_of_blindly_repring_them(
+    logger, mock_send
+):
     timestamp = datetime.datetime(2001, 2, 3, 4, 5, 6, 7)
     logger.error("Log message", extra={"ts": timestamp})
     decoded = get_mock_send_arg(mock_send)

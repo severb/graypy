@@ -11,8 +11,14 @@ Modules:
  + :mod:`.rabbitmq` - RabbitMQ GELF Logging Handler
 """
 
-from graypy.handler import GELFUDPHandler, GELFTCPHandler, GELFTLSHandler, \
-    GELFHTTPHandler, WAN_CHUNK, LAN_CHUNK
+from graypy.handler import (
+    GELFUDPHandler,
+    GELFTCPHandler,
+    GELFTLSHandler,
+    GELFHTTPHandler,
+    WAN_CHUNK,
+    LAN_CHUNK,
+)
 
 try:
     from graypy.rabbitmq import GELFRabbitHandler, ExcludeFilter
@@ -20,4 +26,4 @@ except ImportError:
     pass  # amqplib is probably not installed
 
 
-__version__ = (2, 0, 0)
+__version__ = (2, 1, 0)
