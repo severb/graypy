@@ -39,6 +39,32 @@
             },
             "type": "org.graylog2.inputs.gelf.tcp.GELFTCPInput",
             "global": true
+        },
+        {
+            "title":"rmq",
+            "configuration": {
+                "heartbeat":60,
+                "prefetch":100,
+                "exchange_bind":true,
+                "broker_vhost":"/",
+                "broker_username":"graylog",
+                "decompress_size_limit":8388608,
+                "broker_port":5672,
+                "parallel_queues":1,
+                "broker_password":"graylog",
+                "throttling_allowed":false,
+                "exchange":"log-messages",
+                "tls":false,
+                "override_source":null,
+                "routing_key":"#",
+                "requeue_invalid_messages":true,
+                "broker_hostname":"rabbitmq",
+                "queue":"log-messages"
+            },
+            "static_fields":{},
+            "type":"org.graylog2.inputs.gelf.amqp.GELFAMQPInput",
+            "global":true,
+            "extractors":[]
         }
     ],
     "streams": [],
