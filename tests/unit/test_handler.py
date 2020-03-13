@@ -14,15 +14,13 @@ import datetime
 import json
 import logging
 import socket
-import struct
 import sys
 import zlib
 
 import mock
 import pytest
 
-from graypy.handler import BaseGELFHandler, GELFHTTPHandler, GELFTLSHandler, \
-    ChunkedGELF
+from graypy.handler import BaseGELFHandler, GELFHTTPHandler, GELFTLSHandler
 
 from tests.helper import handler, logger, formatted_logger
 from tests.unit.helper import MOCK_LOG_RECORD, MOCK_LOG_RECORD_NAME
@@ -51,7 +49,9 @@ def get_mock_send_arg(mock_send):
 
     # TODO: this is inaccurate solution for mocking non-send handlers
     if isinstance(arg, logging.LogRecord):
-        return json.loads(BaseGELFHandler(compress=False).makePickle(arg).decode("utf-8"))
+        return json.loads(
+            BaseGELFHandler(compress=False).makePickle(arg).decode("utf-8")
+        )
     try:
         return json.loads(zlib.decompress(arg).decode("utf-8"))
     except zlib.error:  # we have a uncompress message
@@ -61,14 +61,19 @@ def get_mock_send_arg(mock_send):
             return json.loads(arg[:-1].decode("utf-8"))
 
 
-@pytest.mark.parametrize("message,expected", [
-    (u"\u20AC", u"\u20AC"),
-    (u"\u20AC".encode("utf-8"), u"\u20AC"),
-    (b"\xc3", UNICODE_REPLACEMENT),
-    (["a", b"\xc3"], ["a", UNICODE_REPLACEMENT]),
-])
+@pytest.mark.parametrize(
+    "message,expected",
+    [
+        (u"\u20AC", u"\u20AC"),
+        (u"\u20AC".encode("utf-8"), u"\u20AC"),
+        (b"\xc3", UNICODE_REPLACEMENT),
+        (["a", b"\xc3"], ["a", UNICODE_REPLACEMENT]),
+    ],
+)
 def test_pack(message, expected):
-    assert expected == json.loads(BaseGELFHandler._pack_gelf_dict(message).decode("utf-8"))
+    assert expected == json.loads(
+        BaseGELFHandler._pack_gelf_dict(message).decode("utf-8")
+    )
 
 
 def test_manual_exc_info_handler(logger, mock_send):
@@ -84,8 +89,9 @@ def test_manual_exc_info_handler(logger, mock_send):
 
     # GELFHTTPHandler mocking does not complete the stacktrace
     # thus a missing \n
-    assert arg["full_message"].endswith("SyntaxError: Syntax error") or \
-           arg["full_message"].endswith("SyntaxError: Syntax error\n")
+    assert arg["full_message"].endswith("SyntaxError: Syntax error") or arg[
+        "full_message"
+    ].endswith("SyntaxError: Syntax error\n")
 
 
 def test_normal_exception_handler(logger, mock_send):
@@ -99,8 +105,9 @@ def test_normal_exception_handler(logger, mock_send):
 
     # GELFHTTPHandler mocking does not complete the stacktrace
     # thus a missing \n
-    assert arg["full_message"].endswith("SyntaxError: Syntax error") or \
-           arg["full_message"].endswith("SyntaxError: Syntax error\n")
+    assert arg["full_message"].endswith("SyntaxError: Syntax error") or arg[
+        "full_message"
+    ].endswith("SyntaxError: Syntax error\n")
 
 
 def test_unicode(logger, mock_send):
@@ -149,7 +156,9 @@ def test_arbitrary_object(logger, mock_send):
     assert "<TestClass>" == decoded["_foo"]
 
 
-def test_message_to_pickle_serializes_datetime_objects_instead_of_blindly_repring_them(logger, mock_send):
+def test_message_to_pickle_serializes_datetime_objects_instead_of_blindly_repring_them(
+    logger, mock_send
+):
     timestamp = datetime.datetime(2001, 2, 3, 4, 5, 6, 7)
     logger.error("Log message", extra={"ts": timestamp})
     decoded = get_mock_send_arg(mock_send)
@@ -203,7 +212,7 @@ def test_invalid_fqdn_localhost():
     """Test constructing :class:`graypy.handler.BaseGELFHandler` with
     specifying conflicting arguments ``fqdn`` and ``localname``"""
     with pytest.raises(ValueError):
-        BaseGELFHandler("127.0.0.1", 12202, fqdn=True, localname="localhost")
+        BaseGELFHandler(fqdn=True, localname="localhost")
 
 
 def test_invalid_ca_certs():
@@ -219,25 +228,3 @@ def test_invalid_client_certs():
     with pytest.raises(ValueError):
         # missing client cert
         GELFTLSHandler("127.0.0.1", keyfile="/dev/null")
-
-
-def test_gelf_chunking():
-    """Testing the GELF chunking ability of
-    :class:`graypy.handler.ChunkedGELF`"""
-    message = b'12345'
-    header = b'\x1e\x0f'
-    chunks = list(ChunkedGELF(message, 2).__iter__())
-    expected = [
-        (struct.pack('b', 0), struct.pack('b', 3), b'12'),
-        (struct.pack('b', 1), struct.pack('b', 3), b'34'),
-        (struct.pack('b', 2), struct.pack('b', 3), b'5')
-    ]
-
-    assert len(chunks) == len(expected)
-
-    for index, chunk in enumerate(chunks):
-        expected_index, expected_chunks_count, expected_chunk = expected[index]
-        assert header == chunk[:2]
-        assert expected_index == chunk[10:11]
-        assert expected_chunks_count == chunk[11:12]
-        assert expected_chunk == chunk[12:]
