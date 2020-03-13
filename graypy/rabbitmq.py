@@ -92,7 +92,7 @@ class RabbitSocket(object):
         self.exchange_type = exchange_type
         self.routing_key = routing_key
         self.connection = amqp.Connection(
-            connection_timeout=timeout, **self.cn_args)
+            connect_timeout=timeout, **self.cn_args)
         self.connection.connect()
         self.channel = self.connection.channel()
         self.channel.exchange_declare(
