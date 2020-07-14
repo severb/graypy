@@ -47,7 +47,7 @@ def handler(request):
     return request.param
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def logger(handler):
     logger = logging.getLogger("test")
     dummy_filter = DummyFilter()

@@ -63,7 +63,7 @@ def handler(request):
     return request.param
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def logger(handler):
     logger_ = logging.getLogger("test_logger")
     logger_.addHandler(handler)
@@ -71,7 +71,7 @@ def logger(handler):
     logger_.removeHandler(handler)
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def formatted_logger(handler):
     logger_ = logging.getLogger("formatted_test_logger")
     handler.setFormatter(logging.Formatter("%(levelname)s : %(message)s"))
