@@ -33,7 +33,7 @@ class TestClass(object):
         return "<TestClass>"
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def mock_send(handler):
     try:
         with mock.patch.object(handler, "send") as mock_send:
