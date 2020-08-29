@@ -80,10 +80,10 @@ setup(
         "pylint>=1.9.3,<2.0.0",
         "mock>=2.0.0,<3.0.0",
         "requests>=2.20.1,<3.0.0",
-        "amqplib>=1.0.2,<2.0.0",
+        "amqp>=2.4.2,<2.5.1",
     ],
     extras_require={
-        "amqp": ["amqplib==1.0.2"],
+        "amqp": ["amqp==2.4.2"],
         "docs": [
             "sphinx>=2.1.2,<3.0.0",
             "sphinx_rtd_theme>=0.4.3,<1.0.0",

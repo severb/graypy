@@ -1,0 +1,9 @@
+version: '2'
+services:
+  rabbitmq:
+    image: "rabbitmq:3.8-management-alpine"
+    volumes:
+      - ./setup_rabbitmq.sh:/usr/local/bin/setup_rabbitmq.sh
+    ports:
+      - "5672:5672"
+      - "15672:15672"
