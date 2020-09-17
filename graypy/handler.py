@@ -723,7 +723,7 @@ class GELFHTTPHandler(BaseGELFHandler):
     """GELF HTTP handler"""
 
     def __init__(
-        self, host, port=12203, compress=True, path="/gelf", timeout=5, **kwargs
+        self, host, port=12203, compress=True, path="/gelf", useSSL=False, timeout=5, **kwargs
     ):
         """Initialize the GELFHTTPHandler
 
@@ -750,6 +750,7 @@ class GELFHTTPHandler(BaseGELFHandler):
         self.host = host
         self.port = port
         self.path = path
+        self.useSSL = useSSL
         self.timeout = timeout
         self.headers = {}
 
@@ -764,8 +765,13 @@ class GELFHTTPHandler(BaseGELFHandler):
             and emit to Graylog via a HTTP POST request.
         :type record: logging.LogRecord
         """
-        pickle = self.makePickle(record)
-        connection = httplib.HTTPConnection(
-            host=self.host, port=self.port, timeout=self.timeout
-        )
-        connection.request("POST", self.path, pickle, self.headers)
+        try:
+            pickle = self.makePickle(record)
+
+            connectionClass = httplib.HTTPSConnection if self.useSSL else httplib.HTTPConnection
+            connection = connectionClass(
+                host=self.host, port=self.port, timeout=self.timeout
+            )
+            connection.request("POST", self.path, pickle, self.headers)
+        except Exception as e:
+            print("Failed to send GELF via HTTP: ", e)
