@@ -765,11 +765,13 @@ class GELFHTTPHandler(BaseGELFHandler):
             and emit to Graylog via a HTTP POST request.
         :type record: logging.LogRecord
         """
-        pickle = self.makePickle(record)
+        try:
+            pickle = self.makePickle(record)
 
-        connectionClass = httplib.HTTPSConnection if self.useSSL else httplib.HTTPConnection
-        connection = connectionClass(
-            host=self.host, port=self.port, timeout=self.timeout
-        )
-        connection.request("POST", self.path, pickle, self.headers)
-
+            connectionClass = httplib.HTTPSConnection if self.useSSL else httplib.HTTPConnection
+            connection = connectionClass(
+                host=self.host, port=self.port, timeout=self.timeout
+            )
+            connection.request("POST", self.path, pickle, self.headers)
+        except Exception as e:
+            print("Failed to send GELF via HTTP: ", e)
