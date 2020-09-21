@@ -10,6 +10,7 @@ import json
 import logging
 import math
 import random
+import re
 import socket
 import ssl
 import struct
@@ -82,13 +83,13 @@ class BaseGELFHandler(logging.Handler, ABC):
             specified hostname to populate the ``host`` GELF field.
         :type localname: str or None
 
-        :param facility: If specified, replace the ``facility`` GELF field
-            with the specified value. Also add a additional ``_logger``
-            GELF field containing the ``LogRecord.name``.
+        :param facility: If specified, replace the ``_facility`` GELF field
+            with the specified value. Additionally, the LogRecord.name will
+            used populate the ``_logger`` GELF field.
         :type facility: str
 
-        :param level_names: If :obj:`True` use python logging error level name
-            strings instead of syslog numerical values.
+        :param level_names: If :obj:`True` add a ``_level_name`` GELF field
+            noting the logs error level as a string name.
         :type level_names: bool
 
         :param compress: If :obj:`True` compress the GELF message before
@@ -135,14 +136,14 @@ class BaseGELFHandler(logging.Handler, ABC):
         """
         # construct the base GELF format
         gelf_dict = {
-            "version": "1.0",
+            "version": "1.1",
             "host": self._resolve_host(self.fqdn, self.localname),
             "short_message": self.formatter.format(record)
             if self.formatter
             else record.getMessage(),
             "timestamp": record.created,
             "level": SYSLOG_LEVELS.get(record.levelno, record.levelno),
-            "facility": self.facility or record.name,
+            "_facility": self.facility or record.name,
         }
 
         # add in specified optional extras
@@ -159,9 +160,8 @@ class BaseGELFHandler(logging.Handler, ABC):
 
     @staticmethod
     def _add_level_names(gelf_dict, record):
-        """Add the ``level_name`` field to the ``gelf_dict`` which notes
-        the logging level via the string error level names instead of
-        numerical values
+        """Add the ``_level_name`` field to the ``gelf_dict`` noting the logs
+        error level as a string name
 
         :param gelf_dict: Dictionary representing a GELF log.
         :type gelf_dict: dict
@@ -170,11 +170,11 @@ class BaseGELFHandler(logging.Handler, ABC):
             level from to insert into the given ``gelf_dict``.
         :type record: logging.LogRecord
         """
-        gelf_dict["level_name"] = logging.getLevelName(record.levelno)
+        gelf_dict["_level_name"] = logging.getLevelName(record.levelno)
 
     @staticmethod
     def _set_custom_facility(gelf_dict, facility_value, record):
-        """Set the ``gelf_dict``'s ``facility`` field to the specified value
+        """Set the ``gelf_dict``'s ``_facility`` field to the specified value
 
         Also add a additional ``_logger`` field containing the
         ``LogRecord.name``.
@@ -183,7 +183,7 @@ class BaseGELFHandler(logging.Handler, ABC):
         :type gelf_dict: dict
 
         :param facility_value: Value to set as the ``gelf_dict``'s
-            ``facility`` field.
+            ``_facility`` field.
         :type facility_value: str
 
         :param record: :class:`logging.LogRecord` to extract it's record
@@ -191,7 +191,7 @@ class BaseGELFHandler(logging.Handler, ABC):
             field.
         :type record: logging.LogRecord
         """
-        gelf_dict.update({"facility": facility_value, "_logger": record.name})
+        gelf_dict.update({"_facility": facility_value, "_logger": record.name})
 
     @staticmethod
     def _add_full_message(gelf_dict, record):
@@ -250,13 +250,14 @@ class BaseGELFHandler(logging.Handler, ABC):
         """
         gelf_dict.update(
             {
-                "file": record.pathname,
-                "line": record.lineno,
+                "_file": record.pathname,
+                "_line": record.lineno,
                 "_function": record.funcName,
                 "_pid": record.process,
                 "_thread_name": record.threadName,
             }
         )
+
         # record.processName was added in Python 2.6.2
         pn = getattr(record, "processName", None)
         if pn is not None:
@@ -312,8 +313,23 @@ class BaseGELFHandler(logging.Handler, ABC):
         )
 
         for key, value in record.__dict__.items():
-            if key not in skip_list and not key.startswith("_"):
+            if key not in skip_list:
+                BaseGELFHandler.validate_gelf_additional_field_name(key)
                 gelf_dict["_%s" % key] = value
+
+    @staticmethod
+    def validate_gelf_additional_field_name(additional_field_name):
+        """Validate a GELF additional field name
+
+        :param additional_field_name: GELF additional field name to validate
+        :type additional_field_name: str
+
+        :raises ValueError: if the given GELF additional field name is invalid
+        """
+        if re.match(r"^[\w.\-]*$", additional_field_name):
+            if additional_field_name != "_id":
+                return
+        raise ValueError("Invalid GELF additional field name")
 
     @classmethod
     def _pack_gelf_dict(cls, gelf_dict):
@@ -524,7 +540,7 @@ class GELFTruncatingChunker(BaseGELFChunker):
             "short_message": "",
             "timestamp": gelf_dict["timestamp"],
             "level": SYSLOG_LEVELS.get(logging.ERROR, logging.ERROR),
-            "facility": gelf_dict["facility"],
+            "_facility": gelf_dict["_facility"],
             "_chunk_overflow": True,
         }
 

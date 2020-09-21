@@ -176,7 +176,7 @@ def test_status_field_issue(logger, mock_send):
 def test_add_level_name():
     gelf_dict = dict()
     BaseGELFHandler._add_level_names(gelf_dict, MOCK_LOG_RECORD)
-    assert "INFO" == gelf_dict["level_name"]
+    assert "INFO" == gelf_dict["_level_name"]
 
 
 def test_resolve_host():
@@ -193,7 +193,7 @@ def test_set_custom_facility():
     facility = "test facility"
     BaseGELFHandler._set_custom_facility(gelf_dict, facility, MOCK_LOG_RECORD)
     assert MOCK_LOG_RECORD_NAME == gelf_dict["_logger"]
-    assert "test facility" == gelf_dict["facility"]
+    assert "test facility" == gelf_dict["_facility"]
 
 
 def test_formatted_logger(formatted_logger, mock_send):
@@ -228,3 +228,17 @@ def test_invalid_client_certs():
     with pytest.raises(ValueError):
         # missing client cert
         GELFTLSHandler("127.0.0.1", keyfile="/dev/null")
+
+
+@pytest.mark.parametrize(
+    "field_name", ["foo", "bar", "_bar", "foo.bar", "foo-bar", "foo1"]
+)
+def test_validate_additional_field_name_valid(field_name):
+    BaseGELFHandler.validate_gelf_additional_field_name(field_name)
+    pass
+
+
+@pytest.mark.parametrize("field_name", [" ", " foo", "foo#", "@", "_id"])
+def test_validate_additional_field_name_invalid(field_name):
+    with pytest.raises(ValueError):
+        BaseGELFHandler.validate_gelf_additional_field_name(field_name)
