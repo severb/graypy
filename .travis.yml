@@ -28,13 +28,19 @@ after_success:
 jobs:
   include:
     - python: 2.7
+    - python: 2.7
+      arch: ppc64le
     - python: 3.4
     - python: 3.5
     - python: 3.6
     - python: 3.7
       dist: xenial
+    - python: 3.7
+      arch: ppc64le
+      dist: xenial
     - python: "pypy2.7-5.10.0"
     - python: "pypy3.5-5.10.0"
+    
     - stage: lint
       name: "black"
       python:
@@ -45,6 +51,7 @@ jobs:
       script:
         - black --check setup.py tests graypy
       after_script: skip
+
     - name: "pylint"
       python:
         - 3.6
@@ -52,6 +59,7 @@ jobs:
       script:
         - python setup.py lint || exit $(($? & 35))
       after_script: skip
+
     - name: "twine check"
       python:
         - 3.6
@@ -62,6 +70,8 @@ jobs:
       script:
         - twine check dist/*
       after_script: skip
+
+    - &def_sdist_build
     - stage: build
       name: "sdist"
       python:
@@ -70,6 +80,11 @@ jobs:
       script:
         - python setup.py sdist
       after_script: skip
+    - <<: *def_sdist_build
+      name: "sdist PPC"
+      arch: ppc64le
+
+    - &def_bdist_build
     - name: "bdist_wheel"
       python:
         - 3.6
@@ -79,6 +94,11 @@ jobs:
       script:
         - python setup.py bdist_wheel
       after_script: skip
+    - <<: *def_bdist_build
+      name: "bdist_wheel PPC"
+      arch: ppc64le
+
+    - &def_sphinx_build
     - name: "sphinx docs"
       python:
         - 3.6
@@ -88,7 +108,12 @@ jobs:
       script:
         - sphinx-build docs/ build/
       after_script: skip
+    - <<: *def_sphinx_build
+      name: "sphinx docs PPC"
+      arch: ppc64le
+
     - stage: deploy
+    - &def_deploy
       deploy:
         python:
           - 3.6
@@ -101,3 +126,5 @@ jobs:
           branch: master
           repo: severb/graypy
         distributions: "sdist bdist_wheel"
+    - <<: *def_deploy
+      arch: ppc64le
