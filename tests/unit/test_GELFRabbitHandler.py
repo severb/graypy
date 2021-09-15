@@ -28,6 +28,15 @@ def test_valid_url():
     assert "amqp://localhost" == handler.url
 
 
+def test_valid_ssl_url():
+    """Test constructing :class:`graypy.rabbitmq.GELFRabbitHandler` with
+    a valid ssl rabbitmq url"""
+    handler = GELFRabbitHandler("amqps://localhost")
+    assert handler
+    assert "amqps://localhost" == handler.url
+    assert handler.cn_args["ssl"]
+
+
 @pytest.mark.xfail(reason="rabbitmq service is not up")
 def test_socket_creation_failure():
     """Test attempting to open a socket to a rabbitmq instance when no such
