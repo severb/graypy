@@ -110,6 +110,19 @@ Other ``gelf_chunker`` options are also available:
   to send some content to Graylog. If this process fails to prevent
   another chunk overflow a ``GELFTruncationFailureWarning`` is issued.
 
+DNS Caching
+^^^^^^^^^^^^
+
+``GELFUDPHandler`` reuses the same socket to minimize DNS lookups (if required
+to resolve the provided host) and system resources. It will re-resolve
+every 5 minutes by default but you can override this using the ``sock_max_age``
+argument:
+
+.. code-block:: python
+
+    handler = graypy.GELFUDPHandler('example.com', 12201, sock_max_age=3600) # 1 hour
+
+
 RabbitMQ Logging
 ----------------
 
