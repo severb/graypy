@@ -14,6 +14,7 @@ import socket
 import ssl
 import struct
 import sys
+import time
 import traceback
 import zlib
 from logging.handlers import DatagramHandler, SocketHandler
@@ -583,7 +584,7 @@ class GELFTruncatingChunker(BaseGELFChunker):
 class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
     """GELF UDP handler"""
 
-    def __init__(self, host, port=12202, gelf_chunker=GELFWarningChunker(), **kwargs):
+    def __init__(self, host, port=12202, gelf_chunker=GELFWarningChunker(), sock_max_age=300, **kwargs):
         """Initialize the GELFUDPHandler
 
         .. note::
@@ -601,17 +602,44 @@ class GELFUDPHandler(BaseGELFHandler, DatagramHandler):
         :param gelf_chunker: :class:`.handler.BaseGELFChunker` instance to
             handle chunking larger GELF messages.
         :type gelf_chunker: GELFWarningChunker
+
+        :param sock_max_age: time in seconds to reuse the same socket before
+            making a new one.
+        :type sock_max_age: int
         """
         BaseGELFHandler.__init__(self, **kwargs)
         DatagramHandler.__init__(self, host, port)
         self.gelf_chunker = gelf_chunker
+        self.sock_max_age = sock_max_age
+        self.sock_expire_time = None
+
+    def makeSocket(self):
+        self.sock_expire_time = time.monotonic() + self.sock_max_age
+        sock = super().makeSocket()
+        sock.connect(self.address) # Performing a DNS lookup (if needed) and opening a socket here.
+        return sock
+
+    def send_chunk(self, s):
+        if self.sock is None:
+            self.createSocket()
+        if time.monotonic() > self.sock_expire_time:
+            # Creating a new socket if we're past our expire time: to handle DNS changes, etc...
+            self.sock.close()
+            self.createSocket()
+
+        if self.sock:
+            try:
+                self.sock.sendall(s)
+            except OSError:
+                self.sock.close()
+                self.sock = None # so we can call createSocket next time
 
     def send(self, s):
         if len(s) < self.gelf_chunker.chunk_size:
-            super(GELFUDPHandler, self).send(s)
+            self.send_chunk(s)
         else:
             for chunk in self.gelf_chunker.chunk_message(s):
-                super(GELFUDPHandler, self).send(chunk)
+                self.send_chunk(chunk)
 
 
 class GELFTCPHandler(BaseGELFHandler, SocketHandler):
