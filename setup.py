@@ -71,7 +71,7 @@ setup(
     author_email="banesiu.sever@gmail.com",
     url="https://github.com/severb/graypy",
     license="BSD License",
-    packages=find_packages(),
+    packages=find_packages(exclude=["tests"]),
     include_package_data=True,
     zip_safe=False,
     tests_require=[
