@@ -81,6 +81,7 @@ setup(
         "mock>=2.0.0,<3.0.0",
         "requests>=2.20.1,<3.0.0",
         "amqplib>=1.0.2,<2.0.0",
+        "timeout-decorator>=0.5.0,<1.0.0",
     ],
     extras_require={
         "amqp": ["amqplib==1.0.2"],
