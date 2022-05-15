@@ -28,7 +28,15 @@ DEFAULT_FIELDS = [
 BASE_API_URL = 'http://127.0.0.1:9000/api/search/universal/relative?query=message:"{0}"&range=300&fields='
 
 
-def get_graylog_response(message, fields=None):
+def message_check_equals(message, wanted_message):
+    return message["message"]["message"] == wanted_message
+
+
+def message_check_contains(message, wanted_message):
+    return wanted_message in message["message"]["message"]
+
+
+def get_graylog_response(message, fields=None, message_check=message_check_equals):
     """Search for a given log message (with possible additional fields)
     within a local Graylog instance"""
     fields = fields if fields else []
@@ -37,7 +45,9 @@ def get_graylog_response(message, fields=None):
     while True:
         try:
             return _parse_api_response(
-                api_response=_get_api_response(message, fields), wanted_message=message
+                api_response=_get_api_response(message, fields),
+                wanted_message=message,
+                message_check=message_check,
             )
         except ValueError:
             sleep(2)
@@ -58,11 +68,11 @@ def _get_api_response(message, fields):
     return api_response
 
 
-def _parse_api_response(api_response, wanted_message):
+def _parse_api_response(api_response, wanted_message, message_check):
     assert api_response.status_code == 200
     print(api_response.json())
     for message in api_response.json()["messages"]:
-        if message["message"]["message"] == wanted_message:
+        if message_check(message, wanted_message):
             return message["message"]
     raise ValueError(
         "wanted_message: '{}' not within api_response: {}".format(
