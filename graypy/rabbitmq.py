@@ -8,7 +8,7 @@ import json
 from logging import Filter
 from logging.handlers import SocketHandler
 
-from amqplib import client_0_8 as amqp  # pylint: disable=import-error
+import amqp
 
 from graypy.handler import BaseGELFHandler
 
@@ -98,6 +98,7 @@ class RabbitSocket(object):
         self.exchange_type = exchange_type
         self.routing_key = routing_key
         self.connection = amqp.Connection(connection_timeout=timeout, **self.cn_args)
+        self.connection.connect()
         self.channel = self.connection.channel()
         self.channel.exchange_declare(
             exchange=self.exchange,
